@@ -6,8 +6,13 @@ const stat = ref<{active?: boolean; hours?: number; minutes?: number; since?: st
 const items = ref<any[]>([])
 const apiBase = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api'
 
+const showWelcome = ref(true)
 const showDialog = ref(false)
 const dialogAction = ref<'start' | 'stop' | null>(null)
+
+function enterApp() {
+  showWelcome.value = false
+}
 
 function confirmAction(action: 'start' | 'stop') {
   dialogAction.value = action
@@ -40,9 +45,24 @@ async function onStop()  { try { await stopFast(); } catch {} await refresh() }
 onMounted(refresh)
 </script>
 <template>
-  <div class="min-h-screen bg-gray-50 text-gray-900">
+  <!-- Welcome Screen -->
+  <div v-if="showWelcome" class="min-h-screen bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center">
+    <div class="text-center">
+      <div @click="enterApp" class="cursor-pointer transform transition-all duration-300 hover:scale-110 active:scale-95">
+        <img src="./assets/logo.png" alt="Logo" class="h-32 w-32 mx-auto rounded-full shadow-lg animate-pulse hover:animate-bounce" />
+        <h1 class="text-4xl font-bold text-emerald-800 mt-6 mb-2">Fasting Tracker</h1>
+        <p class="text-emerald-600">Klicke auf das Logo zum Starten</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div v-else class="min-h-screen bg-gray-50 text-gray-900">
     <div class="max-w-xl mx-auto p-6 space-y-6">
-      <h1 class="text-2xl font-bold">Fasting Tracker</h1>
+      <div class="flex items-center gap-3 mb-2">
+        <img src="./assets/logo.png" alt="Logo" class="h-10 w-10 rounded-full shadow" />
+        <h1 class="text-2xl font-bold">Fasting Tracker</h1>
+      </div>
       <div class="rounded-lg border bg-white p-4 shadow-sm">
         <div class="flex items-center justify-between">
           <div>
@@ -56,8 +76,18 @@ onMounted(refresh)
             <p v-if="stat.since" class="text-xs text-gray-400">seit {{ new Date(stat.since).toLocaleString() }}</p>
           </div>
           <div class="flex gap-2">
-            <button @click="confirmAction('start')" class="px-3 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700">Start</button>
-            <button @click="confirmAction('stop')" class="px-3 py-2 rounded-md bg-rose-600 text-white hover:bg-rose-700">Stop</button>
+            <button 
+              @click="confirmAction('start')" 
+              :disabled="stat.active" 
+              :class="stat.active ? 'px-3 py-2 rounded-md bg-gray-400 text-gray-600 cursor-not-allowed' : 'px-3 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700'">
+              Start
+            </button>
+            <button 
+              @click="confirmAction('stop')" 
+              :disabled="!stat.active" 
+              :class="!stat.active ? 'px-3 py-2 rounded-md bg-gray-400 text-gray-600 cursor-not-allowed' : 'px-3 py-2 rounded-md bg-rose-600 text-white hover:bg-rose-700'">
+              Stop
+            </button>
           </div>
       <!-- Dialog -->
       <div v-if="showDialog" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
@@ -98,4 +128,17 @@ onMounted(refresh)
     </div>
   </div>
 </template>
-<style scoped></style>
+<style scoped>
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+.animate-wiggle {
+  animation: wiggle 1s ease-in-out infinite;
+}
+
+.animate-wiggle:hover {
+  animation: wiggle 0.5s ease-in-out infinite;
+}
+</style>
