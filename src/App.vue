@@ -5,6 +5,29 @@ const loading = ref(false)
 const stat = ref<{active?: boolean; hours?: number; minutes?: number; since?: string}>({})
 const items = ref<any[]>([])
 const apiBase = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api'
+
+const showDialog = ref(false)
+const dialogAction = ref<'start' | 'stop' | null>(null)
+
+function confirmAction(action: 'start' | 'stop') {
+  dialogAction.value = action
+  showDialog.value = true
+}
+
+async function handleDialogConfirm() {
+  showDialog.value = false
+  if (dialogAction.value === 'start') {
+    await onStart()
+  } else if (dialogAction.value === 'stop') {
+    await onStop()
+  }
+  dialogAction.value = null
+}
+
+function handleDialogCancel() {
+  showDialog.value = false
+  dialogAction.value = null
+}
 async function refresh() {
   loading.value = true
   try {
@@ -33,9 +56,21 @@ onMounted(refresh)
             <p v-if="stat.since" class="text-xs text-gray-400">seit {{ new Date(stat.since).toLocaleString() }}</p>
           </div>
           <div class="flex gap-2">
-            <button @click="onStart" class="px-3 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700">Start</button>
-            <button @click="onStop" class="px-3 py-2 rounded-md bg-rose-600 text-white hover:bg-rose-700">Stop</button>
+            <button @click="confirmAction('start')" class="px-3 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700">Start</button>
+            <button @click="confirmAction('stop')" class="px-3 py-2 rounded-md bg-rose-600 text-white hover:bg-rose-700">Stop</button>
           </div>
+      <!-- Dialog -->
+      <div v-if="showDialog" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-80">
+          <h3 class="text-lg font-semibold mb-4">Aktion bestätigen</h3>
+          <p class="mb-6">Möchtest du wirklich <span class="font-bold">{{ dialogAction === 'start' ? 'Fasten starten' : 'Fasten beenden' }}</span>?</p>
+          <div class="flex justify-end gap-2">
+            <button @click="handleDialogCancel" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Abbrechen</button>
+            <button @click="handleDialogConfirm" class="px-4 py-2 rounded bg-emerald-600 text-white hover:bg-emerald-700" v-if="dialogAction === 'start'">Starten</button>
+            <button @click="handleDialogConfirm" class="px-4 py-2 rounded bg-rose-600 text-white hover:bg-rose-700" v-if="dialogAction === 'stop'">Beenden</button>
+          </div>
+        </div>
+      </div>
         </div>
       </div>
       <div class="rounded-lg border bg-white p-4 shadow-sm">
