@@ -40,7 +40,7 @@
       </div>
       
       <!-- Visuelle Trennlinie bei 16h für >16h Szenarien -->
-      <div v-if="props.hours >= 16" 
+      <div v-if="activeHours >= 16" 
            class="absolute top-0 bottom-0 w-0.5 bg-emerald-600 z-10"
            :style="{ left: (16/24 * 100) + '%' }">
         <!-- Kleine Markierung oben -->
@@ -73,6 +73,7 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue'
+import { getTestData, isTestModeActive } from '../utils/testScenarios'
 
 interface Props {
   hours: number
@@ -81,21 +82,31 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// Verwende echte Props-Daten
-const totalMinutes = computed(() => props.hours * 60 + props.minutes)
+// Verwende Test-Daten falls Test-Modus aktiv, sonst echte Props-Daten
+const activeHours = computed(() => {
+  const testData = getTestData()
+  return testData ? testData.hours : props.hours
+})
 
-// Zeige echte Werte in der Anzeige
-const displayHours = props.hours
-const displayMinutes = props.minutes
+const activeMinutes = computed(() => {
+  const testData = getTestData()
+  return testData ? testData.minutes : props.minutes
+})
+
+const totalMinutes = computed(() => activeHours.value * 60 + activeMinutes.value)
+
+// Zeige aktive Werte in der Anzeige
+const displayHours = computed(() => activeHours.value)
+const displayMinutes = computed(() => activeMinutes.value)
 
 // Maximale Stunden basierend auf aktueller Phase
 const maxHours = computed(() => {
-  return props.hours < 16 ? 16 : 24
+  return activeHours.value < 16 ? 16 : 24
 })
 
 // Progress basiert auf 16h oder 24h je nach Status
 const progressWidth = computed(() => {
-  const hours = props.hours
+  const hours = activeHours.value
   
   if (hours < 16) {
     // Bis 16h: normale Berechnung auf 16h Basis
@@ -110,7 +121,7 @@ const progressWidth = computed(() => {
 
 // Bestimme aktuelle Phase basierend auf Stunden
 const currentPhase = computed(() => {
-  const hours = props.hours
+  const hours = activeHours.value
   
   if (hours < 3) return 'early'
   if (hours < 8) return 'warming'
@@ -133,7 +144,7 @@ const currentPhaseName = computed(() => {
 
 // Progress Gradient mit festen Farbbereichen (kein Verlauf)
 const progressGradient = computed(() => {
-  const hours = props.hours
+  const hours = activeHours.value
   
   if (hours < 16) {
     // Bis 16h: Orange ohne Verlauf
@@ -162,22 +173,22 @@ const progressGradient = computed(() => {
 
 // Border-Klassen (Orange bis 16h, dann Grün)
 const borderClass = computed(() => {
-  return props.hours < 16 ? 'border-orange-200' : 'border-emerald-200'
+  return activeHours.value < 16 ? 'border-orange-200' : 'border-emerald-200'
 })
 
 // Icon-Hintergrund-Klassen (Orange bis 16h, dann Grün)
 const iconBackgroundClass = computed(() => {
-  return props.hours < 16 ? 'bg-orange-100' : 'bg-emerald-100'
+  return activeHours.value < 16 ? 'bg-orange-100' : 'bg-emerald-100'
 })
 
 // Icon-Farb-Klassen (Orange bis 16h, dann Grün)
 const iconColorClass = computed(() => {
-  return props.hours < 16 ? 'text-orange-600' : 'text-emerald-600'
+  return activeHours.value < 16 ? 'text-orange-600' : 'text-emerald-600'
 })
 
 // Text-Farb-Klassen (Orange bis 16h, dann Grün)
 const textClass = computed(() => {
-  return props.hours < 16 ? 'text-orange-900' : 'text-emerald-900'
+  return activeHours.value < 16 ? 'text-orange-900' : 'text-emerald-900'
 })
 
 // Notification system

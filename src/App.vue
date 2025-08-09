@@ -7,6 +7,7 @@ import GoalSelectionDialog from './components/GoalSelectionDialog.vue'
 import StatusCard from './components/StatusCard.vue'
 import HistoryCard from './components/HistoryCard.vue'
 import FastingInfoModal from './components/FastingInfoModal.vue'
+import TestPanel from './components/TestPanel.vue'
 
 const loading = ref(false)
 const stat = ref<{active?: boolean; hours?: number; minutes?: number; since?: string}>({})
@@ -18,6 +19,9 @@ const showDialog = ref(false)
 const showGoalDialog = ref(false)
 const showInfoModal = ref(false)
 const dialogAction = ref<'start' | 'stop' | null>(null)
+
+// Development mode check für Test Panel
+const isDev = import.meta.env.DEV
 
 function enterApp() {
   showWelcome.value = false
@@ -129,6 +133,9 @@ onMounted(refresh)
     :status="stat"
     @close="showInfoModal = false" 
   />
+  
+  <!-- Test Panel (nur in Development) -->
+  <TestPanel v-if="isDev" />
 </template>
 
 <style scoped></style>
