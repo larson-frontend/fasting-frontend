@@ -34,8 +34,20 @@
             {{ progressWidth.toFixed(0) }}%
           </div>
           <div class="text-xs opacity-75" :class="textClass">
-            von 16h
+            von {{ maxHours }}h
           </div>
+        </div>
+      </div>
+      
+      <!-- Visuelle Trennlinie bei 16h für >16h Szenarien -->
+      <div v-if="testHours >= 16" 
+           class="absolute top-0 bottom-0 w-0.5 bg-emerald-600 z-10"
+           :style="{ left: (16/24 * 100) + '%' }">
+        <!-- Kleine Markierung oben -->
+        <div class="absolute -top-1 -left-1 w-2 h-2 bg-emerald-600 rounded-full"></div>
+        <!-- Zeitanzeige -->
+        <div class="absolute -top-6 -left-4 text-xs font-bold text-emerald-600">
+          16h
         </div>
       </div>
       
@@ -79,10 +91,24 @@ const totalMinutes = computed(() => testHours * 60 + testMinutes)
 const displayHours = testHours
 const displayMinutes = testMinutes
 
-// Progress basiert auf 16h als 100%
+// Maximale Stunden basierend auf aktueller Phase
+const maxHours = computed(() => {
+  return testHours < 16 ? 16 : 24
+})
+
+// Progress basiert auf 16h oder 24h je nach Status
 const progressWidth = computed(() => {
-  const maxMinutes = 16 * 60 // 16 Stunden = 100%
-  return Math.min((totalMinutes.value / maxMinutes) * 100, 100)
+  const hours = testHours
+  
+  if (hours < 16) {
+    // Bis 16h: normale Berechnung auf 16h Basis
+    const maxMinutes = 16 * 60 // 16 Stunden = 100%
+    return Math.min((totalMinutes.value / maxMinutes) * 100, 100)
+  } else {
+    // Ab 16h: Umstellung auf 24h Basis
+    const maxMinutes = 24 * 60 // 24 Stunden = 100%
+    return Math.min((totalMinutes.value / maxMinutes) * 100, 100)
+  }
 })
 
 // Bestimme aktuelle Phase basierend auf Test-Stunden
@@ -108,20 +134,32 @@ const currentPhaseName = computed(() => {
   return phaseNames[currentPhase.value]
 })
 
-// Progress Gradient (Sanfteres Orange bis 16h, dann komplett Grün ab 16h)
+// Progress Gradient mit festen Farbbereichen (kein Verlauf)
 const progressGradient = computed(() => {
   const hours = testHours
   
   if (hours < 16) {
-    // Sanfteres Orange mit mehr Opacity bis 16h
+    // Bis 16h: Orange ohne Verlauf
     const progress = progressWidth.value
-    const baseColor = 'rgba(251, 146, 60, 0.6)' // orange-300 mit 60% opacity
-    const lightColor = 'rgba(255, 237, 213, 0.8)' // orange-50 mit 80% opacity
-    return `linear-gradient(to right, ${baseColor} 0%, ${baseColor} ${progress}%, ${lightColor} ${progress}%, ${lightColor} 100%)`
+    const achievedColor = 'rgba(251, 146, 60, 0.4)' // orange-300 mit 40% opacity (heller)
+    const remainingColor = 'rgba(255, 237, 213, 0.3)' // orange-50 mit 30% opacity
+    return `linear-gradient(to right, ${achievedColor} 0%, ${achievedColor} ${progress}%, ${remainingColor} ${progress}%, ${remainingColor} 100%)`
   } else {
-    // Ab 16h: Komplett grüne Kachel - kein Gradient mehr nötig
-    const baseColor = 'rgb(52 211 153)' // emerald-300
-    return `linear-gradient(to right, ${baseColor} 0%, ${baseColor} 100%)`
+    // Ab 16h: Getrennte feste Farbbereiche
+    const progress24h = progressWidth.value // Progress auf 24h Basis
+    const progress16h = (16 / 24) * 100 // 16h = 66.67% von 24h
+    
+    const lightGreenColor = 'rgba(52, 211, 153, 0.4)' // emerald-300 mit 40% opacity (heller)
+    const lightPurpleColor = 'rgba(168, 85, 247, 0.4)' // purple-400 mit 40% opacity (heller)
+    const remainingColor = 'rgba(243, 232, 255, 0.3)' // purple-50 mit 30% opacity
+    
+    if (progress24h <= progress16h) {
+      // Noch unter 16h (sollte nicht passieren, aber sicherheitshalber)
+      return `linear-gradient(to right, ${lightGreenColor} 0%, ${lightGreenColor} ${progress24h}%, ${remainingColor} ${progress24h}%, ${remainingColor} 100%)`
+    } else {
+      // Über 16h: Helles Grün bis 66.67%, dann helles Violett ohne Verlauf
+      return `linear-gradient(to right, ${lightGreenColor} 0%, ${lightGreenColor} ${progress16h}%, ${lightPurpleColor} ${progress16h}%, ${lightPurpleColor} ${progress24h}%, ${remainingColor} ${progress24h}%, ${remainingColor} 100%)`
+    }
   }
 })
 
