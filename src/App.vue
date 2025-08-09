@@ -100,6 +100,7 @@ onMounted(refresh)
   <!-- Fasten Info Modal -->
   <FastingInfoModal 
     :show="showInfoModal" 
+    :status="stat"
     @close="showInfoModal = false" 
   />
 </template>

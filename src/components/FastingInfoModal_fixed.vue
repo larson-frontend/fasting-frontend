@@ -34,6 +34,8 @@
             <div>
               <h4 class="font-semibold text-blue-900">0-3 Stunden {{ getPhaseStatus(0, 3) }}</h4>
               <p class="text-sm text-blue-800">Verdauung läuft noch. Insulinspiegel beginnt zu sinken.</p>
+              <!-- DEBUG INFO -->
+              <p class="text-xs text-blue-600 mt-1 font-mono">DEBUG: {{ getPhaseProgress(0, 3).toFixed(1) }}% Progress | Current: {{ currentHours.toFixed(1) }}h</p>
             </div>
           </div>
         </div>
@@ -61,6 +63,8 @@
             <div>
               <h4 class="font-semibold text-yellow-900">3-8 Stunden {{ getPhaseStatus(3, 8) }}</h4>
               <p class="text-sm text-yellow-800">Insulin normalisiert sich. Körper beginnt gespeicherte Glukose zu nutzen.</p>
+              <!-- DEBUG INFO -->
+              <p class="text-xs text-yellow-600 mt-1 font-mono">DEBUG: {{ getPhaseProgress(3, 8).toFixed(1) }}% Progress</p>
             </div>
           </div>
         </div>
@@ -88,6 +92,8 @@
             <div>
               <h4 class="font-semibold text-orange-900">8-12 Stunden {{ getPhaseStatus(8, 12) }}</h4>
               <p class="text-sm text-orange-800">Fettverbrennung startet! Körper wechselt von Glukose zu Fett als Energiequelle.</p>
+              <!-- DEBUG INFO -->
+              <p class="text-xs text-orange-600 mt-1 font-mono">DEBUG: {{ getPhaseProgress(8, 12).toFixed(1) }}% Progress</p>
             </div>
           </div>
         </div>
@@ -115,6 +121,8 @@
             <div>
               <h4 class="font-semibold text-emerald-900">12-16 Stunden {{ getPhaseStatus(12, 16) }}</h4>
               <p class="text-sm text-emerald-800">Ketose beginnt. Erste Ketone werden produziert. Mentale Klarheit steigt.</p>
+              <!-- DEBUG INFO -->
+              <p class="text-xs text-emerald-600 mt-1 font-mono">DEBUG: {{ getPhaseProgress(12, 16).toFixed(1) }}% Progress</p>
             </div>
           </div>
         </div>
@@ -142,6 +150,8 @@
             <div>
               <h4 class="font-semibold text-purple-900">16+ Stunden {{ getPhaseStatus(16, 24) }}</h4>
               <p class="text-sm text-purple-800">Autophagie aktiviert! Zellerneuerung und -reparatur beginnen. Tiefe Ketose.</p>
+              <!-- DEBUG INFO -->
+              <p class="text-xs text-purple-600 mt-1 font-mono">DEBUG: {{ getPhaseProgress(16, 24).toFixed(1) }}% Progress</p>
             </div>
           </div>
         </div>
@@ -180,26 +190,36 @@ defineEmits<{
 
 // Berechne aktuelle Fasten-Stunden
 const currentHours = computed(() => {
-  if (!props.status?.active) return 0
-  return (props.status.hours || 0) + ((props.status.minutes || 0) / 60)
+  // DEBUG: Zeige 13 Stunden für Test (Ketose-Phase)
+  console.log('FastingInfoModal - Status:', props.status)
+  console.log('FastingInfoModal - Active:', props.status?.active)
+  console.log('FastingInfoModal - Hours:', props.status?.hours)
+  return 13
+  
+  // Original Code:
+  // if (!props.status?.active) return 0
+  // return (props.status.hours || 0) + ((props.status.minutes || 0) / 60)
 })
 
 // Berechne Progress für eine Phase (0-100%)
 function getPhaseProgress(start: number, end: number): number {
   const current = currentHours.value
+  console.log(`Phase ${start}-${end}: current=${current}`)
   
-  if (!props.status?.active) return 0
+  if (!props.status?.active && current === 0) return 0
   if (current < start) return 0
   if (current >= end) return 100
   
-  return ((current - start) / (end - start)) * 100
+  const progress = ((current - start) / (end - start)) * 100
+  console.log(`Phase ${start}-${end}: progress=${progress}%`)
+  return progress
 }
 
 // Status-Text für eine Phase
 function getPhaseStatus(start: number, end: number): string {
   const current = currentHours.value
   
-  if (!props.status?.active) return ''
+  if (!props.status?.active && current === 0) return ''
   if (current < start) return '(noch nicht erreicht)'
   if (current >= end) return '✓ (abgeschlossen)'
   
