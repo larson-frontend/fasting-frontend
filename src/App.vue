@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { startFast, stopFast, statusFast, historyFast } from './api'
 import WelcomeScreen from './components/WelcomeScreen.vue'
 import ConfirmDialog from './components/ConfirmDialog.vue'
+import GoalSelectionDialog from './components/GoalSelectionDialog.vue'
 import StatusCard from './components/StatusCard.vue'
 import HistoryCard from './components/HistoryCard.vue'
 import FastingInfoModal from './components/FastingInfoModal.vue'
@@ -14,6 +15,7 @@ const apiBase = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api'
 
 const showWelcome = ref(true)
 const showDialog = ref(false)
+const showGoalDialog = ref(false)
 const showInfoModal = ref(false)
 const dialogAction = ref<'start' | 'stop' | null>(null)
 
@@ -22,18 +24,31 @@ function enterApp() {
 }
 
 function confirmAction(action: 'start' | 'stop') {
-  dialogAction.value = action
-  showDialog.value = true
+  if (action === 'start') {
+    // Zeige Ziel-Auswahl-Dialog direkt
+    showGoalDialog.value = true
+  } else {
+    // Für Stop zeige normalen Confirm-Dialog
+    dialogAction.value = action
+    showDialog.value = true
+  }
 }
 
 async function handleDialogConfirm() {
   showDialog.value = false
-  if (dialogAction.value === 'start') {
-    await onStart()
-  } else if (dialogAction.value === 'stop') {
+  if (dialogAction.value === 'stop') {
     await onStop()
   }
   dialogAction.value = null
+}
+
+async function handleGoalConfirm(goalHours: number) {
+  showGoalDialog.value = false
+  await onStart(goalHours)
+}
+
+function handleGoalCancel() {
+  showGoalDialog.value = false
 }
 
 function handleDialogCancel() {
@@ -55,7 +70,10 @@ async function refresh() {
   } finally { loading.value = false }
 }
 
-async function onStart() { await startFast(); await refresh() }
+async function onStart(goalHours?: number) { 
+  await startFast(goalHours); 
+  await refresh() 
+}
 async function onStop()  { try { await stopFast(); } catch {} await refresh() }
 onMounted(refresh)
 </script>
@@ -97,6 +115,14 @@ onMounted(refresh)
     @confirm="handleDialogConfirm" 
     @cancel="handleDialogCancel" 
   />
+  
+  <!-- Goal Selection Dialog -->
+  <GoalSelectionDialog 
+    :show="showGoalDialog" 
+    @confirm="handleGoalConfirm" 
+    @cancel="handleGoalCancel" 
+  />
+  
   <!-- Fasten Info Modal -->
   <FastingInfoModal 
     :show="showInfoModal" 

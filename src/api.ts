@@ -53,10 +53,12 @@ async function handleResponse<T>(r: Response): Promise<T> {
 	return r.json();
 }
 
-export async function startFast(): Promise<FastSession> {
+export async function startFast(goalHours?: number): Promise<FastSession> {
+	const body = goalHours ? JSON.stringify({ goalHours }) : undefined;
 	const r = await fetch(`${BASE}/start`, {
 		method: 'POST',
-		headers: { 'Content-Type': 'application/json' }
+		headers: { 'Content-Type': 'application/json' },
+		body
 	});
 	return handleResponse<FastSession>(r);
 }

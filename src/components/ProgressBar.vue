@@ -40,7 +40,7 @@
       </div>
       
       <!-- Visuelle Trennlinie bei 16h für >16h Szenarien -->
-      <div v-if="testHours >= 16" 
+      <div v-if="props.hours >= 16" 
            class="absolute top-0 bottom-0 w-0.5 bg-emerald-600 z-10"
            :style="{ left: (16/24 * 100) + '%' }">
         <!-- Kleine Markierung oben -->
@@ -81,24 +81,21 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// TEST: Überschreibung für 17 Stunden Demo
-const testHours = 17
-const testMinutes = 30
+// Verwende echte Props-Daten
+const totalMinutes = computed(() => props.hours * 60 + props.minutes)
 
-const totalMinutes = computed(() => testHours * 60 + testMinutes)
-
-// Zeige Test-Werte in der Anzeige
-const displayHours = testHours
-const displayMinutes = testMinutes
+// Zeige echte Werte in der Anzeige
+const displayHours = props.hours
+const displayMinutes = props.minutes
 
 // Maximale Stunden basierend auf aktueller Phase
 const maxHours = computed(() => {
-  return testHours < 16 ? 16 : 24
+  return props.hours < 16 ? 16 : 24
 })
 
 // Progress basiert auf 16h oder 24h je nach Status
 const progressWidth = computed(() => {
-  const hours = testHours
+  const hours = props.hours
   
   if (hours < 16) {
     // Bis 16h: normale Berechnung auf 16h Basis
@@ -111,9 +108,9 @@ const progressWidth = computed(() => {
   }
 })
 
-// Bestimme aktuelle Phase basierend auf Test-Stunden
+// Bestimme aktuelle Phase basierend auf Stunden
 const currentPhase = computed(() => {
-  const hours = testHours
+  const hours = props.hours
   
   if (hours < 3) return 'early'
   if (hours < 8) return 'warming'
@@ -136,7 +133,7 @@ const currentPhaseName = computed(() => {
 
 // Progress Gradient mit festen Farbbereichen (kein Verlauf)
 const progressGradient = computed(() => {
-  const hours = testHours
+  const hours = props.hours
   
   if (hours < 16) {
     // Bis 16h: Orange ohne Verlauf
@@ -165,22 +162,22 @@ const progressGradient = computed(() => {
 
 // Border-Klassen (Orange bis 16h, dann Grün)
 const borderClass = computed(() => {
-  return testHours < 16 ? 'border-orange-200' : 'border-emerald-200'
+  return props.hours < 16 ? 'border-orange-200' : 'border-emerald-200'
 })
 
 // Icon-Hintergrund-Klassen (Orange bis 16h, dann Grün)
 const iconBackgroundClass = computed(() => {
-  return testHours < 16 ? 'bg-orange-100' : 'bg-emerald-100'
+  return props.hours < 16 ? 'bg-orange-100' : 'bg-emerald-100'
 })
 
 // Icon-Farb-Klassen (Orange bis 16h, dann Grün)
 const iconColorClass = computed(() => {
-  return testHours < 16 ? 'text-orange-600' : 'text-emerald-600'
+  return props.hours < 16 ? 'text-orange-600' : 'text-emerald-600'
 })
 
 // Text-Farb-Klassen (Orange bis 16h, dann Grün)
 const textClass = computed(() => {
-  return testHours < 16 ? 'text-orange-900' : 'text-emerald-900'
+  return props.hours < 16 ? 'text-orange-900' : 'text-emerald-900'
 })
 
 // Notification system
