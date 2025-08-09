@@ -51,10 +51,11 @@
         </div>
       </div>
       
-      <!-- 16h Linie mit Label -->
-      <div class="absolute right-0 top-0 h-full w-px bg-gray-400 z-10">
-        <div class="absolute -top-6 right-0 text-xs font-bold text-gray-700 bg-white px-2 py-1 rounded shadow-sm border">
-          16 std
+      <!-- Ziel-Linie mit Label (dynamisch basierend auf gewähltem Ziel) -->
+      <div class="absolute top-0 h-full w-px bg-gray-400 z-10" 
+           :style="{ left: ((goalHours || 16) / maxHours * 100) + '%' }">
+        <div class="absolute -top-6 -translate-x-1/2 text-xs font-bold text-gray-700 bg-white px-2 py-1 rounded shadow-sm border">
+          {{ goalHours || 16 }}
         </div>
       </div>
       
