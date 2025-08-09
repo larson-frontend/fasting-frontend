@@ -4,6 +4,7 @@ import { startFast, stopFast, statusFast, historyFast } from './api'
 const loading = ref(false)
 const stat = ref<{active?: boolean; hours?: number; minutes?: number; since?: string}>({})
 const items = ref<any[]>([])
+const apiBase = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api'
 async function refresh() {
   loading.value = true
   try {
@@ -58,7 +59,7 @@ onMounted(refresh)
           </li>
         </ul>
       </div>
-      <p class="text-xs text-gray-400">API: {{ import.meta.env.VITE_API_BASE || 'http://localhost:8080/api' }}</p>
+  <p class="text-xs text-gray-400">API: {{ apiBase }}</p>
     </div>
   </div>
 </template>
