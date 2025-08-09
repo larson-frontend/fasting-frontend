@@ -5,6 +5,7 @@ import WelcomeScreen from './components/WelcomeScreen.vue'
 import ConfirmDialog from './components/ConfirmDialog.vue'
 import StatusCard from './components/StatusCard.vue'
 import HistoryCard from './components/HistoryCard.vue'
+import FastingInfoModal from './components/FastingInfoModal.vue'
 
 const loading = ref(false)
 const stat = ref<{active?: boolean; hours?: number; minutes?: number; since?: string}>({})
@@ -13,6 +14,7 @@ const apiBase = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api'
 
 const showWelcome = ref(true)
 const showDialog = ref(false)
+const showInfoModal = ref(false)
 const dialogAction = ref<'start' | 'stop' | null>(null)
 
 function enterApp() {
@@ -65,9 +67,19 @@ onMounted(refresh)
   <!-- Main App -->
   <div v-else class="min-h-screen bg-gray-50 text-gray-900">
     <div class="max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
-      <div class="flex items-center gap-3 mb-2">
-        <img src="./assets/logo.png" alt="Logo" class="h-8 w-8 sm:h-10 sm:w-10 rounded-full shadow" />
-        <h1 class="text-xl sm:text-2xl font-bold">Fasting Tracker</h1>
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-3">
+          <img src="./assets/logo.png" alt="Logo" class="h-8 w-8 sm:h-10 sm:w-10 rounded-full shadow" />
+          <h1 class="text-xl sm:text-2xl font-bold">Fasting Tracker</h1>
+        </div>
+        <button 
+          @click="showInfoModal = true"
+          class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 hover:bg-blue-200 flex items-center justify-center transition-colors touch-manipulation"
+          title="Fasten-Phasen Info">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </button>
       </div>
       
       <StatusCard :status="stat" @start="confirmAction('start')" @stop="confirmAction('stop')" />
@@ -84,6 +96,11 @@ onMounted(refresh)
     :action="dialogAction" 
     @confirm="handleDialogConfirm" 
     @cancel="handleDialogCancel" 
+  />
+  <!-- Fasten Info Modal -->
+  <FastingInfoModal 
+    :show="showInfoModal" 
+    @close="showInfoModal = false" 
   />
 </template>
 
