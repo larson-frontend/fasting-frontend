@@ -43,13 +43,7 @@ async function refresh() {
   loading.value = true
   try {
     stat.value = await statusFast()
-    const history = await historyFast()
-    // Sortiere: aktive Sessions zuerst, dann nach ID (neueste zuerst)
-    items.value = history.sort((a, b) => {
-      if (a.endAt === null && b.endAt !== null) return -1
-      if (a.endAt !== null && b.endAt === null) return 1
-      return b.id - a.id
-    })
+    items.value = await historyFast()
   } finally { loading.value = false }
 }
 
@@ -64,17 +58,17 @@ onMounted(refresh)
 
   <!-- Main App -->
   <div v-else class="min-h-screen bg-gray-50 text-gray-900">
-    <div class="max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+    <div class="max-w-xl mx-auto p-6 space-y-6">
       <div class="flex items-center gap-3 mb-2">
-        <img src="./assets/logo.png" alt="Logo" class="h-8 w-8 sm:h-10 sm:w-10 rounded-full shadow" />
-        <h1 class="text-xl sm:text-2xl font-bold">Fasting Tracker</h1>
+        <img src="./assets/logo.png" alt="Logo" class="h-10 w-10 rounded-full shadow" />
+        <h1 class="text-2xl font-bold">Fasting Tracker</h1>
       </div>
       
       <StatusCard :status="stat" @start="confirmAction('start')" @stop="confirmAction('stop')" />
       
       <HistoryCard :items="items" :loading="loading" @refresh="refresh" />
       
-      <p class="text-xs text-gray-400 text-center">API: {{ apiBase }}</p>
+      <p class="text-xs text-gray-400">API: {{ apiBase }}</p>
     </div>
   </div>
 
