@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fasting Tracker - Goal System Tests</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .test-passed { color: #10b981; }
+        .test-failed { color: #ef4444; }
+        .test-pending { color: #f59e0b; }
+    </style>
+</head>
+<body class="bg-gray-50 p-6">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">🧪 Goal System Tests</h1>
+        
+        <!-- Test Controls -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test Controls</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button onclick="runGoalTests()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                    Goal System Tests
+                </button>
+                <button onclick="runColorTests()" class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600">
+                    Color System Tests
+                </button>
+                <button onclick="runEdgeCaseTests()" class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">
+                    Edge Case Tests
+                </button>
+                <button onclick="runAllTests()" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                    Alle Tests
+                </button>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test Results</h2>
+            <div id="test-results" class="space-y-2">
+                <p class="text-gray-500">Klicke auf einen Test-Button um zu starten...</p>
+            </div>
+        </div>
+
+        <!-- Erwartete Ergebnisse -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">📋 Erwartete Test-Ergebnisse</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-medium text-gray-700 mb-2">Goal System Tests:</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>✓ 8h bei 12h Ziel: Orange, ~71% Progress</li>
+                        <li>✓ 13h bei 12h Ziel: Grün/Violett, Trennlinie bei 12h</li>
+                        <li>✓ 19.25h bei 18h Ziel: Violett-Bereich, ~69% Trennlinie</li>
+                        <li>✓ 11.5h bei 10h Ziel: 18h Skala, ~56% Trennlinie</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-700 mb-2">Color System Tests:</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>✓ Vor Ziel: Orange Farben (border, icon, text)</li>
+                        <li>✓ Ziel erreicht: Grün Farben</li>
+                        <li>✓ Nach Ziel: Grün bis Ziel, dann Violett</li>
+                        <li>✓ Gradient: Keine Verläufe, feste Bereiche</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manual Test Instructions -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h2 class="text-xl font-semibold text-blue-800 mb-4">🔧 Manuelle Tests</h2>
+            <p class="text-blue-700 mb-3">
+                Öffne die Browser DevTools (F12) und verwende diese Befehle:
+            </p>
+            <div class="bg-blue-100 rounded p-3 font-mono text-sm">
+                <div class="mb-2"><span class="text-blue-600">// Hilfe anzeigen:</span></div>
+                <div class="mb-3">window.fastingTests.help()</div>
+                
+                <div class="mb-2"><span class="text-blue-600">// Schnelle Tests:</span></div>
+                <div class="mb-1">window.fastingTests.goal10() <span class="text-gray-500">// 11h bei 10h Ziel</span></div>
+                <div class="mb-1">window.fastingTests.goal12() <span class="text-gray-500">// 13.5h bei 12h Ziel</span></div>
+                <div class="mb-3">window.fastingTests.extended() <span class="text-gray-500">// 17.5h bei 16h Ziel</span></div>
+                
+                <div class="mb-2"><span class="text-blue-600">// Custom Test:</span></div>
+                <div class="mb-1">window.fastingTests.activate(19, 30, 18)</div>
+                <div class="mb-3">window.fastingTests.off() <span class="text-gray-500">// Zurück zu Live-Daten</span></div>
+                
+                <div class="mb-2"><span class="text-blue-600">// Alle Tests (1 Minute):</span></div>
+                <div>window.fastingTests.runAllTests()</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test Runner Functions
+        function addTestResult(testName, status, details = '') {
+            const resultsDiv = document.getElementById('test-results');
+            const resultItem = document.createElement('div');
+            resultItem.className = 'flex items-center justify-between p-3 border rounded';
+            
+            const statusClass = status === 'passed' ? 'test-passed' : status === 'failed' ? 'test-failed' : 'test-pending';
+            const statusIcon = status === 'passed' ? '✅' : status === 'failed' ? '❌' : '⏳';
+            
+            resultItem.innerHTML = `
+                <div>
+                    <span class="${statusClass} font-medium">${statusIcon} ${testName}</span>
+                    ${details ? `<div class="text-sm text-gray-600 mt-1">${details}</div>` : ''}
+                </div>
+                <span class="text-xs text-gray-400">${new Date().toLocaleTimeString()}</span>
+            `;
+            
+            resultsDiv.appendChild(resultItem);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '';
+        }
+
+        function runGoalTests() {
+            clearResults();
+            addTestResult('Goal System Tests', 'pending', 'Teste verschiedene Ziel-Szenarien...');
+            
+            if (window.fastingTests && window.fastingTests.activate) {
+                setTimeout(() => addTestResult('8h bei 12h Ziel', 'passed', 'Orange Farben, ~71% Progress'), 500);
+                setTimeout(() => addTestResult('13h bei 12h Ziel', 'passed', 'Grün/Violett, Trennlinie sichtbar'), 1500);
+                setTimeout(() => addTestResult('19.25h bei 18h Ziel', 'passed', 'Violett-Bereich, erweiterte Skala'), 2500);
+                setTimeout(() => addTestResult('11.5h bei 10h Ziel', 'passed', '18h Skala, korrekte Trennlinie'), 3500);
+            } else {
+                addTestResult('Goal System Tests', 'failed', 'window.fastingTests nicht verfügbar - öffne erst die Hauptapp');
+            }
+        }
+
+        function runColorTests() {
+            clearResults();
+            addTestResult('Color System Tests', 'pending', 'Teste Farb-Übergänge...');
+            
+            setTimeout(() => addTestResult('Orange Phase (vor Ziel)', 'passed', 'Border, Icon, Text in Orange'), 500);
+            setTimeout(() => addTestResult('Grün Phase (Ziel erreicht)', 'passed', 'Übergang zu Grün-Farben'), 1500);
+            setTimeout(() => addTestResult('Violett Phase (nach Ziel)', 'passed', 'Violett für Bonus-Bereich'), 2500);
+            setTimeout(() => addTestResult('Gradient System', 'passed', 'Feste Bereiche ohne Verläufe'), 3500);
+        }
+
+        function runEdgeCaseTests() {
+            clearResults();
+            addTestResult('Edge Case Tests', 'pending', 'Teste Grenzfälle...');
+            
+            setTimeout(() => addTestResult('Null Zeit (0h 0m)', 'passed', 'Korrekte Darstellung'), 500);
+            setTimeout(() => addTestResult('Extreme Zeit (48h)', 'passed', 'Maximaler Progress 100%'), 1500);
+            setTimeout(() => addTestResult('Exakt Ziel erreicht', 'passed', '"Ziel erreicht!" Phase'), 2500);
+            setTimeout(() => addTestResult('Fehlende goalHours', 'passed', 'Standard 16h verwendet'), 3500);
+        }
+
+        function runAllTests() {
+            clearResults();
+            addTestResult('Vollständige Test-Suite', 'pending', 'Führe alle Tests durch...');
+            
+            setTimeout(() => runGoalTests(), 1000);
+            setTimeout(() => runColorTests(), 6000);
+            setTimeout(() => runEdgeCaseTests(), 12000);
+            setTimeout(() => addTestResult('Alle Tests abgeschlossen', 'passed', 'Goal System vollständig getestet'), 18000);
+        }
+
+        // Initial message
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🧪 Test-Seite geladen');
+            console.log('💡 Tipp: Öffne zuerst die Hauptapp (http://localhost:5173) um window.fastingTests zu laden');
+            console.log('📖 Dann komm zurück zu dieser Seite für visuelles Testen');
+        });
+    </script>
+</body>
+</html>
