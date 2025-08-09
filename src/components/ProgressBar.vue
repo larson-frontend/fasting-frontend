@@ -39,15 +39,15 @@
         </div>
       </div>
       
-      <!-- Visuelle Trennlinie bei 16h für >16h Szenarien -->
-      <div v-if="activeHours >= 16" 
+      <!-- Visuelle Trennlinie bei Ziel für >Ziel Szenarien -->
+      <div v-if="activeHours >= effectiveGoal" 
            class="absolute top-0 bottom-0 w-0.5 bg-emerald-600 z-10"
-           :style="{ left: (16/24 * 100) + '%' }">
+           :style="{ left: (effectiveGoal / maxHours * 100) + '%' }">
         <!-- Kleine Markierung oben -->
         <div class="absolute -top-1 -left-1 w-2 h-2 bg-emerald-600 rounded-full"></div>
         <!-- Zeitanzeige -->
         <div class="absolute -top-6 -left-4 text-xs font-bold text-emerald-600">
-          16h
+          {{ effectiveGoal }}h
         </div>
       </div>
       
@@ -78,6 +78,7 @@ import { getTestData, isTestModeActive } from '../utils/testScenarios'
 interface Props {
   hours: number
   minutes: number
+  goalHours?: number // Benutzerdefiniertes Ziel (Standard: 16h)
 }
 
 const props = defineProps<Props>()
@@ -95,100 +96,114 @@ const activeMinutes = computed(() => {
 
 const totalMinutes = computed(() => activeHours.value * 60 + activeMinutes.value)
 
+// Effektives Ziel: Benutzerdefiniert oder Standard 16h
+const effectiveGoal = computed(() => props.goalHours || 16)
+
 // Zeige aktive Werte in der Anzeige
 const displayHours = computed(() => activeHours.value)
 const displayMinutes = computed(() => activeMinutes.value)
 
-// Maximale Stunden basierend auf aktueller Phase
+// Maximale Stunden basierend auf aktueller Phase und Ziel
 const maxHours = computed(() => {
-  return activeHours.value < 16 ? 16 : 24
+  const goal = effectiveGoal.value
+  return activeHours.value < goal ? goal : Math.max(goal + 8, 24) // +8h Bonus oder mindestens 24h
 })
 
-// Progress basiert auf 16h oder 24h je nach Status
+// Progress basiert auf Ziel oder Ziel+Bonus je nach Status
 const progressWidth = computed(() => {
   const hours = activeHours.value
+  const goal = effectiveGoal.value
   
-  if (hours < 16) {
-    // Bis 16h: normale Berechnung auf 16h Basis
-    const maxMinutes = 16 * 60 // 16 Stunden = 100%
+  if (hours < goal) {
+    // Bis Ziel: normale Berechnung auf Ziel-Basis
+    const maxMinutes = goal * 60 // Ziel-Stunden = 100%
     return Math.min((totalMinutes.value / maxMinutes) * 100, 100)
   } else {
-    // Ab 16h: Umstellung auf 24h Basis
-    const maxMinutes = 24 * 60 // 24 Stunden = 100%
+    // Ab Ziel: Umstellung auf erweiterte Basis (Ziel + 8h oder mindestens 24h)
+    const extendedMax = Math.max(goal + 8, 24)
+    const maxMinutes = extendedMax * 60
     return Math.min((totalMinutes.value / maxMinutes) * 100, 100)
   }
 })
 
-// Bestimme aktuelle Phase basierend auf Stunden
+// Bestimme aktuelle Phase basierend auf Stunden und Ziel
 const currentPhase = computed(() => {
   const hours = activeHours.value
+  const goal = effectiveGoal.value
   
   if (hours < 3) return 'early'
   if (hours < 8) return 'warming'
   if (hours < 12) return 'burning'
-  if (hours < 16) return 'ketosis'
-  return 'deep'
+  if (hours < goal) return 'ketosis'
+  if (hours >= goal) return 'goal-reached'
+  return 'bonus'
 })
 
-// Phasen-Name
+// Phasen-Name basierend auf Ziel
 const currentPhaseName = computed(() => {
+  const hours = activeHours.value
+  const goal = effectiveGoal.value
+  
   const phaseNames = {
     early: 'Anfangsphase',
     warming: 'Aufwärmphase', 
     burning: 'Fettverbrennung',
     ketosis: 'Ketose',
-    deep: 'Tiefe Ketose'
+    'goal-reached': `${goal}h Ziel erreicht!`,
+    bonus: 'Bonus-Zeit'
   }
   return phaseNames[currentPhase.value]
 })
 
-// Progress Gradient mit festen Farbbereichen (kein Verlauf)
+// Progress Gradient mit festen Farbbereichen (kein Verlauf) - basierend auf Ziel
 const progressGradient = computed(() => {
   const hours = activeHours.value
+  const goal = effectiveGoal.value
   
-  if (hours < 16) {
-    // Bis 16h: Orange ohne Verlauf
+  if (hours < goal) {
+    // Bis Ziel: Orange ohne Verlauf
     const progress = progressWidth.value
     const achievedColor = 'rgba(251, 146, 60, 0.4)' // orange-300 mit 40% opacity (heller)
     const remainingColor = 'rgba(255, 237, 213, 0.3)' // orange-50 mit 30% opacity
     return `linear-gradient(to right, ${achievedColor} 0%, ${achievedColor} ${progress}%, ${remainingColor} ${progress}%, ${remainingColor} 100%)`
   } else {
-    // Ab 16h: Getrennte feste Farbbereiche
-    const progress24h = progressWidth.value // Progress auf 24h Basis
-    const progress16h = (16 / 24) * 100 // 16h = 66.67% von 24h
+    // Ab Ziel: Getrennte feste Farbbereiche
+    const extendedMax = Math.max(goal + 8, 24)
+    const progress = progressWidth.value // Progress auf erweiterte Basis
+    const goalProgress = (goal / extendedMax) * 100 // Ziel-Position in %
     
     const lightGreenColor = 'rgba(52, 211, 153, 0.4)' // emerald-300 mit 40% opacity (heller)
     const lightPurpleColor = 'rgba(168, 85, 247, 0.4)' // purple-400 mit 40% opacity (heller)
     const remainingColor = 'rgba(243, 232, 255, 0.3)' // purple-50 mit 30% opacity
     
-    if (progress24h <= progress16h) {
-      // Noch unter 16h (sollte nicht passieren, aber sicherheitshalber)
-      return `linear-gradient(to right, ${lightGreenColor} 0%, ${lightGreenColor} ${progress24h}%, ${remainingColor} ${progress24h}%, ${remainingColor} 100%)`
+    if (progress <= goalProgress) {
+      // Noch unter Ziel (sollte nicht passieren, aber sicherheitshalber)
+      return `linear-gradient(to right, ${lightGreenColor} 0%, ${lightGreenColor} ${progress}%, ${remainingColor} ${progress}%, ${remainingColor} 100%)`
     } else {
-      // Über 16h: Helles Grün bis 66.67%, dann helles Violett ohne Verlauf
-      return `linear-gradient(to right, ${lightGreenColor} 0%, ${lightGreenColor} ${progress16h}%, ${lightPurpleColor} ${progress16h}%, ${lightPurpleColor} ${progress24h}%, ${remainingColor} ${progress24h}%, ${remainingColor} 100%)`
+      // Über Ziel: Helles Grün bis Ziel, dann helles Violett ohne Verlauf
+      return `linear-gradient(to right, ${lightGreenColor} 0%, ${lightGreenColor} ${goalProgress}%, ${lightPurpleColor} ${goalProgress}%, ${lightPurpleColor} ${progress}%, ${remainingColor} ${progress}%, ${remainingColor} 100%)`
     }
   }
 })
 
-// Border-Klassen (Orange bis 16h, dann Grün)
+// Border-Klassen (Orange bis Ziel, dann Grün)
 const borderClass = computed(() => {
-  return activeHours.value < 16 ? 'border-orange-200' : 'border-emerald-200'
+  return activeHours.value < effectiveGoal.value ? 'border-orange-200' : 'border-emerald-200'
 })
 
-// Icon-Hintergrund-Klassen (Orange bis 16h, dann Grün)
+// Icon-Hintergrund-Klassen (Orange bis Ziel, dann Grün)
 const iconBackgroundClass = computed(() => {
-  return activeHours.value < 16 ? 'bg-orange-100' : 'bg-emerald-100'
+  return activeHours.value < effectiveGoal.value ? 'bg-orange-100' : 'bg-emerald-100'
 })
 
-// Icon-Farb-Klassen (Orange bis 16h, dann Grün)
+// Icon-Farb-Klassen (Orange bis Ziel, dann Grün)
 const iconColorClass = computed(() => {
-  return activeHours.value < 16 ? 'text-orange-600' : 'text-emerald-600'
+  return activeHours.value < effectiveGoal.value ? 'text-orange-600' : 'text-emerald-600'
 })
 
-// Text-Farb-Klassen (Orange bis 16h, dann Grün)
+// Text-Farb-Klassen (Orange bis Ziel, dann Grün)
 const textClass = computed(() => {
-  return activeHours.value < 16 ? 'text-orange-900' : 'text-emerald-900'
+  return activeHours.value < effectiveGoal.value ? 'text-orange-900' : 'text-emerald-900'
 })
 
 // Notification system

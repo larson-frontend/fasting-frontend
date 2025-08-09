@@ -24,6 +24,7 @@ export interface FastStatus {
 	hours?: number;
 	minutes?: number;
 	since?: string;
+	goalHours?: number;
 }
 
 export interface ApiError {

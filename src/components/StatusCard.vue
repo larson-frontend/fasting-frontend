@@ -59,6 +59,7 @@
           v-if="status.active" 
           :hours="status.hours || 0" 
           :minutes="status.minutes || 0" 
+          :goalHours="status.goalHours"
         />
       </div>
     </div>
@@ -75,6 +76,7 @@ interface FastStatus {
   hours?: number
   minutes?: number
   since?: string
+  goalHours?: number
 }
 
 interface Props {

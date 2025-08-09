@@ -13,6 +13,7 @@
 export interface TestScenario {
   hours: number
   minutes: number
+  goalHours?: number
   description: string
   expectedPhase: string
   expectedColor: string
@@ -23,58 +24,66 @@ export const TEST_SCENARIOS: TestScenario[] = [
   {
     hours: 0,
     minutes: 30,
-    description: "Start Phase - 30 Minuten",
-    expectedPhase: "Aufwärmphase",
-    expectedColor: "orange"
-  },
-  {
-    hours: 3,
-    minutes: 0,
-    description: "Aufwärmphase erreicht - 3 Stunden",
+    goalHours: 16,
+    description: "Start Phase - 30 Minuten (Ziel: 16h)",
     expectedPhase: "Aufwärmphase",
     expectedColor: "orange"
   },
   {
     hours: 8,
     minutes: 15,
-    description: "Fettverbrennung - 8h 15min",
+    goalHours: 12,
+    description: "Fettverbrennung - 8h 15min (Ziel: 12h)",
     expectedPhase: "Fettverbrennung",
     expectedColor: "orange"
   },
   {
-    hours: 12,
+    hours: 11,
+    minutes: 0,
+    goalHours: 10,
+    description: "10h Ziel überschritten - 11h (Ziel: 10h)",
+    expectedPhase: "Bonus-Zeit",
+    expectedColor: "purple"
+  },
+  {
+    hours: 13,
     minutes: 30,
-    description: "Ketose Phase - 12h 30min",
-    expectedPhase: "Ketose",
-    expectedColor: "orange"
+    goalHours: 12,
+    description: "12h Ziel überschritten - 13h 30min (Ziel: 12h)",
+    expectedPhase: "Bonus-Zeit",
+    expectedColor: "purple"
   },
   {
     hours: 16,
     minutes: 0,
-    description: "Autophagie erreicht - 16h exakt",
-    expectedPhase: "Autophagie",
+    goalHours: 16,
+    description: "16h Ziel erreicht - 16h exakt (Ziel: 16h)",
+    expectedPhase: "16h Ziel erreicht!",
     expectedColor: "green"
   },
   {
     hours: 17,
     minutes: 30,
-    description: "Erweiterte Autophagie - 17h 30min",
-    expectedPhase: "Erweiterte Autophagie",
+    goalHours: 16,
+    description: "Über 16h Ziel - 17h 30min (Ziel: 16h)",
+    expectedPhase: "Bonus-Zeit",
     expectedColor: "purple"
   },
   {
-    hours: 20,
-    minutes: 45,
-    description: "Tiefe Autophagie - 20h 45min",
-    expectedPhase: "Erweiterte Autophagie",
+    hours: 19,
+    minutes: 15,
+    goalHours: 18,
+    description: "18h Ziel überschritten - 19h 15min (Ziel: 18h)",
+    expectedPhase: "Bonus-Zeit",
     expectedColor: "purple"
   },
   {
     hours: 24,
     minutes: 0,
-    description: "Vollständige Regeneration - 24h",
-    expectedPhase: "Erweiterte Autophagie",
-    expectedColor: "purple"
+    goalHours: 24,
+    description: "24h Ziel erreicht - 24h (Ziel: 24h)",
+    expectedPhase: "24h Ziel erreicht!",
+    expectedColor: "green"
   }
 ]
 
@@ -85,17 +94,18 @@ let currentTestData: TestScenario | null = null
 /**
  * Aktiviert einen Test-Modus mit spezifischen Stunden/Minuten
  */
-export function activateTestMode(hours: number, minutes: number = 0): void {
+export function activateTestMode(hours: number, minutes: number = 0, goalHours: number = 16): void {
   currentTestMode = true
   currentTestData = {
     hours,
     minutes,
-    description: `Test: ${hours}h ${minutes}m`,
-    expectedPhase: getExpectedPhase(hours),
-    expectedColor: getExpectedColor(hours)
+    goalHours,
+    description: `Test: ${hours}h ${minutes}m (Ziel: ${goalHours}h)`,
+    expectedPhase: getExpectedPhase(hours, goalHours),
+    expectedColor: getExpectedColor(hours, goalHours)
   }
   
-  console.log(`🧪 Test-Modus aktiviert: ${hours}h ${minutes}m`)
+  console.log(`🧪 Test-Modus aktiviert: ${hours}h ${minutes}m (Ziel: ${goalHours}h)`)
   console.log(`📊 Erwartete Phase: ${currentTestData.expectedPhase}`)
   console.log(`🎨 Erwartete Farbe: ${currentTestData.expectedColor}`)
 }
@@ -156,31 +166,35 @@ export function listTestScenarios(): void {
 }
 
 // Hilfsfunktionen
-function getExpectedPhase(hours: number): string {
+function getExpectedPhase(hours: number, goalHours: number = 16): string {
   if (hours < 3) return "Aufwärmphase"
   if (hours < 8) return "Aufwärmphase"
   if (hours < 12) return "Fettverbrennung"
-  if (hours < 16) return "Ketose"
-  if (hours === 16) return "Autophagie"
-  return "Erweiterte Autophagie"
+  if (hours < goalHours) return "Ketose"
+  if (hours === goalHours) return `${goalHours}h Ziel erreicht!`
+  return "Bonus-Zeit"
 }
 
-function getExpectedColor(hours: number): string {
-  if (hours < 16) return "orange"
-  if (hours === 16) return "green"
+function getExpectedColor(hours: number, goalHours: number = 16): string {
+  if (hours < goalHours) return "orange"
+  if (hours === goalHours) return "green"
   return "purple"
 }
 
 // Quick-Access Funktionen für häufige Tests
 export const quickTests = {
-  start: () => activateTestMode(0, 30),
-  early: () => activateTestMode(3, 0),
-  middle: () => activateTestMode(8, 15),
-  ketosis: () => activateTestMode(12, 30),
-  autophagy: () => activateTestMode(16, 0),
-  extended: () => activateTestMode(17, 30),
-  deep: () => activateTestMode(20, 45),
-  full: () => activateTestMode(24, 0),
+  start: () => activateTestMode(0, 30, 16),
+  early: () => activateTestMode(3, 0, 16),
+  middle: () => activateTestMode(8, 15, 16),
+  ketosis: () => activateTestMode(12, 30, 16),
+  autophagy: () => activateTestMode(16, 0, 16),
+  extended: () => activateTestMode(17, 30, 16),
+  deep: () => activateTestMode(20, 45, 24),
+  full: () => activateTestMode(24, 0, 24),
+  // Test verschiedene Ziele
+  goal10: () => activateTestMode(11, 0, 10), // Über 10h Ziel
+  goal12: () => activateTestMode(13, 30, 12), // Über 12h Ziel
+  goal18: () => activateTestMode(19, 15, 18), // Über 18h Ziel
   off: () => deactivateTestMode()
 }
 
