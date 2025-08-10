@@ -39,25 +39,24 @@
         </div>
       </div>
       
-      <!-- Visuelle Trennlinie bei Ziel für >Ziel Szenarien -->
-      <div v-if="activeHours >= effectiveGoal" 
-           class="absolute top-0 bottom-0 w-0.5 bg-emerald-600 z-10"
-           :style="{ left: (effectiveGoal / maxHours * 100) + '%' }">
-        <!-- Kleine Markierung oben -->
-        <div class="absolute -top-1 -left-1 w-2 h-2 bg-emerald-600 rounded-full"></div>
-        <!-- Zeitanzeige -->
-        <div class="absolute -top-6 -left-4 text-xs font-bold text-emerald-600">
-          {{ effectiveGoal }}h
-        </div>
-      </div>
-      
-      <!-- Ziel-Linie mit Label (dynamisch basierend auf gewähltem Ziel) -->
-      <div class="absolute top-0 h-full w-px bg-gray-400 z-10" 
-           :style="{ left: ((goalHours || 16) / maxHours * 100) + '%' }">
-        <div class="absolute -top-6 -translate-x-1/2 text-xs font-bold text-gray-700 bg-white px-2 py-1 rounded shadow-sm border">
-          {{ goalHours || 16 }}
-        </div>
-      </div>
+      <!-- Konsolidierte GoalLine-Komponente für beide Ziel-Linien -->
+      <GoalLine
+        v-if="activeHours >= effectiveGoal"
+        :position="effectiveGoal / maxHours * 100"
+        color="emerald-600"
+        :label="effectiveGoal + 'h'"
+        :showMarker="true"
+        :labelClass="'text-emerald-600'"
+        :markerClass="'bg-emerald-600'"
+      />
+      <GoalLine
+        :position="(goalHours || 16) / maxHours * 100"
+        color="gray-400"
+        :label="goalHours || 16"
+        :showMarker="false"
+        :labelClass="'text-gray-700 bg-white px-2 py-1 rounded shadow-sm border'"
+        :markerClass="''"
+      />
       
       <!-- Milestone Markierungen (subtil) -->
       <div class="absolute inset-0 flex items-center pointer-events-none">
