@@ -44,6 +44,38 @@
       </div>
     </div>
 
+    <!-- Phase Tests -->
+    <div class="mt-3 pt-3 border-t space-y-2">
+      <div class="text-sm font-medium text-gray-700">Phase Tests:</div>
+      <div class="grid grid-cols-3 gap-1">
+        <button
+          v-for="(phase, index) in phaseTestButtons"
+          :key="index"
+          @click="phase.action"
+          class="px-2 py-1 text-xs rounded border hover:bg-gray-50 transition-colors"
+          :class="phase.active ? 'border-purple-300 bg-purple-50 text-purple-700' : 'border-gray-200'"
+        >
+          {{ phase.label }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Goal Tests -->
+    <div class="mt-3 pt-3 border-t space-y-2">
+      <div class="text-sm font-medium text-gray-700">Goal Tests:</div>
+      <div class="grid grid-cols-3 gap-1">
+        <button
+          v-for="(goal, index) in goalTestButtons"
+          :key="index"
+          @click="goal.action"
+          class="px-2 py-1 text-xs rounded border hover:bg-gray-50 transition-colors"
+          :class="goal.active ? 'border-emerald-300 bg-emerald-50 text-emerald-700' : 'border-gray-200'"
+        >
+          {{ goal.label }}
+        </button>
+      </div>
+    </div>
+
     <!-- Custom Test -->
     <div class="mt-3 pt-3 border-t">
       <div class="text-sm font-medium text-gray-700 mb-2">Custom Test:</div>
@@ -95,6 +127,7 @@ import {
   isTestModeActive, 
   getTestData 
 } from '../utils/testScenarios'
+import { MOCK_PHASE_SCENARIOS, createMockStatus } from '../mocks/phase-data'
 
 const showPanel = ref(false)
 const customHours = ref(17)
@@ -106,37 +139,37 @@ const currentTest = computed(() => getTestData())
 const quickTestButtons = computed(() => [
   {
     label: 'Start',
-    action: quickTests.start,
+    action: () => { quickTests.start(); showPanel.value = false },
     active: isTestActive.value && currentTest.value?.hours === 0
   },
   {
     label: '8h',
-    action: quickTests.middle,
+    action: () => { quickTests.middle(); showPanel.value = false },
     active: isTestActive.value && currentTest.value?.hours === 8
   },
   {
     label: '12h',
-    action: quickTests.ketosis,
+    action: () => { quickTests.ketosis(); showPanel.value = false },
     active: isTestActive.value && currentTest.value?.hours === 12
   },
   {
     label: '16h',
-    action: quickTests.autophagy,
+    action: () => { quickTests.autophagy(); showPanel.value = false },
     active: isTestActive.value && currentTest.value?.hours === 16
   },
   {
     label: '17h',
-    action: quickTests.extended,
+    action: () => { quickTests.extended(); showPanel.value = false },
     active: isTestActive.value && currentTest.value?.hours === 17
   },
   {
     label: '24h',
-    action: quickTests.full,
+    action: () => { quickTests.full(); showPanel.value = false },
     active: isTestActive.value && currentTest.value?.hours === 24
   },
   {
     label: 'Live',
-    action: quickTests.off,
+    action: () => { quickTests.off(); showPanel.value = false },
     active: !isTestActive.value
   },
   {
@@ -146,9 +179,76 @@ const quickTestButtons = computed(() => [
   }
 ])
 
+const phaseTestButtons = computed(() => [
+  {
+    label: '1.5h',
+    action: () => { activateTestMode(1, 30, 16); showPanel.value = false },
+    active: isTestActive.value && currentTest.value?.hours === 1 && currentTest.value?.minutes === 30
+  },
+  {
+    label: '4h',
+    action: () => { activateTestMode(4, 0, 16); showPanel.value = false },
+    active: isTestActive.value && currentTest.value?.hours === 4
+  },
+  {
+    label: '10h',
+    action: () => { activateTestMode(10, 30, 16); showPanel.value = false },
+    active: isTestActive.value && currentTest.value?.hours === 10 && currentTest.value?.minutes === 30
+  },
+  {
+    label: '14h',
+    action: () => { activateTestMode(14, 0, 16); showPanel.value = false },
+    active: isTestActive.value && currentTest.value?.hours === 14
+  },
+  {
+    label: '18h',
+    action: () => { activateTestMode(18, 30, 16); showPanel.value = false },
+    active: isTestActive.value && currentTest.value?.hours === 18 && currentTest.value?.minutes === 30
+  },
+  {
+    label: '25h',
+    action: () => { activateTestMode(25, 0, 24); showPanel.value = false },
+    active: isTestActive.value && currentTest.value?.hours === 25
+  }
+])
+
+const goalTestButtons = computed(() => [
+  {
+    label: '10h',
+    action: () => { activateTestMode(currentTest.value?.hours || 16, currentTest.value?.minutes || 0, 10); showPanel.value = false },
+    active: currentTest.value?.goalHours === 10
+  },
+  {
+    label: '12h',
+    action: () => { activateTestMode(currentTest.value?.hours || 16, currentTest.value?.minutes || 0, 12); showPanel.value = false },
+    active: currentTest.value?.goalHours === 12
+  },
+  {
+    label: '16h',
+    action: () => { activateTestMode(currentTest.value?.hours || 16, currentTest.value?.minutes || 0, 16); showPanel.value = false },
+    active: currentTest.value?.goalHours === 16
+  },
+  {
+    label: '18h',
+    action: () => { activateTestMode(currentTest.value?.hours || 16, currentTest.value?.minutes || 0, 18); showPanel.value = false },
+    active: currentTest.value?.goalHours === 18
+  },
+  {
+    label: '20h',
+    action: () => { activateTestMode(currentTest.value?.hours || 16, currentTest.value?.minutes || 0, 20); showPanel.value = false },
+    active: currentTest.value?.goalHours === 20
+  },
+  {
+    label: '24h',
+    action: () => { activateTestMode(currentTest.value?.hours || 16, currentTest.value?.minutes || 0, 24); showPanel.value = false },
+    active: currentTest.value?.goalHours === 24
+  }
+])
+
 function activateCustomTest() {
   if (customHours.value >= 0 && customMinutes.value >= 0) {
     activateTestMode(customHours.value, customMinutes.value)
+    showPanel.value = false
   }
 }
 
@@ -164,7 +264,9 @@ function getPhase(hours: number): string {
 // Auto-activate 17h test on mount (for development)
 onMounted(() => {
   if (import.meta.env.DEV) {
-    // quickTests.extended() // Uncomment to auto-start 17h test
+    if (import.meta.env.VITE_AUTO_START_17H_TEST === 'true') {
+      quickTests.extended()
+    }
     console.log('🧪 Test Panel geladen - Klicke auf das Test-Icon unten rechts')
   }
 })

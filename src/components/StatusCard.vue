@@ -16,23 +16,23 @@
             <p class="text-sm text-gray-500">Status</p>
             <div class="flex items-center gap-3 flex-wrap">
               <p class="text-lg font-semibold">
-                {{ status.active ? 'Aktiv' : 'Inaktiv' }}
+                {{ effectiveStatus.active ? 'Aktiv' : 'Inaktiv' }}
               </p>
               <TimeBadge 
-                v-if="status.active" 
-                :hours="status.hours || 0" 
-                :minutes="status.minutes || 0" 
+                v-if="effectiveStatus.active" 
+                :hours="effectiveStatus.hours || 0" 
+                :minutes="effectiveStatus.minutes || 0" 
               />
             </div>
-            <p v-if="status.since" class="text-xs text-gray-400 truncate">
-              seit {{ new Date(status.since).toLocaleString() }}
+            <p v-if="effectiveStatus.since" class="text-xs text-gray-400 truncate">
+              seit {{ new Date(effectiveStatus.since).toLocaleString() }}
             </p>
           </div>
           <div class="flex gap-2 ml-auto">
             <button 
               @click="$emit('start')" 
-              :disabled="status.active" 
-              :class="status.active 
+              :disabled="effectiveStatus.active" 
+              :class="effectiveStatus.active 
                 ? 'w-12 h-12 rounded-full bg-gray-400 text-gray-600 cursor-not-allowed flex items-center justify-center' 
                 : 'w-12 h-12 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 flex items-center justify-center touch-manipulation shadow-md hover:shadow-lg transition-all'"
               :title="'Fasten starten'">
@@ -42,8 +42,8 @@
             </button>
             <button 
               @click="$emit('stop')" 
-              :disabled="!status.active" 
-              :class="!status.active 
+              :disabled="!effectiveStatus.active" 
+              :class="!effectiveStatus.active 
                 ? 'w-12 h-12 rounded-full bg-gray-400 text-gray-600 cursor-not-allowed flex items-center justify-center' 
                 : 'w-12 h-12 rounded-full bg-rose-600 text-white hover:bg-rose-700 flex items-center justify-center touch-manipulation shadow-md hover:shadow-lg transition-all'"
               :title="'Fasten beenden'">
@@ -56,10 +56,10 @@
         
         <!-- Progress Bar (volle Breite, nur bei aktiver Session) -->
         <ProgressBar 
-          v-if="status.active" 
-          :hours="status.hours || 0" 
-          :minutes="status.minutes || 0" 
-          :goalHours="status.goalHours"
+          v-if="effectiveStatus.active" 
+          :hours="effectiveStatus.hours || 0" 
+          :minutes="effectiveStatus.minutes || 0" 
+          :goalHours="effectiveStatus.goalHours"
         />
       </div>
     </div>
@@ -70,6 +70,7 @@
 import { computed } from 'vue'
 import ProgressBar from './ProgressBar.vue'
 import TimeBadge from './TimeBadge.vue'
+import { getTestData, isTestModeActive } from '../utils/testScenarios'
 
 interface FastStatus {
   active?: boolean
@@ -90,11 +91,28 @@ defineEmits<{
   stop: []
 }>()
 
-// Hintergrund Progress basierend auf Fasten-Phasen
+// Test-Data Override: Verwende Test-Daten falls aktiv, sonst echte Status-Daten
+const effectiveStatus = computed(() => {
+  const testData = getTestData()
+  if (testData && isTestModeActive()) {
+    return {
+      ...props.status,
+      // WICHTIG: Verwende echten active-Status, überschreibe nur die Zeiten
+      active: props.status.active,
+      hours: testData.hours,
+      minutes: testData.minutes,
+      goalHours: testData.goalHours || props.status.goalHours || 16,
+      since: props.status.since || new Date().toISOString() // Mock since for test
+    }
+  }
+  return props.status
+})
+
+// Hintergrund Progress basierend auf Fasten-Phasen (mit Test-Data Override)
 const backgroundProgress = computed(() => {
-  if (!props.status.active) return 0
+  if (!effectiveStatus.value.active) return 0
   
-  const hours = props.status.hours || 0
+  const hours = effectiveStatus.value.hours || 0
   
   // 0-3h: 0-25%
   if (hours < 3) return (hours / 3) * 25
@@ -109,9 +127,9 @@ const backgroundProgress = computed(() => {
 })
 
 const backgroundGradient = computed(() => {
-  if (!props.status.active) return 'bg-gray-100'
+  if (!effectiveStatus.value.active) return 'bg-gray-100'
   
-  const hours = props.status.hours || 0
+  const hours = effectiveStatus.value.hours || 0
   
   if (hours < 3) {
     return 'bg-gradient-to-r from-blue-100 to-blue-50'

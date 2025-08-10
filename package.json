@@ -6,13 +6,26 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "test:ci": "vitest run --reporter=verbose --coverage",
+    "type-check": "vue-tsc --noEmit",
+    "lint": "echo 'Linting not configured yet'",
+    "lint:fix": "echo 'Lint fixing not configured yet'",
+    "validate": "npm run type-check && npm run test:run",
+    "clean": "rm -rf dist node_modules/.vite",
+    "prepare": "echo 'Prepare hook for CI/CD'",
+    "postinstall": "echo 'Dependencies installed successfully'"
   },
   "dependencies": {
     "vue": "^3.4.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.0",
+    "@vitest/coverage-v8": "^3.2.4",
     "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.0",
     "jsdom": "^26.1.0",

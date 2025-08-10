@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { startFast, stopFast, statusFast, historyFast } from './api'
+import { startFast, stopFast, statusFast, historyFast, isMockMode, apiBase } from './api'
+import { fallbackApiService } from './api/fallback-service'
+import './utils/error-tests' // Lade Error-Tests für Browser Console
 import WelcomeScreen from './components/WelcomeScreen.vue'
 import ConfirmDialog from './components/ConfirmDialog.vue'
 import GoalSelectionDialog from './components/GoalSelectionDialog.vue'
@@ -8,17 +10,19 @@ import StatusCard from './components/StatusCard.vue'
 import HistoryCard from './components/HistoryCard.vue'
 import FastingInfoModal from './components/FastingInfoModal.vue'
 import TestPanel from './components/TestPanel.vue'
+import ErrorPage from './components/ErrorPage.vue'
 
 const loading = ref(false)
 const stat = ref<{active?: boolean; hours?: number; minutes?: number; since?: string}>({})
 const items = ref<any[]>([])
-const apiBase = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api'
 
 const showWelcome = ref(true)
 const showDialog = ref(false)
 const showGoalDialog = ref(false)
 const showInfoModal = ref(false)
+const showErrorPage = ref(false)
 const dialogAction = ref<'start' | 'stop' | null>(null)
+const lastError = ref<Error | null>(null)
 
 // Development mode check für Test Panel
 const isDev = import.meta.env.DEV
@@ -46,6 +50,11 @@ async function handleDialogConfirm() {
   dialogAction.value = null
 }
 
+function handleDialogCancel() {
+  showDialog.value = false
+  dialogAction.value = null
+}
+
 async function handleGoalConfirm(goalHours: number) {
   showGoalDialog.value = false
   await onStart(goalHours)
@@ -53,11 +62,6 @@ async function handleGoalConfirm(goalHours: number) {
 
 function handleGoalCancel() {
   showGoalDialog.value = false
-}
-
-function handleDialogCancel() {
-  showDialog.value = false
-  dialogAction.value = null
 }
 
 async function refresh() {
@@ -71,49 +75,117 @@ async function refresh() {
       if (a.endAt !== null && b.endAt === null) return 1
       return b.id - a.id
     })
-  } finally { loading.value = false }
+    
+    // Error-Seite schließen bei erfolgreichem Laden (nur in Production)
+    if (showErrorPage.value && !isDev) {
+      showErrorPage.value = false
+      lastError.value = null
+    }
+  } catch (error) {
+    console.error('API Error:', error)
+    lastError.value = error as Error
+    
+    // In Production: Zeige Error-Seite
+    if (!isDev) {
+      showErrorPage.value = true
+    }
+    // In Development: Fallback-System übernimmt automatisch
+  } finally { 
+    loading.value = false 
+  }
 }
 
 async function onStart(goalHours?: number) { 
-  await startFast(goalHours); 
-  await refresh() 
+  try {
+    await startFast(goalHours); 
+    await refresh()
+  } catch (error) {
+    console.error('Start Fast Error:', error)
+    lastError.value = error as Error
+    
+    // In Production: Zeige Error-Seite
+    if (!isDev) {
+      showErrorPage.value = true
+    }
+  }
 }
-async function onStop()  { try { await stopFast(); } catch {} await refresh() }
+
+async function onStop() { 
+  try { 
+    await stopFast(); 
+    await refresh()
+  } catch (error) {
+    console.error('Stop Fast Error:', error)
+    lastError.value = error as Error
+    
+    // In Production: Zeige Error-Seite
+    if (!isDev) {
+      showErrorPage.value = true
+    }
+  }
+}
+
+async function handleErrorRetry() {
+  showErrorPage.value = false
+  lastError.value = null
+  await refresh() // Versuche erneut zu laden
+}
+
+function showDebugInfo() {
+  const debugInfo = fallbackApiService.getDebugInfo();
+  alert(`Debug Info:\n${JSON.stringify(debugInfo, null, 2)}`);
+}
+
 onMounted(refresh)
 </script>
 
 <template>
+  <!-- Error Page (nur Production) -->
+  <ErrorPage 
+    v-if="showErrorPage && !isDev"
+    :error="lastError || undefined"
+    :retry-callback="handleErrorRetry"
+    @retry="handleErrorRetry"
+    @close="showErrorPage = false"
+  />
+  
   <!-- Welcome Screen -->
-  <WelcomeScreen v-if="showWelcome" @enter="enterApp" />
+  <WelcomeScreen v-else-if="showWelcome" @enter="enterApp" />
 
   <!-- Main App -->
   <div v-else class="min-h-screen bg-gray-50 text-gray-900">
     <div class="max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
       <div class="flex items-center justify-between mb-2">
         <div class="flex items-center gap-3">
-          <img src="./assets/logo.png" alt="Logo" class="h-8 w-8 sm:h-10 sm:w-10 rounded-full shadow" />
+          <span class="text-2xl sm:text-3xl">🍃</span>
           <h1 class="text-xl sm:text-2xl font-bold">Fasting Tracker</h1>
         </div>
         <button 
           @click="showInfoModal = true"
-          class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-100 hover:bg-blue-200 flex items-center justify-center transition-colors touch-manipulation"
+          class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 flex items-center justify-center touch-manipulation transition-colors"
           title="Fasten-Phasen Info">
-          <svg class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
+          <span class="text-sm sm:text-base font-bold italic">i</span>
         </button>
-      </div>
-      
-      <!-- Zentrales Logo wenn kein Fasten aktiv -->
-      <div v-if="!stat.active" class="flex justify-center py-8">
-        <img src="./assets/logo.png" alt="Logo" class="h-24 w-24 sm:h-32 sm:w-32 rounded-full shadow-lg animate-bounce-gentle" />
       </div>
       
       <StatusCard :status="stat" @start="confirmAction('start')" @stop="confirmAction('stop')" />
       
       <HistoryCard :items="items" :loading="loading" @refresh="refresh" />
       
-      <p class="text-xs text-gray-400 text-center">API: {{ apiBase }}</p>
+      <!-- Debug Info für Development -->
+      <div v-if="isDev" class="text-xs text-gray-400 text-center space-y-1">
+        <p>{{ isMockMode ? '🎭 Mock-Modus' : 'API: ' + apiBase }}</p>
+        <button 
+          @click="showDebugInfo" 
+          class="text-blue-500 hover:text-blue-700 underline"
+        >
+          Debug Info anzeigen
+        </button>
+      </div>
+      
+      <p v-else class="text-xs text-gray-400 text-center">
+        {{ isMockMode ? '🎭 Mock-Modus' : 'API: ' + apiBase }}
+      </p>
     </div>
   </div>
 

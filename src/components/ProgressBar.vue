@@ -9,6 +9,19 @@
            }">
       </div>
       
+      <!-- Subtile Trennlinien zwischen Farbzonen -->
+      <div v-if="activeHours >= effectiveGoal" class="absolute inset-0 pointer-events-none">
+        <!-- Linie zwischen Grün und Blau-Türkis (am Ziel-Punkt) -->
+        <div class="absolute top-0 bottom-0 w-px bg-white/40 shadow-sm" 
+             data-testid="goal-separation-line"
+             :style="{ left: ((goalHours || 16) / maxHours * 100) + '%' }">
+        </div>
+        <!-- Linie zwischen Blau-Türkis und Hintergrund (am aktuellen Progress) -->
+        <div class="absolute top-0 bottom-0 w-px bg-white/30" 
+             :style="{ left: progressWidth + '%' }">
+        </div>
+      </div>
+      
       <!-- Content Overlay -->
       <div class="relative h-full flex items-center justify-between px-4 bg-white/10 backdrop-blur-sm">
         <!-- Zeit-Anzeige links -->
@@ -19,10 +32,10 @@
             </svg>
           </div>
           <div>
-            <div class="font-semibold text-sm" :class="textClass">
+            <div class="font-semibold text-sm" data-testid="progress-time" :class="textClass">
               {{ displayHours }}h {{ displayMinutes }}m
             </div>
-            <div class="text-xs opacity-75" :class="textClass">
+            <div class="text-xs opacity-75" data-testid="progress-phase" :class="textClass">
               {{ currentPhaseName }}
             </div>
           </div>
@@ -30,10 +43,10 @@
         
         <!-- Progress Prozent rechts -->
         <div class="text-right">
-          <div class="font-bold text-lg" :class="textClass">
+          <div class="font-bold text-lg" data-testid="progress-percentage" :class="textClass">
             {{ progressWidth.toFixed(0) }}%
           </div>
-          <div class="text-xs opacity-75" :class="textClass">
+          <div class="text-xs opacity-75" data-testid="progress-max" :class="textClass">
             von {{ maxHours }}h
           </div>
         </div>
@@ -123,6 +136,13 @@ const progressWidth = computed(() => {
   }
 })
 
+// Milestone-Markierungen für subtile Orientierung
+const milestones = computed(() => {
+  const max = maxHours.value
+  const goal = effectiveGoal.value
+  return [4, 8, 12, 16, 20, 24].filter(h => h < max && h !== goal)
+})
+
 // Bestimme aktuelle Phase basierend auf Stunden und Ziel
 const currentPhase = computed(() => {
   const hours = activeHours.value
@@ -170,15 +190,15 @@ const progressGradient = computed(() => {
     const goalProgress = (goal / extendedMax) * 100 // Ziel-Position in %
     
     const lightGreenColor = 'rgba(52, 211, 153, 0.4)' // emerald-300 mit 40% opacity (heller)
-    const lightPurpleColor = 'rgba(168, 85, 247, 0.4)' // purple-400 mit 40% opacity (heller)
-    const remainingColor = 'rgba(243, 232, 255, 0.3)' // purple-50 mit 30% opacity
+    const lightCyanColor = 'rgba(34, 211, 238, 0.4)' // cyan-400 mit 40% opacity (leichtes Blau-Türkis)
+    const remainingColor = 'rgba(224, 247, 250, 0.3)' // cyan-50 mit 30% opacity
     
     if (progress <= goalProgress) {
       // Noch unter Ziel (sollte nicht passieren, aber sicherheitshalber)
       return `linear-gradient(to right, ${lightGreenColor} 0%, ${lightGreenColor} ${progress}%, ${remainingColor} ${progress}%, ${remainingColor} 100%)`
     } else {
-      // Über Ziel: Helles Grün bis Ziel, dann helles Violett ohne Verlauf
-      return `linear-gradient(to right, ${lightGreenColor} 0%, ${lightGreenColor} ${goalProgress}%, ${lightPurpleColor} ${goalProgress}%, ${lightPurpleColor} ${progress}%, ${remainingColor} ${progress}%, ${remainingColor} 100%)`
+      // Über Ziel: Helles Grün bis Ziel, dann leichtes Blau-Türkis ohne Verlauf
+      return `linear-gradient(to right, ${lightGreenColor} 0%, ${lightGreenColor} ${goalProgress}%, ${lightCyanColor} ${goalProgress}%, ${lightCyanColor} ${progress}%, ${remainingColor} ${progress}%, ${remainingColor} 100%)`
     }
   }
 })
@@ -204,7 +224,8 @@ const textClass = computed(() => {
 })
 
 // Notification system
-let lastNotifiedHour = 0
+import { ref } from 'vue'
+const lastNotifiedHour = ref(0)
 
 const sendNotification = (hours: number, message: string) => {
   if ('Notification' in window && Notification.permission === 'granted') {
@@ -225,19 +246,19 @@ const requestNotificationPermission = () => {
 // Überwache Stunden-Änderungen für Notifications
 watch(activeHours, (newHours, oldHours) => {
   // Nur bei Erhöhung der Stunden und wenn es ein neuer Meilenstein ist
-  if (newHours > oldHours && newHours > lastNotifiedHour) {
-    if (newHours >= 3 && lastNotifiedHour < 3) {
+  if (newHours > oldHours && newHours > lastNotifiedHour.value) {
+    if (newHours >= 3 && lastNotifiedHour.value < 3) {
       sendNotification(3, '🚀 Aufwärmphase erreicht! 3 Stunden geschafft.')
-      lastNotifiedHour = 3
-    } else if (newHours >= 8 && lastNotifiedHour < 8) {
+      lastNotifiedHour.value = 3
+    } else if (newHours >= 8 && lastNotifiedHour.value < 8) {
       sendNotification(8, '🔥 Fettverbrennung startet! 8 Stunden erreicht.')
-      lastNotifiedHour = 8
-    } else if (newHours >= 12 && lastNotifiedHour < 12) {
+      lastNotifiedHour.value = 8
+    } else if (newHours >= 12 && lastNotifiedHour.value < 12) {
       sendNotification(12, '💚 Ketose beginnt! 12 Stunden Fasten geschafft.')
-      lastNotifiedHour = 12
-    } else if (newHours >= 16 && lastNotifiedHour < 16) {
+      lastNotifiedHour.value = 12
+    } else if (newHours >= 16 && lastNotifiedHour.value < 16) {
       sendNotification(16, '🧠 Autophagie aktiviert! 16 Stunden - fantastisch!')
-      lastNotifiedHour = 16
+      lastNotifiedHour.value = 16
     }
   }
 }, { immediate: false })

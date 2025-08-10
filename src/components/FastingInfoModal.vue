@@ -19,13 +19,13 @@
                  background: `linear-gradient(to right, rgb(147 197 253) 0%, rgb(147 197 253) ${getPhaseProgress(0, 3)}%, rgb(239 246 255) ${getPhaseProgress(0, 3)}%, rgb(239 246 255) 100%)` 
                }">
             <div class="flex-shrink-0 relative">
-              <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center shadow-md">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z"/>
                 </svg>
               </div>
               <!-- Häkchen für erledigte Phase -->
-              <div v-if="getPhaseProgress(0, 3) >= 100" class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+              <div v-if="getPhaseProgress(0, 3) >= 100" class="absolute -top-1 -right-1 w-5 h-5 bg-emerald-600 rounded-full flex items-center justify-center shadow-lg">
                 <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                 </svg>
@@ -46,13 +46,13 @@
                  background: `linear-gradient(to right, rgb(253 224 71) 0%, rgb(253 224 71) ${getPhaseProgress(3, 8)}%, rgb(254 249 195) ${getPhaseProgress(3, 8)}%, rgb(254 249 195) 100%)` 
                }">
             <div class="flex-shrink-0 relative">
-              <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              <div class="w-12 h-12 bg-yellow-600 rounded-full flex items-center justify-center shadow-md">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
                 </svg>
               </div>
               <!-- Häkchen für erledigte Phase -->
-              <div v-if="getPhaseProgress(3, 8) >= 100" class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+              <div v-if="getPhaseProgress(3, 8) >= 100" class="absolute -top-1 -right-1 w-5 h-5 bg-emerald-600 rounded-full flex items-center justify-center shadow-lg">
                 <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                 </svg>
@@ -73,13 +73,13 @@
                  background: `linear-gradient(to right, rgb(251 146 60) 0%, rgb(251 146 60) ${getPhaseProgress(8, 12)}%, rgb(255 237 213) ${getPhaseProgress(8, 12)}%, rgb(255 237 213) 100%)` 
                }">
             <div class="flex-shrink-0 relative">
-              <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 716.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
+              <div class="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center shadow-md">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M13.5 0.5C13.5 0.5 21 8 13.5 15C13.5 15 11 12.5 11 9.5C11 6.5 13.5 0.5 13.5 0.5ZM6.5 6C6.5 6 14 13.5 6.5 20.5C6.5 20.5 4 18 4 15C4 12 6.5 6 6.5 6Z"/>
                 </svg>
               </div>
               <!-- Häkchen für erledigte Phase -->
-              <div v-if="getPhaseProgress(8, 12) >= 100" class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+              <div v-if="getPhaseProgress(8, 12) >= 100" class="absolute -top-1 -right-1 w-5 h-5 bg-emerald-600 rounded-full flex items-center justify-center shadow-lg">
                 <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                 </svg>
@@ -100,13 +100,13 @@
                  background: `linear-gradient(to right, rgb(52 211 153) 0%, rgb(52 211 153) ${getPhaseProgress(12, 16)}%, rgb(209 250 229) ${getPhaseProgress(12, 16)}%, rgb(209 250 229) 100%)` 
                }">
             <div class="flex-shrink-0 relative">
-              <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+              <div class="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center shadow-md">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                 </svg>
               </div>
               <!-- Häkchen für erledigte Phase -->
-              <div v-if="getPhaseProgress(12, 16) >= 100" class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+              <div v-if="getPhaseProgress(12, 16) >= 100" class="absolute -top-1 -right-1 w-5 h-5 bg-emerald-600 rounded-full flex items-center justify-center shadow-lg">
                 <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                 </svg>
@@ -127,13 +127,13 @@
                  background: `linear-gradient(to right, rgb(168 85 247) 0%, rgb(168 85 247) ${getPhaseProgress(16, 24)}%, rgb(243 232 255) ${getPhaseProgress(16, 24)}%, rgb(243 232 255) 100%)` 
                }">
             <div class="flex-shrink-0 relative">
-              <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+              <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center shadow-md">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                 </svg>
               </div>
               <!-- Häkchen für erledigte Phase -->
-              <div v-if="getPhaseProgress(16, 24) >= 100" class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+              <div v-if="getPhaseProgress(16, 24) >= 100" class="absolute -top-1 -right-1 w-5 h-5 bg-emerald-600 rounded-full flex items-center justify-center shadow-lg">
                 <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                 </svg>
