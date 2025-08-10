@@ -264,7 +264,9 @@ function getPhase(hours: number): string {
 // Auto-activate 17h test on mount (for development)
 onMounted(() => {
   if (import.meta.env.DEV) {
-    // quickTests.extended() // Uncomment to auto-start 17h test
+    if (import.meta.env.VITE_AUTO_START_17H_TEST === 'true') {
+      quickTests.extended()
+    }
     console.log('🧪 Test Panel geladen - Klicke auf das Test-Icon unten rechts')
   }
 })
