@@ -190,15 +190,9 @@ defineEmits<{
 
 // Berechne aktuelle Fasten-Stunden
 const currentHours = computed(() => {
-  // DEBUG: Zeige 13 Stunden für Test (Ketose-Phase)
-  console.log('FastingInfoModal - Status:', props.status)
-  console.log('FastingInfoModal - Active:', props.status?.active)
-  console.log('FastingInfoModal - Hours:', props.status?.hours)
-  return 13
-  
-  // Original Code:
-  // if (!props.status?.active) return 0
-  // return (props.status.hours || 0) + ((props.status.minutes || 0) / 60)
+  // Berechne aktuelle Fasten-Stunden basierend auf Status
+  if (!props.status?.active) return 0
+  return (props.status.hours || 0) + ((props.status.minutes || 0) / 60)
 })
 
 // Berechne Progress für eine Phase (0-100%)
