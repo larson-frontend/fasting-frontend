@@ -100,12 +100,20 @@ jobs:
     - name: Check for API changes
       run: |
         echo "Checking for potential breaking changes..."
-        git diff origin/main...HEAD --name-only | grep -E '\.(vue|ts|js)$' | while read file; do
-          echo "Checking $file for breaking changes..."
-          if git diff origin/main...HEAD "$file" | grep -E '^-.*export|^-.*interface|^-.*type' >/dev/null; then
-            echo "⚠️  Potential breaking change detected in $file"
-          fi
-        done || echo "No breaking changes detected"
+        # Fetch main branch for comparison
+        git fetch origin main:main || git fetch origin main || echo "Could not fetch main branch"
+        
+        # Compare with main branch if available
+        if git rev-parse --verify main >/dev/null 2>&1; then
+          git diff main...HEAD --name-only | grep -E '\.(vue|ts|js)$' | while read file; do
+            echo "Checking $file for breaking changes..."
+            if git diff main...HEAD "$file" | grep -E '^-.*export|^-.*interface|^-.*type' >/dev/null; then
+              echo "⚠️  Potential breaking change detected in $file"
+            fi
+          done || echo "No breaking changes detected"
+        else
+          echo "Main branch not available, skipping breaking change detection"
+        fi
     
     - name: Build comparison
       run: |
@@ -113,14 +121,18 @@ jobs:
         npm run build
         mv dist dist-current
         
-        echo "Building main branch..."
-        git checkout origin/main
-        npm ci
-        npm run build
-        mv dist dist-main
-        
-        echo "Comparing build outputs..."
-        diff -r dist-main dist-current || echo "Build outputs differ - this is normal for feature branches"
+        echo "Attempting to build main branch for comparison..."
+        if git rev-parse --verify main >/dev/null 2>&1; then
+          git checkout main
+          npm ci
+          npm run build
+          mv dist dist-main
+          
+          echo "Comparing build outputs..."
+          diff -r dist-main dist-current || echo "Build outputs differ - this is normal for feature branches"
+        else
+          echo "Main branch not available, skipping build comparison"
+        fi
 
   # Performance check
   performance:
@@ -157,7 +169,7 @@ jobs:
     - name: Test performance
       run: |
         echo "Running performance tests..."
-        npm run test:run -- --reporter=verbose --timeout=30000
+        npm run test:run -- --reporter=verbose
 
   # PR Summary
   pr-summary:
