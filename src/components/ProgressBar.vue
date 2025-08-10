@@ -223,7 +223,8 @@ const textClass = computed(() => {
 })
 
 // Notification system
-let lastNotifiedHour = 0
+import { ref } from 'vue'
+const lastNotifiedHour = ref(0)
 
 const sendNotification = (hours: number, message: string) => {
   if ('Notification' in window && Notification.permission === 'granted') {
