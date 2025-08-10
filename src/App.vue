@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { startFast, stopFast, statusFast, historyFast } from './api'
+import { startFast, stopFast, statusFast, historyFast, isMockMode, apiBase } from './api'
 import WelcomeScreen from './components/WelcomeScreen.vue'
 import ConfirmDialog from './components/ConfirmDialog.vue'
 import GoalSelectionDialog from './components/GoalSelectionDialog.vue'
@@ -12,7 +12,6 @@ import TestPanel from './components/TestPanel.vue'
 const loading = ref(false)
 const stat = ref<{active?: boolean; hours?: number; minutes?: number; since?: string}>({})
 const items = ref<any[]>([])
-const apiBase = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api'
 
 const showWelcome = ref(true)
 const showDialog = ref(false)
@@ -104,16 +103,13 @@ onMounted(refresh)
         </button>
       </div>
       
-      <!-- Zentrales Logo wenn kein Fasten aktiv -->
-      <div v-if="!stat.active" class="flex justify-center py-8">
-        <img src="./assets/logo.png" alt="Logo" class="h-24 w-24 sm:h-32 sm:w-32 rounded-full shadow-lg animate-bounce-gentle" />
-      </div>
-      
       <StatusCard :status="stat" @start="confirmAction('start')" @stop="confirmAction('stop')" />
       
       <HistoryCard :items="items" :loading="loading" @refresh="refresh" />
       
-      <p class="text-xs text-gray-400 text-center">API: {{ apiBase }}</p>
+      <p class="text-xs text-gray-400 text-center">
+        {{ isMockMode ? '🎭 Mock-Modus' : 'API: ' + apiBase }}
+      </p>
     </div>
   </div>
 
