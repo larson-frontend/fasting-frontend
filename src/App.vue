@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { startFast, stopFast, statusFast, historyFast, isMockMode, apiBase } from './api'
+import { fallbackApiService } from './api/fallback-service'
+import './utils/error-tests' // Lade Error-Tests für Browser Console
 import WelcomeScreen from './components/WelcomeScreen.vue'
 import ConfirmDialog from './components/ConfirmDialog.vue'
 import GoalSelectionDialog from './components/GoalSelectionDialog.vue'
@@ -8,6 +10,7 @@ import StatusCard from './components/StatusCard.vue'
 import HistoryCard from './components/HistoryCard.vue'
 import FastingInfoModal from './components/FastingInfoModal.vue'
 import TestPanel from './components/TestPanel.vue'
+import ErrorPage from './components/ErrorPage.vue'
 
 const loading = ref(false)
 const stat = ref<{active?: boolean; hours?: number; minutes?: number; since?: string}>({})
@@ -17,7 +20,9 @@ const showWelcome = ref(true)
 const showDialog = ref(false)
 const showGoalDialog = ref(false)
 const showInfoModal = ref(false)
+const showErrorPage = ref(false)
 const dialogAction = ref<'start' | 'stop' | null>(null)
+const lastError = ref<Error | null>(null)
 
 // Development mode check für Test Panel
 const isDev = import.meta.env.DEV
@@ -45,6 +50,11 @@ async function handleDialogConfirm() {
   dialogAction.value = null
 }
 
+function handleDialogCancel() {
+  showDialog.value = false
+  dialogAction.value = null
+}
+
 async function handleGoalConfirm(goalHours: number) {
   showGoalDialog.value = false
   await onStart(goalHours)
@@ -52,11 +62,6 @@ async function handleGoalConfirm(goalHours: number) {
 
 function handleGoalCancel() {
   showGoalDialog.value = false
-}
-
-function handleDialogCancel() {
-  showDialog.value = false
-  dialogAction.value = null
 }
 
 async function refresh() {
@@ -70,20 +75,82 @@ async function refresh() {
       if (a.endAt !== null && b.endAt === null) return 1
       return b.id - a.id
     })
-  } finally { loading.value = false }
+    
+    // Error-Seite schließen bei erfolgreichem Laden (nur in Production)
+    if (showErrorPage.value && !isDev) {
+      showErrorPage.value = false
+      lastError.value = null
+    }
+  } catch (error) {
+    console.error('API Error:', error)
+    lastError.value = error as Error
+    
+    // In Production: Zeige Error-Seite
+    if (!isDev) {
+      showErrorPage.value = true
+    }
+    // In Development: Fallback-System übernimmt automatisch
+  } finally { 
+    loading.value = false 
+  }
 }
 
 async function onStart(goalHours?: number) { 
-  await startFast(goalHours); 
-  await refresh() 
+  try {
+    await startFast(goalHours); 
+    await refresh()
+  } catch (error) {
+    console.error('Start Fast Error:', error)
+    lastError.value = error as Error
+    
+    // In Production: Zeige Error-Seite
+    if (!isDev) {
+      showErrorPage.value = true
+    }
+  }
 }
-async function onStop()  { try { await stopFast(); } catch {} await refresh() }
+
+async function onStop() { 
+  try { 
+    await stopFast(); 
+    await refresh()
+  } catch (error) {
+    console.error('Stop Fast Error:', error)
+    lastError.value = error as Error
+    
+    // In Production: Zeige Error-Seite
+    if (!isDev) {
+      showErrorPage.value = true
+    }
+  }
+}
+
+async function handleErrorRetry() {
+  showErrorPage.value = false
+  lastError.value = null
+  await refresh() // Versuche erneut zu laden
+}
+
+function showDebugInfo() {
+  const debugInfo = fallbackApiService.getDebugInfo();
+  alert(`Debug Info:\n${JSON.stringify(debugInfo, null, 2)}`);
+}
+
 onMounted(refresh)
 </script>
 
 <template>
+  <!-- Error Page (nur Production) -->
+  <ErrorPage 
+    v-if="showErrorPage && !isDev"
+    :error="lastError || undefined"
+    :retry-callback="handleErrorRetry"
+    @retry="handleErrorRetry"
+    @close="showErrorPage = false"
+  />
+  
   <!-- Welcome Screen -->
-  <WelcomeScreen v-if="showWelcome" @enter="enterApp" />
+  <WelcomeScreen v-else-if="showWelcome" @enter="enterApp" />
 
   <!-- Main App -->
   <div v-else class="min-h-screen bg-gray-50 text-gray-900">
@@ -105,7 +172,18 @@ onMounted(refresh)
       
       <HistoryCard :items="items" :loading="loading" @refresh="refresh" />
       
-      <p class="text-xs text-gray-400 text-center">
+      <!-- Debug Info für Development -->
+      <div v-if="isDev" class="text-xs text-gray-400 text-center space-y-1">
+        <p>{{ isMockMode ? '🎭 Mock-Modus' : 'API: ' + apiBase }}</p>
+        <button 
+          @click="showDebugInfo" 
+          class="text-blue-500 hover:text-blue-700 underline"
+        >
+          Debug Info anzeigen
+        </button>
+      </div>
+      
+      <p v-else class="text-xs text-gray-400 text-center">
         {{ isMockMode ? '🎭 Mock-Modus' : 'API: ' + apiBase }}
       </p>
     </div>

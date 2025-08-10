@@ -18,6 +18,7 @@
           v-for="goal in goals"
           :key="goal.hours"
           @click="selectGoal(goal.hours)"
+          data-testid="goal-option"
           class="w-full p-4 rounded-lg border-2 transition-all duration-200 hover:shadow-md text-left group"
           :class="selectedGoal === goal.hours 
             ? 'border-blue-500 bg-blue-50' 
@@ -53,6 +54,7 @@
         <button
           @click="confirm"
           :disabled="!selectedGoal"
+          data-testid="confirm-goal-button"
           class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Fasten starten

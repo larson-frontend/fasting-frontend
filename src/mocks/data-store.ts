@@ -5,6 +5,8 @@
 
 import type { FastSession, FastStatus, HealthCheckResponse } from '../types/api';
 
+const DEFAULT_GOAL_HOURS = 16;
+
 export class MockDataStore {
   private currentSession: FastSession | null = null;
   private sessions: FastSession[] = [

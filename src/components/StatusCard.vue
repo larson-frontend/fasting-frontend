@@ -97,7 +97,8 @@ const effectiveStatus = computed(() => {
   if (testData && isTestModeActive()) {
     return {
       ...props.status,
-      active: true, // Im Test-Modus immer aktiv
+      // WICHTIG: Verwende echten active-Status, überschreibe nur die Zeiten
+      active: props.status.active,
       hours: testData.hours,
       minutes: testData.minutes,
       goalHours: testData.goalHours || props.status.goalHours || 16,

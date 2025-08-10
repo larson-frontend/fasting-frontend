@@ -1,21 +1,23 @@
 /**
  * API Index
- * Zentrale API-Schnittstelle mit automatischem Mock/Real-API Switching
+ * Zentrale API-Schnittstelle mit intelligentem Fallback-System
  */
 
 import { config } from './config';
 import { fastingApiService } from './fasting-service';
 import { mockService } from '../mocks/service';
+import { fallbackApiService } from './fallback-service';
 
 // Export Types
 export type * from '../types/api';
 
-// Service Selection basierend auf Konfiguration
-const service = config.useMockData ? mockService : fastingApiService;
+// Service Selection mit intelligentem Fallback
+const service = config.isDevelopment ? fallbackApiService : 
+                config.useMockData ? mockService : fastingApiService;
 
 /**
  * Öffentliche API-Funktionen
- * Automatisches Switching zwischen Mock und Real API
+ * Mit automatischem Fallback zu Mock-Daten wenn API nicht erreichbar
  */
 export const startFast = service.startFast.bind(service);
 export const stopFast = service.stopFast.bind(service);
@@ -28,6 +30,7 @@ export const isMockMode = config.useMockData;
 export const apiBase = config.apiBase;
 
 // Development Exports
+export { fallbackApiService } from './fallback-service';
 export { config } from './config';
 export { fastingApiService } from './fasting-service';
 export { mockService } from '../mocks/service';
