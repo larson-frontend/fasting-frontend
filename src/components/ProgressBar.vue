@@ -223,7 +223,7 @@ const requestNotificationPermission = () => {
 }
 
 // Überwache Stunden-Änderungen für Notifications
-watch(() => props.hours, (newHours, oldHours) => {
+watch(activeHours, (newHours, oldHours) => {
   // Nur bei Erhöhung der Stunden und wenn es ein neuer Meilenstein ist
   if (newHours > oldHours && newHours > lastNotifiedHour) {
     if (newHours >= 3 && lastNotifiedHour < 3) {
