@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { startFast, stopFast, statusFast, historyFast, startUserFast, stopUserFast, getUserFastingHistory, fetchUserFastingHistory, fetchUserFastingStatus, getCurrentUser, isMockMode, apiBase } from './api/index'
+import { startFast, stopFast, statusFast, historyFast, startUserFast, stopUserFast, fetchUserFastingHistory, fetchUserFastingStatus, getCurrentUser, isMockMode, apiBase } from './api/index'
 import { fallbackApiService } from './api/fallback-service'
 import './utils/error-tests' // Lade Error-Tests für Browser Console
 import WelcomeScreen from './components/WelcomeScreen.vue'
