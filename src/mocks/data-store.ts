@@ -40,7 +40,7 @@ export class MockDataStore {
     }
   ];
   private nextId = 6;
-  private goalHours = 16;
+  private goalHours = DEFAULT_GOAL_HOURS;
 
   /**
    * Startet eine neue Fasten-Session
