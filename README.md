@@ -9,7 +9,7 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Node.js 23.11.1+** (Recommended)
+- **Node.js 22.17.1+** (Latest LTS recommended)
 - **npm 10+** (comes with Node.js)
 
 ### Installation & Development
