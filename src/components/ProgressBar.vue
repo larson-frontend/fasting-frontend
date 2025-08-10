@@ -60,12 +60,9 @@
       
       <!-- Milestone Markierungen (subtil) -->
       <div class="absolute inset-0 flex items-center pointer-events-none">
-        <!-- 4h Markierung -->
-        <div class="absolute h-full w-px bg-white/30" :style="{ left: (4/16*100) + '%' }"></div>
-        <!-- 8h Markierung -->
-        <div class="absolute h-full w-px bg-white/30" :style="{ left: (8/16*100) + '%' }"></div>
-        <!-- 12h Markierung -->
-        <div class="absolute h-full w-px bg-white/30" :style="{ left: (12/16*100) + '%' }"></div>
+        <template v-for="milestone in milestones" :key="milestone">
+          <div class="absolute h-full w-px bg-white/30" :style="{ left: (milestone / maxHours * 100) + '%' }"></div>
+        </template>
       </div>
     </div>
   </div>
