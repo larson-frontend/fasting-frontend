@@ -106,7 +106,7 @@ testSuite.test('Progress bei 8h 30m von 12h Ziel sollte ~71% sein', () => {
 
 testSuite.test('Progress bei 13h von 12h Ziel sollte 54% sein (erweiterte Skala)', () => {
   const progress = calculateProgress(13, 0, 12);
-  testSuite.expect(Math.round(progress)).toBe(54); // 13/24 = 54%
+  testSuite.expect(Math.round(progress)).toBe(54); // 13/MAX_EXTENDED_HOURS = 54%
 });
 
 testSuite.test('Progress bei 19h von 18h Ziel sollte ~74% sein', () => {
