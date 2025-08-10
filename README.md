@@ -57,7 +57,7 @@ npm run validate             # TypeScript + tests (recommended)
 
 ### Technical Excellence
 - 🧪 **Intelligent Fallback** - Seamless switch between live API and mock data
-- � **Type Safety** - Full TypeScript coverage with strict type checking
+- 🛡️ **Type Safety** - Full TypeScript coverage with strict type checking
 - 🏗️ **Modular Architecture** - Clean separation of concerns with service layers
 - 🚀 **Modern Stack** - Latest Vue 3 Composition API with enhanced reactivity
 
