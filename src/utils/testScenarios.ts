@@ -138,11 +138,12 @@ export function deactivateTestMode(): void {
 /**
  * Gibt die aktuellen Test-Daten zurück (falls Test-Modus aktiv)
  */
-export function getTestData(): { hours: number; minutes: number } | null {
+export function getTestData(): { hours: number; minutes: number; goalHours?: number } | null {
   if (currentTestMode && currentTestData) {
     return {
       hours: currentTestData.hours,
-      minutes: currentTestData.minutes
+      minutes: currentTestData.minutes,
+      goalHours: currentTestData.goalHours
     }
   }
   return null
