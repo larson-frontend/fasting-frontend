@@ -200,7 +200,7 @@ export const quickTests = {
 }
 
 // Browser Console Integration (für einfache Nutzung in DevTools)
-if (typeof window !== 'undefined') {
+if (typeof globalThis.window !== 'undefined' && globalThis.window === globalThis) {
   (window as any).fastingTests = {
     ...quickTests,
     activate: activateTestMode,
