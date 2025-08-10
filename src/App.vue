@@ -104,6 +104,11 @@ onMounted(refresh)
         </button>
       </div>
       
+      <!-- Zentrales Logo wenn kein Fasten aktiv -->
+      <div v-if="!stat.active" class="flex justify-center py-8">
+        <img src="./assets/logo.png" alt="Logo" class="h-24 w-24 sm:h-32 sm:w-32 rounded-full shadow-lg animate-bounce-gentle" />
+      </div>
+      
       <StatusCard :status="stat" @start="confirmAction('start')" @stop="confirmAction('stop')" />
       
       <HistoryCard :items="items" :loading="loading" @refresh="refresh" />
@@ -137,5 +142,20 @@ onMounted(refresh)
   <!-- Test Panel (nur in Development) -->
   <TestPanel v-if="isDev" />
 </template>
+
+<style scoped>
+@keyframes bounce-gentle {
+  0%, 100% { 
+    transform: translateY(0) scale(1); 
+  }
+  50% { 
+    transform: translateY(-8px) scale(1.05); 
+  }
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 3s ease-in-out infinite;
+}
+</style>
 
 <style scoped></style>
