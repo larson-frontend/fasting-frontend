@@ -261,7 +261,7 @@ class UserService {
   }
 
   /**
-   * Fetch user-specific fasting status from backend
+   * Fetch user-specific fasting status from backend (with JWT authentication)
    */
   async fetchUserFastingStatus(): Promise<any> {
     try {
@@ -269,20 +269,32 @@ class UserService {
         throw new Error('User not authenticated');
       }
       
-      // Use the user-specific endpoint with username/email
+      if (!this.authToken) {
+        throw new Error('No authentication token available');
+      }
+      
+      // Use the user-specific endpoint with username/email and JWT authentication
       const userIdentifier = this.currentUser.username || this.currentUser.email;
       const response = await userHttpClient.get<any>(
-        `/api/fast/user/${encodeURIComponent(userIdentifier!)}/status`
+        `/api/fast/user/${encodeURIComponent(userIdentifier!)}/status`,
+        { headers: this.getAuthHeaders() }
       );
       return response;
     } catch (error) {
       console.error('Failed to fetch user fasting status:', error);
+      
+      // Handle JWT-specific errors
+      if (error instanceof Error && error.message.includes('401')) {
+        console.log('Authentication failed, clearing session');
+        this.logout();
+      }
+      
       return null;
     }
   }
 
   /**
-   * Fetch user-specific fasting history from backend
+   * Fetch user-specific fasting history from backend (with JWT authentication)
    */
   async fetchUserFastingHistory(): Promise<any[]> {
     try {
@@ -290,14 +302,26 @@ class UserService {
         throw new Error('User not authenticated');
       }
       
-      // Use the user-specific endpoint with username/email
+      if (!this.authToken) {
+        throw new Error('No authentication token available');
+      }
+      
+      // Use the user-specific endpoint with username/email and JWT authentication
       const userIdentifier = this.currentUser.username || this.currentUser.email;
       const response = await userHttpClient.get<any[]>(
-        `/api/fast/user/${encodeURIComponent(userIdentifier!)}/history`
+        `/api/fast/user/${encodeURIComponent(userIdentifier!)}/history`,
+        { headers: this.getAuthHeaders() }
       );
       return response;
     } catch (error) {
       console.error('Failed to fetch user fasting history:', error);
+      
+      // Handle JWT-specific errors
+      if (error instanceof Error && error.message.includes('401')) {
+        console.log('Authentication failed, clearing session');
+        this.logout();
+      }
+      
       return [];
     }
   }
