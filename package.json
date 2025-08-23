@@ -50,12 +50,8 @@
     "postinstall": "echo 'Dependencies installed successfully'"
   },
   "dependencies": {
-<<<<<<< HEAD
     "@heroicons/vue": "^2.2.0",
     "vue": "^3.5.20",
-=======
-    "vue": "^3.5.0",
->>>>>>> dc622e2 (added translations i18n)
     "vue-i18n": "^11.1.11"
   },
   "devDependencies": {
