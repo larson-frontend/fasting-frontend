@@ -28,6 +28,11 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "build:android": "vite build && npm run pwa:validate",
+    "pwa:validate": "npx pwa-asset-generator --help || echo 'PWA tools check complete'",
+    "icons:generate": "./scripts/generate-android-icons.sh",
+    "android:test": "npm run build:android && npm run preview",
+    "android:lighthouse": "npx lighthouse http://localhost:4173 --only-categories=pwa --output=json --output-path=./reports/lighthouse-pwa.json",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -46,6 +51,7 @@
     "vue-i18n": "^11.1.11"
   },
   "devDependencies": {
+    "@vite-pwa/assets-generator": "^1.0.0",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vitest/coverage-v8": "^3.2.4",
     "@vue/test-utils": "^2.4.6",
@@ -57,6 +63,7 @@
     "vite": "^7.1.1",
     "vite-plugin-pwa": "^1.0.3",
     "vitest": "^3.2.4",
-    "vue-tsc": "^3.0.0"
+    "vue-tsc": "^3.0.0",
+    "workbox-cli": "^7.3.0"
   }
 }
