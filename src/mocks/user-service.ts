@@ -139,6 +139,56 @@ class MockUserService {
   }
 
   /**
+   * Login or Create User (Mock) - matches backend API
+   */
+  async loginOrCreate(request: LoginRequest): Promise<AuthResponse> {
+    await this.delay(300);
+    
+    try {
+      // Try to login first
+      return await this.login(request);
+    } catch (error) {
+      // If login fails, create new user
+      console.log('User not found, creating new user:', request.username || request.email);
+      
+      const createRequest: CreateUserRequest = {
+        username: request.username || request.email?.split('@')[0] || 'user',
+        email: request.email,
+        preferences: {
+          language: 'en',
+          theme: 'auto',
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          notifications: {
+            enabled: true,
+            fastingReminders: true,
+            goalAchievements: true,
+            weeklyReports: false
+          },
+          fastingDefaults: {
+            defaultGoalHours: 16,
+            preferredFastingType: 'intermittent',
+            autoStartNextFast: false
+          }
+        }
+      };
+      
+      return this.createUser(createRequest);
+    }
+  }
+
+  /**
+   * Check username availability (Mock)
+   */
+  async checkUsernameAvailability(username: string): Promise<boolean> {
+    await this.delay(100);
+    
+    const exists = Array.from(this.users.values())
+      .some(user => user.username === username || user.email === username);
+    
+    return !exists; // Return true if available (not exists)
+  }
+
+  /**
    * Demo-Benutzer erstellen
    */
   private createDemoUsers(): void {

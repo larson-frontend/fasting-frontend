@@ -93,6 +93,21 @@ class UserService {
   }
 
   /**
+   * Check if username is available
+   */
+  async checkUsernameAvailability(username: string): Promise<boolean> {
+    try {
+      const response = await userHttpClient.get<{usernameAvailable: boolean}>(
+        `/users/check-availability?username=${encodeURIComponent(username)}`
+      );
+      return response.usernameAvailable;
+    } catch (error) {
+      console.error('Error checking username availability:', error);
+      return false;
+    }
+  }
+
+  /**
    * Neuen Benutzer erstellen
    */
   async createUser(request: CreateUserRequest): Promise<AuthResponse> {

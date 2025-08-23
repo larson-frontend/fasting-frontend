@@ -35,6 +35,7 @@ export const getCurrentUser = userService.getCurrentUser.bind(userService);
 export const isUserLoggedIn = userService.isLoggedIn.bind(userService);
 export const getStoredLanguage = userService.getStoredLanguage.bind(userService);
 export const logoutUser = userService.logout.bind(userService);
+export const checkUsernameAvailability = userService.checkUsernameAvailability.bind(userService);
 
 // Configuration Exports für Debug/Info
 export const isMockMode = config.useMockData;

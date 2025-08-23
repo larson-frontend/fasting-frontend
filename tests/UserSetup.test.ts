@@ -6,17 +6,21 @@ import { nextTick } from 'vue'
 // Mock the API functions
 vi.mock('../src/api', () => ({
   loginOrCreateUser: vi.fn(),
-  getStoredLanguage: vi.fn(() => 'en')
+  getStoredLanguage: vi.fn(() => 'en'),
+  checkUsernameAvailability: vi.fn()
 }))
 
-import { loginOrCreateUser } from '../src/api'
+import { loginOrCreateUser, checkUsernameAvailability } from '../src/api'
 
 describe('UserSetup Component', () => {
   let mockLoginOrCreateUser: any
+  let mockCheckUsernameAvailability: any
 
   beforeEach(() => {
     mockLoginOrCreateUser = vi.mocked(loginOrCreateUser)
+    mockCheckUsernameAvailability = vi.mocked(checkUsernameAvailability)
     mockLoginOrCreateUser.mockClear()
+    mockCheckUsernameAvailability.mockClear()
   })
 
   afterEach(() => {
