@@ -1,7 +1,28 @@
 {
-  "name": "fasting-frontend",
-  "version": "0.1.0",
-  "private": true,
+  "name": "fasting-tracker-pro",
+  "version": "1.0.0",
+  "description": "Professional Fasting Tracker - Smart intermittent fasting with real-time progress tracking, phase guidance, and goal management",
+  "author": "Lars Larson <lars@example.com>",
+  "license": "MIT",
+  "keywords": [
+    "fasting",
+    "intermittent-fasting",
+    "health",
+    "wellness",
+    "tracker",
+    "vue",
+    "typescript",
+    "progressive-web-app"
+  ],
+  "homepage": "https://fastingtracker.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/larson-frontend/fasting-frontend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/larson-frontend/fasting-frontend/issues"
+  },
+  "private": false,
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -34,6 +55,7 @@
     "tailwindcss": "^3.4.13",
     "typescript": "^5.6.0",
     "vite": "^7.1.1",
+    "vite-plugin-pwa": "^1.0.3",
     "vitest": "^3.2.4",
     "vue-tsc": "^3.0.0"
   }
