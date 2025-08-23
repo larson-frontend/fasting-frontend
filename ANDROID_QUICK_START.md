@@ -39,17 +39,17 @@ npm run preview
 ```
 
 ### 2. **Generate App Icons** (10 minutes)
-```bash
-# If you have a 512x512 PNG icon:
-./scripts/generate-android-icons.sh your-icon.png
 
-# This creates all required sizes:
-# - Android icons (48px to 192px)
-# - PWA icons (64px, 192px, 512px)
-# - Maskable icon for adaptive icons
-# - Apple touch icon
-# - Favicon
-```
+If you have a 512x512 PNG icon, you can generate all required app icons using a free online tool or an npm package:
+
+**Option A: Use a free online tool**
+- Go to [https://appicon.co/](https://appicon.co/) or [https://maskable.app/editor](https://maskable.app/editor)
+- Upload your 512x512 PNG icon
+- Download the generated icon set (includes Android, PWA, maskable, Apple touch, favicon, etc.)
+
+**Option B: Use an npm package**
+```bash
+npx pwa-asset-generator your-icon.png ./public/icons
 
 ### 3. **Create TWA (Trusted Web Activity)** (15 minutes)
 
