@@ -51,7 +51,7 @@
       </div>
     </div>
     <div v-if="items.length === 0" class="text-center text-gray-500 py-8 text-sm">
-      Noch keine Sessions vorhanden
+      {{ $t('history.empty') }}
     </div>
   </div>
 </template>

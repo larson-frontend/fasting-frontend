@@ -12,6 +12,7 @@ import FastingInfoModal from './components/FastingInfoModal.vue'
 import TestPanel from './components/TestPanel.vue'
 import ErrorPage from './components/ErrorPage.vue'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
+import UserManager from './components/UserManager.vue'
 
 const loading = ref(false)
 const stat = ref<{active?: boolean; hours?: number; minutes?: number; since?: string}>({})
@@ -160,9 +161,10 @@ onMounted(refresh)
       <div class="flex items-center justify-between mb-2">
         <div class="flex items-center gap-3">
           <span class="text-2xl sm:text-3xl">🍃</span>
-          <h1 class="text-xl sm:text-2xl font-bold">{{ $t('app.title') }}</h1>
         </div>
         <div class="flex items-center gap-2">
+          <!-- User Manager -->
+          <UserManager />
           <!-- Language Switcher -->
           <LanguageSwitcher />
           <!-- Info Button -->

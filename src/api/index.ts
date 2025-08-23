@@ -7,9 +7,11 @@ import { config } from './config';
 import { fastingApiService } from './fasting-service';
 import { mockService } from '../mocks/service';
 import { fallbackApiService } from './fallback-service';
+import { userService } from './user-service';
 
 // Export Types
 export type * from '../types/api';
+export type * from '../types/user';
 
 // Service Selection mit intelligentem Fallback
 const service = config.isDevelopment ? fallbackApiService : 
@@ -24,6 +26,15 @@ export const stopFast = service.stopFast.bind(service);
 export const statusFast = service.getStatus.bind(service);
 export const historyFast = service.getHistory.bind(service);
 export const healthCheck = service.healthCheck.bind(service);
+
+// User Service (always available)
+export const loginOrCreateUser = userService.loginOrCreate.bind(userService);
+export const updateUserPreferences = userService.updatePreferences.bind(userService);
+export const changeUserLanguage = userService.changeLanguage.bind(userService);
+export const getCurrentUser = userService.getCurrentUser.bind(userService);
+export const isUserLoggedIn = userService.isLoggedIn.bind(userService);
+export const getStoredLanguage = userService.getStoredLanguage.bind(userService);
+export const logoutUser = userService.logout.bind(userService);
 
 // Configuration Exports für Debug/Info
 export const isMockMode = config.useMockData;
