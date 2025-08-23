@@ -1,12 +1,12 @@
 <template>
   <div class="rounded-lg border bg-white p-4 shadow-sm">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
-      <h2 class="font-semibold text-lg">Historie</h2>
+      <h2 class="font-semibold text-lg">{{ $t('history.title') }}</h2>
       <button 
         @click="$emit('refresh')" 
         class="text-sm px-3 py-2 rounded border hover:bg-gray-100 touch-manipulation font-medium" 
         :disabled="loading">
-        {{ loading ? 'Lädt…' : 'Aktualisieren' }}
+        {{ loading ? '...' : $t('history.refresh') }}
       </button>
     </div>
     <div class="space-y-3">
@@ -30,13 +30,13 @@
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                beendet
+                {{ $t('history.completed') }}
               </span>
               <span v-else class="flex items-center gap-1 text-emerald-600 text-xs font-medium">
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
-                aktiv
+                {{ $t('history.active') }}
               </span>
             </div>
             <div class="text-xs text-gray-500">
@@ -44,8 +44,8 @@
             </div>
           </div>
           <div class="text-gray-600 text-xs space-y-1">
-            <div class="truncate">Start: {{ new Date(item.startAt).toLocaleString() }}</div>
-            <div v-if="item.endAt" class="truncate">Ende: {{ new Date(item.endAt).toLocaleString() }}</div>
+            <div class="truncate">{{ $t('history.started') }}: {{ new Date(item.startAt).toLocaleString() }}</div>
+            <div v-if="item.endAt" class="truncate">{{ $t('history.ended') }}: {{ new Date(item.endAt).toLocaleString() }}</div>
           </div>
         </div>
       </div>

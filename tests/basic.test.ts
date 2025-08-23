@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, mountWithI18n } from './test-utils'
 import TimeBadge from '../src/components/TimeBadge.vue'
 import ProgressBar from '../src/components/ProgressBar.vue'
 import StatusCard from '../src/components/StatusCard.vue'
@@ -50,7 +50,7 @@ describe('TimeBadge Component', () => {
 
 describe('ProgressBar Component', () => {
   it('sollte mit Standard-Props rendern', () => {
-    const wrapper = mount(ProgressBar, {
+    const wrapper = mountWithI18n(ProgressBar, {
       props: {
         hours: 12,
         minutes: 0
@@ -62,7 +62,7 @@ describe('ProgressBar Component', () => {
   })
 
   it('sollte Goal-Hours korrekt verwenden', () => {
-    const wrapper = mount(ProgressBar, {
+    const wrapper = mountWithI18n(ProgressBar, {
       props: {
         hours: 16,
         minutes: 0,
@@ -77,7 +77,7 @@ describe('ProgressBar Component', () => {
 
 describe('StatusCard Component', () => {
   it('sollte aktiven Status korrekt anzeigen', () => {
-    const wrapper = mount(StatusCard, {
+    const wrapper = mountWithI18n(StatusCard, {
       props: {
         status: {
           active: true,
@@ -89,12 +89,12 @@ describe('StatusCard Component', () => {
       }
     })
     
-    expect(wrapper.text()).toContain('Aktiv')
+    expect(wrapper.text()).toContain('Aktives Fasten') // Translated text
     expect(wrapper.text()).toContain('10h 30m')
   })
 
   it('sollte inaktiven Status korrekt anzeigen', () => {
-    const wrapper = mount(StatusCard, {
+    const wrapper = mountWithI18n(StatusCard, {
       props: {
         status: {
           active: false,
@@ -104,32 +104,34 @@ describe('StatusCard Component', () => {
       }
     })
     
-    expect(wrapper.text()).toContain('Inaktiv')
+    expect(wrapper.text()).toContain('Nicht am Fasten') // Translated text
   })
 
   it('sollte Button-States korrekt verwalten', () => {
     // Inaktiver Status - Start Button aktiv, Stop Button deaktiviert
-    const wrapperInactive = mount(StatusCard, {
+    const wrapperInactive = mountWithI18n(StatusCard, {
       props: {
         status: { active: false }
       }
     })
     
-    const startButton = wrapperInactive.find('button[title="Fasten starten"]')
-    const stopButton = wrapperInactive.find('button[title="Fasten beenden"]')
+    const startButton = wrapperInactive.find('button[title="Fasten Starten"]') // Updated translation key
+    const stopButton = wrapperInactive.find('button[title="Fasten Beenden"]') // Updated translation key
     
     expect(startButton.attributes('disabled')).toBeUndefined()
     expect(stopButton.attributes('disabled')).toBeDefined()
   })
 
   it('sollte Events korrekt emittieren', async () => {
-    const wrapper = mount(StatusCard, {
+    const wrapper = mountWithI18n(StatusCard, {
       props: {
         status: { active: false }
       }
     })
     
-    const startButton = wrapper.find('button[title="Fasten starten"]')
+    // Find the start button by its position (first button)
+    const buttons = wrapper.findAll('button')
+    const startButton = buttons[0]
     await startButton.trigger('click')
     
     expect(wrapper.emitted()).toHaveProperty('start')

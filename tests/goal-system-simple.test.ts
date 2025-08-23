@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, mountWithI18n } from './test-utils'
 import ProgressBar from '../src/components/ProgressBar.vue'
 import GoalSelectionDialog from '../src/components/GoalSelectionDialog.vue'
 
@@ -7,7 +7,7 @@ describe('Goal System - Simplified Tests', () => {
   
   describe('ProgressBar Component', () => {
     it('should render with basic props', () => {
-      const wrapper = mount(ProgressBar, {
+      const wrapper = mountWithI18n(ProgressBar, {
         props: {
           hours: 8,
           minutes: 30,
@@ -20,7 +20,7 @@ describe('Goal System - Simplified Tests', () => {
     })
 
     it('should display correct time', () => {
-      const wrapper = mount(ProgressBar, {
+      const wrapper = mountWithI18n(ProgressBar, {
         props: {
           hours: 8,
           minutes: 30,
@@ -35,7 +35,7 @@ describe('Goal System - Simplified Tests', () => {
     })
 
     it('should show correct progress percentage', () => {
-      const wrapper = mount(ProgressBar, {
+      const wrapper = mountWithI18n(ProgressBar, {
         props: {
           hours: 8,
           minutes: 0,
@@ -51,7 +51,7 @@ describe('Goal System - Simplified Tests', () => {
 
   describe('GoalSelectionDialog Component', () => {
     it('should render when shown', () => {
-      const wrapper = mount(GoalSelectionDialog, {
+      const wrapper = mountWithI18n(GoalSelectionDialog, {
         props: {
           show: true
         }
@@ -62,7 +62,7 @@ describe('Goal System - Simplified Tests', () => {
     })
 
     it('should display goal options', () => {
-      const wrapper = mount(GoalSelectionDialog, {
+      const wrapper = mountWithI18n(GoalSelectionDialog, {
         props: {
           show: true
         }
@@ -73,7 +73,7 @@ describe('Goal System - Simplified Tests', () => {
     })
 
     it('should have confirm button', () => {
-      const wrapper = mount(GoalSelectionDialog, {
+      const wrapper = mountWithI18n(GoalSelectionDialog, {
         props: {
           show: true
         }
@@ -89,7 +89,7 @@ describe('Goal System - Simplified Tests', () => {
       const testGoals = [10, 12, 16, 18, 20, 22, 24]
       
       testGoals.forEach(goal => {
-        const wrapper = mount(ProgressBar, {
+        const wrapper = mountWithI18n(ProgressBar, {
           props: {
             hours: goal / 2,
             minutes: 0,

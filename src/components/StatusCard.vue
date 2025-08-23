@@ -13,10 +13,10 @@
         <!-- Status Header mit Buttons -->
         <div class="flex items-center justify-between">
           <div class="min-w-0 flex-1">
-            <p class="text-sm text-gray-500">Status</p>
+            <p class="text-sm text-gray-500">{{ $t('fasting.status.title') }}</p>
             <div class="flex items-center gap-3 flex-wrap">
               <p class="text-lg font-semibold">
-                {{ effectiveStatus.active ? 'Aktiv' : 'Inaktiv' }}
+                {{ effectiveStatus.active ? $t('fasting.status.active') : $t('fasting.status.inactive') }}
               </p>
               <TimeBadge 
                 v-if="effectiveStatus.active" 
@@ -25,7 +25,7 @@
               />
             </div>
             <p v-if="effectiveStatus.since" class="text-xs text-gray-400 truncate">
-              seit {{ new Date(effectiveStatus.since).toLocaleString() }}
+              {{ $t('fasting.time.since') }} {{ new Date(effectiveStatus.since).toLocaleString() }}
             </p>
           </div>
           <div class="flex gap-2 ml-auto">
@@ -35,7 +35,7 @@
               :class="effectiveStatus.active 
                 ? 'w-12 h-12 rounded-full bg-gray-400 text-gray-600 cursor-not-allowed flex items-center justify-center' 
                 : 'w-12 h-12 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 flex items-center justify-center touch-manipulation shadow-md hover:shadow-lg transition-all'"
-              :title="'Fasten starten'">
+              :title="$t('fasting.actions.start')">
               <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z"/>
               </svg>
@@ -46,7 +46,7 @@
               :class="!effectiveStatus.active 
                 ? 'w-12 h-12 rounded-full bg-gray-400 text-gray-600 cursor-not-allowed flex items-center justify-center' 
                 : 'w-12 h-12 rounded-full bg-rose-600 text-white hover:bg-rose-700 flex items-center justify-center touch-manipulation shadow-md hover:shadow-lg transition-all'"
-              :title="'Fasten beenden'">
+              :title="$t('fasting.actions.stop')">
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                 <rect x="6" y="6" width="12" height="12" rx="1"/>
               </svg>

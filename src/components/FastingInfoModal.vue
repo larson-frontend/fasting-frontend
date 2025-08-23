@@ -2,7 +2,7 @@
   <div v-if="show" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 p-4">
     <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
       <div class="flex items-center justify-between mb-6">
-        <h3 class="text-lg font-bold text-gray-900">Fasten-Phasen</h3>
+        <h3 class="text-lg font-bold text-gray-900">{{ $t('fasting.phases.title') }}</h3>
         <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -32,8 +32,8 @@
               </div>
             </div>
             <div>
-              <h4 class="font-semibold text-blue-900">0-3 Stunden {{ getPhaseStatus(0, 3) }}</h4>
-              <p class="text-sm text-blue-800">Verdauung läuft noch. Insulinspiegel beginnt zu sinken.</p>
+              <h4 class="font-semibold text-blue-900">{{ $t('fasting.phases.phase1.time') }} {{ getPhaseStatus(0, 3) }}</h4>
+              <p class="text-sm text-blue-800">{{ $t('fasting.phases.phase1.description') }}</p>
             </div>
           </div>
         </div>
@@ -59,8 +59,8 @@
               </div>
             </div>
             <div>
-              <h4 class="font-semibold text-yellow-900">3-8 Stunden {{ getPhaseStatus(3, 8) }}</h4>
-              <p class="text-sm text-yellow-800">Insulin normalisiert sich. Körper beginnt gespeicherte Glukose zu nutzen.</p>
+              <h4 class="font-semibold text-yellow-900">{{ $t('fasting.phases.phase2.time') }} {{ getPhaseStatus(3, 8) }}</h4>
+              <p class="text-sm text-yellow-800">{{ $t('fasting.phases.phase2.description') }}</p>
             </div>
           </div>
         </div>
@@ -86,8 +86,8 @@
               </div>
             </div>
             <div>
-              <h4 class="font-semibold text-orange-900">8-12 Stunden {{ getPhaseStatus(8, 12) }}</h4>
-              <p class="text-sm text-orange-800">Fettverbrennung startet! Körper wechselt von Glukose zu Fett als Energiequelle.</p>
+              <h4 class="font-semibold text-orange-900">{{ $t('fasting.phases.phase3.time') }} {{ getPhaseStatus(8, 12) }}</h4>
+              <p class="text-sm text-orange-800">{{ $t('fasting.phases.phase3.description') }}</p>
             </div>
           </div>
         </div>
@@ -113,8 +113,8 @@
               </div>
             </div>
             <div>
-              <h4 class="font-semibold text-emerald-900">12-16 Stunden {{ getPhaseStatus(12, 16) }}</h4>
-              <p class="text-sm text-emerald-800">Ketose beginnt. Erste Ketone werden produziert. Mentale Klarheit steigt.</p>
+              <h4 class="font-semibold text-emerald-900">{{ $t('fasting.phases.phase4.time') }} {{ getPhaseStatus(12, 16) }}</h4>
+              <p class="text-sm text-emerald-800">{{ $t('fasting.phases.phase4.description') }}</p>
             </div>
           </div>
         </div>
@@ -140,8 +140,8 @@
               </div>
             </div>
             <div>
-              <h4 class="font-semibold text-purple-900">16+ Stunden {{ getPhaseStatus(16, 24) }}</h4>
-              <p class="text-sm text-purple-800">Autophagie aktiviert! Zellerneuerung und -reparatur beginnen. Tiefe Ketose.</p>
+              <h4 class="font-semibold text-purple-900">{{ $t('fasting.phases.phase5.time') }} {{ getPhaseStatus(16, 24) }}</h4>
+              <p class="text-sm text-purple-800">{{ $t('fasting.phases.phase5.description') }}</p>
             </div>
           </div>
         </div>
@@ -149,8 +149,8 @@
 
       <div class="mt-6 pt-4 border-t border-gray-200">
         <p class="text-xs text-gray-500 text-center">
-          Basierend auf wissenschaftlichen Studien zu Intervallfasten.<br>
-          <span class="font-medium">Quellen:</span> Harvard Health, NIH, Journal of Clinical Investigation
+          {{ $t('fasting.phases.source_note') }}<br>
+          <span class="font-medium">{{ $t('fasting.phases.sources') }}:</span> Harvard Health, NIH, Journal of Clinical Investigation
         </p>
       </div>
     </div>
@@ -159,6 +159,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 interface FastStatus {
   active?: boolean
@@ -173,6 +174,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 
 defineEmits<{
   close: []
@@ -200,10 +202,10 @@ function getPhaseStatus(start: number, end: number): string {
   const current = currentHours.value
   
   if (!props.status?.active) return ''
-  if (current < start) return '(noch nicht erreicht)'
-  if (current >= end) return '✓ (abgeschlossen)'
+  if (current < start) return `(${t('fasting.phases.status.not_reached')})`
+  if (current >= end) return `✓ (${t('fasting.phases.status.completed')})`
   
   const progress = Math.round(((current - start) / (end - start)) * 100)
-  return `(${progress}% erreicht)`
+  return `(${progress}% ${t('fasting.phases.status.progress')})`
 }
 </script>

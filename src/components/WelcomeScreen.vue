@@ -6,8 +6,8 @@
           <div class="animate-leaf-float mb-6">
             <span class="text-6xl sm:text-7xl">🍃</span>
           </div>
-          <h2 class="text-3xl sm:text-4xl font-bold text-emerald-700">Fasting Tracker</h2>
-          <p class="text-emerald-600 text-sm sm:text-base mt-2">Tippe zum Starten</p>
+          <h2 class="text-3xl sm:text-4xl font-bold text-emerald-700">{{ $t('app.title') }}</h2>
+          <p class="text-emerald-600 text-sm sm:text-base mt-2">{{ $t('welcome.tap_to_start') }}</p>
         </div>
       </div>
     </div>
