@@ -8,8 +8,8 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
           </svg>
         </div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-2">Dein Fasten-Ziel</h2>
-        <p class="text-gray-600">Wähle dein angestrebtes Fasten-Ziel aus:</p>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ $t('fasting.goals.title') }}</h2>
+        <p class="text-gray-600">{{ $t('fasting.goals.description') }}</p>
       </div>
 
       <!-- Ziel-Buttons -->
@@ -27,10 +27,10 @@
           <div class="flex items-center justify-between">
             <div>
               <div class="font-semibold text-gray-800" :class="selectedGoal === goal.hours ? 'text-blue-700' : ''">
-                {{ goal.hours }} Stunden
+                {{ goal.hours }} {{ $t('fasting.time.hours') }}
               </div>
               <div class="text-sm text-gray-600" :class="selectedGoal === goal.hours ? 'text-blue-600' : ''">
-                {{ goal.description }}
+                {{ $t(`fasting.goals.options.${goal.hours}`) }}
               </div>
             </div>
             <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
@@ -49,7 +49,7 @@
           @click="cancel"
           class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
         >
-          Abbrechen
+          {{ $t('dialog.cancel') }}
         </button>
         <button
           @click="confirm"
@@ -57,7 +57,7 @@
           data-testid="confirm-goal-button"
           class="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Fasten starten
+          {{ $t('fasting.actions.start') }}
         </button>
       </div>
     </div>
@@ -73,7 +73,6 @@ interface Props {
 
 interface GoalOption {
   hours: number
-  description: string
 }
 
 const props = defineProps<Props>()
@@ -86,12 +85,12 @@ const emit = defineEmits<{
 const selectedGoal = ref<number | null>(null)
 
 const goals: GoalOption[] = [
-  { hours: 10, description: 'Sanfter Einstieg' },
-  { hours: 12, description: 'Klassisches Fasten' },
-  { hours: 16, description: 'Intermittierendes Fasten' },
-  { hours: 18, description: 'Erweiterte Autophagie' },
-  { hours: 20, description: 'Intensive Regeneration' },
-  { hours: 24, description: 'Vollständige Erneuerung' }
+  { hours: 10 },
+  { hours: 12 },
+  { hours: 16 },
+  { hours: 18 },
+  { hours: 20 },
+  { hours: 24 }
 ]
 
 function selectGoal(hours: number) {

@@ -4,14 +4,14 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, mountWithI18n } from './test-utils'
 import ErrorPage from '../src/components/ErrorPage.vue'
 
 describe('Error Classification Tests', () => {
   describe('1. Error Type Classification', () => {
     it('sollte HTTP 500 Server Error klassifizieren', async () => {
       const error = new Error('HTTP Error: 500 Internal Server Error')
-      const wrapper = mount(ErrorPage, {
+      const wrapper = mountWithI18n(ErrorPage, {
         props: { error }
       })
 
@@ -21,7 +21,7 @@ describe('Error Classification Tests', () => {
 
     it('sollte HTTP 404 Error klassifizieren', async () => {
       const error = new Error('HTTP Error: 404 Not Found')
-      const wrapper = mount(ErrorPage, {
+      const wrapper = mountWithI18n(ErrorPage, {
         props: { error }
       })
 
@@ -29,7 +29,7 @@ describe('Error Classification Tests', () => {
     })
 
     it('sollte Timeout Error klassifizieren', () => {
-      const wrapper = mount(ErrorPage, {
+      const wrapper = mountWithI18n(ErrorPage, {
         props: {
           error: new Error('Request timeout after 5000ms'),
           show: true
@@ -41,7 +41,7 @@ describe('Error Classification Tests', () => {
 
     it('sollte Network Error klassifizieren', async () => {
       const error = new Error('NetworkError: Failed to fetch')
-      const wrapper = mount(ErrorPage, {
+      const wrapper = mountWithI18n(ErrorPage, {
         props: { error }
       })
 
@@ -51,7 +51,7 @@ describe('Error Classification Tests', () => {
 
     it('sollte Unknown Error klassifizieren', async () => {
       const error = new Error('Something went completely wrong')
-      const wrapper = mount(ErrorPage, {
+      const wrapper = mountWithI18n(ErrorPage, {
         props: { error }
       })
 
@@ -72,7 +72,7 @@ describe('Error Classification Tests', () => {
     it('sollte Online-Zustand korrekt erkennen', async () => {
       Object.defineProperty(navigator, 'onLine', { value: true })
       
-      const wrapper = mount(ErrorPage, {
+      const wrapper = mountWithI18n(ErrorPage, {
         props: { error: new Error('Network Error') }
       })
 
@@ -83,7 +83,7 @@ describe('Error Classification Tests', () => {
     it('sollte Offline-Zustand erkennen', async () => {
       Object.defineProperty(navigator, 'onLine', { value: false })
       
-      const wrapper = mount(ErrorPage, {
+      const wrapper = mountWithI18n(ErrorPage, {
         props: { error: new Error('Network Error') }
       })
 
@@ -95,7 +95,7 @@ describe('Error Classification Tests', () => {
   describe('3. ErrorPage Component Functionality', () => {
     it('sollte Error-Details korrekt anzeigen', async () => {
       const error = new Error('Test Error Message')
-      const wrapper = mount(ErrorPage, {
+      const wrapper = mountWithI18n(ErrorPage, {
         props: { error }
       })
 
@@ -110,7 +110,7 @@ describe('Error Classification Tests', () => {
     })
 
     it('sollte Retry-Button anzeigen', async () => {
-      const wrapper = mount(ErrorPage, {
+      const wrapper = mountWithI18n(ErrorPage, {
         props: { error: new Error('Test Error') }
       })
 
@@ -120,7 +120,7 @@ describe('Error Classification Tests', () => {
     })
 
     it('sollte Refresh-Button anzeigen', async () => {
-      const wrapper = mount(ErrorPage, {
+      const wrapper = mountWithI18n(ErrorPage, {
         props: { error: new Error('Test Error') }
       })
 
@@ -133,7 +133,7 @@ describe('Error Classification Tests', () => {
     })
 
     it('sollte Help-Section anzeigen', async () => {
-      const wrapper = mount(ErrorPage, {
+      const wrapper = mountWithI18n(ErrorPage, {
         props: { error: new Error('Test Error') }
       })
 
@@ -148,7 +148,7 @@ describe('Error Classification Tests', () => {
     it('sollte korrekte Offline-Nachricht generieren', async () => {
       Object.defineProperty(navigator, 'onLine', { value: false })
       
-      const wrapper = mount(ErrorPage, {
+      const wrapper = mountWithI18n(ErrorPage, {
         props: { error: new Error('Any Error') }
       })
 
@@ -160,7 +160,7 @@ describe('Error Classification Tests', () => {
     it('sollte korrekte API-Fehler-Nachricht generieren', async () => {
       Object.defineProperty(navigator, 'onLine', { value: true })
       
-      const wrapper = mount(ErrorPage, {
+      const wrapper = mountWithI18n(ErrorPage, {
         props: { error: new Error('NetworkError: fetch failed') }
       })
 
@@ -172,7 +172,7 @@ describe('Error Classification Tests', () => {
     it('sollte generische Fehlernachricht für unbekannte Fehler generieren', async () => {
       Object.defineProperty(navigator, 'onLine', { value: true })
       
-      const wrapper = mount(ErrorPage, {
+      const wrapper = mountWithI18n(ErrorPage, {
         props: { error: new Error('Unknown error type') }
       })
 

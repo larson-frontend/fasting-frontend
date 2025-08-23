@@ -11,6 +11,7 @@ import HistoryCard from './components/HistoryCard.vue'
 import FastingInfoModal from './components/FastingInfoModal.vue'
 import TestPanel from './components/TestPanel.vue'
 import ErrorPage from './components/ErrorPage.vue'
+import LanguageSwitcher from './components/LanguageSwitcher.vue'
 
 const loading = ref(false)
 const stat = ref<{active?: boolean; hours?: number; minutes?: number; since?: string}>({})
@@ -155,17 +156,23 @@ onMounted(refresh)
   <!-- Main App -->
   <div v-else class="min-h-screen bg-gray-50 text-gray-900">
     <div class="max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+      <!-- Header with Language Switcher -->
       <div class="flex items-center justify-between mb-2">
         <div class="flex items-center gap-3">
           <span class="text-2xl sm:text-3xl">🍃</span>
-          <h1 class="text-xl sm:text-2xl font-bold">Fasting Tracker</h1>
+          <h1 class="text-xl sm:text-2xl font-bold">{{ $t('app.title') }}</h1>
         </div>
-        <button 
-          @click="showInfoModal = true"
-          class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 flex items-center justify-center touch-manipulation transition-colors"
-          title="Fasten-Phasen Info">
-          <span class="text-sm sm:text-base font-bold italic">i</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <!-- Language Switcher -->
+          <LanguageSwitcher />
+          <!-- Info Button -->
+          <button 
+            @click="showInfoModal = true"
+            class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 flex items-center justify-center touch-manipulation transition-colors"
+            :title="$t('fasting.phases.title')">
+            <span class="text-sm sm:text-base font-bold italic">i</span>
+          </button>
+        </div>
       </div>
       
       <StatusCard :status="stat" @start="confirmAction('start')" @stop="confirmAction('stop')" />
@@ -174,17 +181,17 @@ onMounted(refresh)
       
       <!-- Debug Info für Development -->
       <div v-if="isDev" class="text-xs text-gray-400 text-center space-y-1">
-        <p>{{ isMockMode ? '🎭 Mock-Modus' : 'API: ' + apiBase }}</p>
+        <p>{{ isMockMode ? `🎭 ${$t('info.mock_mode')}` : `${$t('info.api')}: ${apiBase}` }}</p>
         <button 
           @click="showDebugInfo" 
           class="text-blue-500 hover:text-blue-700 underline"
         >
-          Debug Info anzeigen
+          {{ $t('info.show_debug') }}
         </button>
       </div>
       
       <p v-else class="text-xs text-gray-400 text-center">
-        {{ isMockMode ? '🎭 Mock-Modus' : 'API: ' + apiBase }}
+        {{ isMockMode ? `🎭 ${$t('info.mock_mode')}` : `${$t('info.api')}: ${apiBase}` }}
       </p>
     </div>
   </div>
