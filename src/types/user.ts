@@ -5,6 +5,7 @@
 
 import type { FastSession } from './api';
 
+// Frontend User Model (our current implementation)
 export interface User {
   id: string;
   username: string;
@@ -12,6 +13,28 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   preferences: UserPreferences;
+}
+
+// Backend User Model (from API documentation)
+export interface BackendUser {
+  id: number;
+  name: string;
+  email: string;
+  age: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Hybrid User Model (combines both for compatibility)
+export interface ApiUser {
+  id: number | string;
+  name?: string;
+  username?: string;
+  email: string;
+  age?: number;
+  createdAt: string;
+  updatedAt: string;
+  preferences?: UserPreferences;
 }
 
 export interface UserPreferences {

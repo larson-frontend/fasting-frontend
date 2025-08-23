@@ -15,6 +15,7 @@ import type {
 class MockUserService {
   private users: Map<string, User> = new Map();
   private idCounter = 1;
+  private readonly USERNAME_KEY = 'fasting_logged_username';
 
   constructor() {
     // Erstelle Demo-Benutzer
@@ -33,6 +34,12 @@ class MockUserService {
     if (!user) {
       throw new Error('User not found');
     }
+
+    // Save logged username to localStorage
+    localStorage.setItem(this.USERNAME_KEY, user.username);
+
+    // Sync user data after login
+    await this.syncUserDataAfterLogin();
 
     return {
       user,
@@ -87,6 +94,12 @@ class MockUserService {
     };
 
     this.users.set(userId, user);
+
+    // Save logged username to localStorage
+    localStorage.setItem(this.USERNAME_KEY, user.username);
+
+    // Sync user data (for new users, won't have existing data)
+    await this.syncUserDataAfterLogin();
 
     return {
       user,
@@ -258,6 +271,85 @@ class MockUserService {
    */
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Get logged username from localStorage
+   */
+  getLoggedUsername(): string | null {
+    return localStorage.getItem(this.USERNAME_KEY);
+  }
+
+  /**
+   * Logout user (clear localStorage)
+   */
+  logout(): void {
+    this.clearLoggedUsername();
+  }
+
+  /**
+   * Clear logged username from localStorage
+   */
+  private clearLoggedUsername(): void {
+    localStorage.removeItem(this.USERNAME_KEY);
+  }
+
+  /**
+   * Mock: Fetch user-specific fasting status
+   */
+  async fetchUserFastingStatus(): Promise<any> {
+    await this.delay(200);
+    
+    // Return mock fasting status
+    return {
+      active: false,
+      hours: 0,
+      minutes: 0,
+      since: null,
+      goalHours: 16
+    };
+  }
+
+  /**
+   * Mock: Fetch user-specific fasting history  
+   */
+  async fetchUserFastingHistory(): Promise<any[]> {
+    await this.delay(300);
+    
+    // Return mock fasting history
+    return [
+      {
+        id: 'mock-session-1',
+        startTime: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+        endTime: new Date(Date.now() - 86400000 + 16*3600000).toISOString(), // 16 hours later
+        goalHours: 16,
+        actualHours: 16,
+        completed: true
+      },
+      {
+        id: 'mock-session-2', 
+        startTime: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+        endTime: new Date(Date.now() - 172800000 + 18*3600000).toISOString(), // 18 hours later
+        goalHours: 16,
+        actualHours: 18,
+        completed: true
+      }
+    ];
+  }
+
+  /**
+   * Mock: Sync user data after login
+   */
+  async syncUserDataAfterLogin(): Promise<{ status: any; history: any[] }> {
+    await this.delay(100);
+    
+    const [status, history] = await Promise.all([
+      this.fetchUserFastingStatus(),
+      this.fetchUserFastingHistory()
+    ]);
+    
+    console.log('Mock user data synced:', { status, history });
+    return { status, history };
   }
 }
 

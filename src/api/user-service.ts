@@ -35,6 +35,7 @@ class UserService {
   private readonly STORAGE_KEY = 'fasting_user';
   private readonly TOKEN_KEY = 'fasting_auth_token';
   private readonly LANGUAGE_KEY = 'fasting_language';
+  private readonly USERNAME_KEY = 'fasting_logged_username';
 
   constructor() {
     this.loadUserFromStorage();
@@ -86,6 +87,11 @@ class UserService {
       this.authToken = response.token;
       this.saveUserToStorage(response.user);
       this.saveTokenToStorage(response.token);
+      this.saveLoggedUsernameToStorage(response.user.username);
+      
+      // Sync user data after successful login
+      await this.syncUserDataAfterLogin();
+      
       return response;
     } catch (error) {
       throw new Error(`Login failed: ${error}`);
@@ -93,17 +99,47 @@ class UserService {
   }
 
   /**
-   * Check if username is available
+   * Check if username is available (updated for backend API)
    */
   async checkUsernameAvailability(username: string): Promise<boolean> {
     try {
-      const response = await userHttpClient.get<{usernameAvailable: boolean}>(
-        `/users/check-availability?username=${encodeURIComponent(username)}`
+      const response = await userHttpClient.get<{usernameAvailable: boolean, emailAvailable: boolean}>(
+        `/api/users/check-availability?username=${encodeURIComponent(username)}`
       );
       return response.usernameAvailable;
     } catch (error) {
       console.error('Error checking username availability:', error);
       return false;
+    }
+  }
+
+  /**
+   * Check if email is available (new method for backend API)
+   */
+  async checkEmailAvailability(email: string): Promise<boolean> {
+    try {
+      const response = await userHttpClient.get<{usernameAvailable: boolean, emailAvailable: boolean}>(
+        `/api/users/check-availability?email=${encodeURIComponent(email)}`
+      );
+      return response.emailAvailable;
+    } catch (error) {
+      console.error('Error checking email availability:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Check both username and email availability
+   */
+  async checkUserAvailability(username: string, email: string): Promise<{usernameAvailable: boolean, emailAvailable: boolean}> {
+    try {
+      const response = await userHttpClient.get<{usernameAvailable: boolean, emailAvailable: boolean}>(
+        `/api/users/check-availability?username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}`
+      );
+      return response;
+    } catch (error) {
+      console.error('Error checking user availability:', error);
+      return { usernameAvailable: false, emailAvailable: false };
     }
   }
 
@@ -117,6 +153,11 @@ class UserService {
       this.authToken = response.token;
       this.saveUserToStorage(response.user);
       this.saveTokenToStorage(response.token);
+      this.saveLoggedUsernameToStorage(response.user.username);
+      
+      // For new users, there likely won't be existing data, but sync anyway
+      await this.syncUserDataAfterLogin();
+      
       return response;
     } catch (error) {
       throw new Error(`User creation failed: ${error}`);
@@ -209,6 +250,77 @@ class UserService {
   }
 
   /**
+   * Get authenticated headers for API calls
+   */
+  private getAuthHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {};
+    if (this.authToken) {
+      headers['Authorization'] = `Bearer ${this.authToken}`;
+    }
+    return headers;
+  }
+
+  /**
+   * Fetch user-specific fasting status from backend
+   */
+  async fetchUserFastingStatus(): Promise<any> {
+    try {
+      if (!this.currentUser) {
+        throw new Error('User not authenticated');
+      }
+      
+      // Use the user-specific endpoint with username/email
+      const userIdentifier = this.currentUser.username || this.currentUser.email;
+      const response = await userHttpClient.get<any>(
+        `/api/fast/user/${encodeURIComponent(userIdentifier!)}/status`
+      );
+      return response;
+    } catch (error) {
+      console.error('Failed to fetch user fasting status:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Fetch user-specific fasting history from backend
+   */
+  async fetchUserFastingHistory(): Promise<any[]> {
+    try {
+      if (!this.currentUser) {
+        throw new Error('User not authenticated');
+      }
+      
+      // Use the user-specific endpoint with username/email
+      const userIdentifier = this.currentUser.username || this.currentUser.email;
+      const response = await userHttpClient.get<any[]>(
+        `/api/fast/user/${encodeURIComponent(userIdentifier!)}/history`
+      );
+      return response;
+    } catch (error) {
+      console.error('Failed to fetch user fasting history:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Sync user data after login (fetch fasting state and history)
+   */
+  async syncUserDataAfterLogin(): Promise<{ status: any; history: any[] }> {
+    try {
+      const [status, history] = await Promise.all([
+        this.fetchUserFastingStatus(),
+        this.fetchUserFastingHistory()
+      ]);
+      
+      console.log('User data synced:', { status, history });
+      return { status, history };
+    } catch (error) {
+      console.error('Failed to sync user data:', error);
+      return { status: null, history: [] };
+    }
+  }
+
+  /**
    * Benutzer ausloggen
    */
   logout(): void {
@@ -216,6 +328,7 @@ class UserService {
     this.authToken = null;
     localStorage.removeItem(this.STORAGE_KEY);
     localStorage.removeItem(this.TOKEN_KEY);
+    this.clearLoggedUsername();
   }
 
   /**
@@ -255,6 +368,27 @@ class UserService {
    */
   private saveLanguageToStorage(language: 'en' | 'de'): void {
     localStorage.setItem(this.LANGUAGE_KEY, language);
+  }
+
+  /**
+   * Eingeloggten Benutzernamen in localStorage speichern
+   */
+  private saveLoggedUsernameToStorage(username: string): void {
+    localStorage.setItem(this.USERNAME_KEY, username);
+  }
+
+  /**
+   * Eingeloggten Benutzernamen aus localStorage laden
+   */
+  getLoggedUsername(): string | null {
+    return localStorage.getItem(this.USERNAME_KEY);
+  }
+
+  /**
+   * Eingeloggten Benutzernamen aus localStorage entfernen
+   */
+  private clearLoggedUsername(): void {
+    localStorage.removeItem(this.USERNAME_KEY);
   }
 
   /**

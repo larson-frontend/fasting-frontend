@@ -7,7 +7,17 @@ import { nextTick } from 'vue'
 vi.mock('../src/api', () => ({
   loginOrCreateUser: vi.fn(),
   getStoredLanguage: vi.fn(() => 'en'),
-  checkUsernameAvailability: vi.fn()
+  checkUsernameAvailability: vi.fn(),
+  checkEmailAvailability: vi.fn(),
+  checkUserAvailability: vi.fn(),
+  getLoggedUsername: vi.fn(),
+  syncUserDataAfterLogin: vi.fn(),
+  fetchUserFastingStatus: vi.fn(),
+  fetchUserFastingHistory: vi.fn(),
+  startUserFast: vi.fn(),
+  stopUserFast: vi.fn(),
+  getUserFastingStatus: vi.fn(),
+  getUserFastingHistory: vi.fn()
 }))
 
 import { loginOrCreateUser, checkUsernameAvailability } from '../src/api'
