@@ -245,6 +245,8 @@ onMounted(async () => {
         <div class="flex items-center gap-2">
           <!-- User Manager -->
           <UserManager />
+        </div>
+        <div class="flex items-center gap-3">
           <!-- Info Button -->
           <button 
             @click="showInfoModal = true"
@@ -252,9 +254,6 @@ onMounted(async () => {
             :title="$t('fasting.phases.title')">
             <span class="text-sm sm:text-base font-bold italic">i</span>
           </button>
-        </div>
-        <div class="flex items-center gap-3">
-          <span class="text-2xl sm:text-3xl">🍃</span>
         </div>
       </div>
       
