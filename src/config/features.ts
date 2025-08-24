@@ -10,6 +10,9 @@ export interface FeatureFlags {
   // Theme features
   themeSelection: boolean
   
+  // Advanced fasting features
+  advancedFasting: boolean
+  
   // Future features can be added here
   // advancedAnalytics: boolean
   // socialFeatures: boolean
@@ -25,6 +28,9 @@ export interface FeatureFlags {
  * 
  * TO ENABLE THEME SELECTION IN FUTURE:
  * Change themeSelection to true when theme switching is ready for production
+ * 
+ * TO ENABLE ADVANCED FASTING IN FUTURE:
+ * Change advancedFasting to true when auto-start and custom goals are ready
  */
 export const featureFlags: FeatureFlags = {
   // Hide detailed notification settings (reminders, meal reminders, etc.)
@@ -34,6 +40,10 @@ export const featureFlags: FeatureFlags = {
   // Hide theme selection (light/dark/system) for initial release
   // Keep system theme as default for now
   themeSelection: false,
+  
+  // Hide advanced fasting features (auto-start, custom goal hours) for initial release
+  // Keep basic 16-hour default for now
+  advancedFasting: false,
 }
 
 /**

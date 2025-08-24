@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { startFast, stopFast, statusFast, historyFast, isMockMode, apiBase } from './api/index'
+import { startFast, stopFast, statusFast, historyFast, getUserFastingHistory, fetchUserFastingHistory, getCurrentUser, isMockMode, apiBase } from './api/index'
 import { fallbackApiService } from './api/fallback-service'
 import './utils/error-tests' // Lade Error-Tests für Browser Console
 import WelcomeScreen from './components/WelcomeScreen.vue'
@@ -17,6 +17,7 @@ import LoadingSpinner from './components/LoadingSpinner.vue'
 const loading = ref(false)
 const stat = ref<{active?: boolean; hours?: number; minutes?: number; since?: string}>({})
 const items = ref<any[]>([])
+const currentUser = ref<any>(null)
 
 const showWelcome = ref(true)
 const showDialog = ref(false)
@@ -70,7 +71,23 @@ async function refresh() {
   loading.value = true
   try {
     stat.value = await statusFast()
-    const history = await historyFast()
+    
+    // Use user-specific history endpoint if user is available
+    let history
+    if (currentUser.value) {
+      try {
+        // Try user-specific history first
+        history = await fetchUserFastingHistory()
+      } catch (error) {
+        console.warn('User-specific history failed, falling back to global:', error)
+        // Fallback to global history
+        history = await historyFast()
+      }
+    } else {
+      // No user, use global endpoint
+      history = await historyFast()
+    }
+    
     // Sortiere: aktive Sessions zuerst, dann nach ID (neueste zuerst)
     items.value = history.sort((a, b) => {
       if (a.endAt === null && b.endAt !== null) return -1
@@ -144,7 +161,19 @@ function showDebugInfo() {
   alert(`Debug Info:\n${JSON.stringify(debugInfo, null, 2)}`);
 }
 
-onMounted(refresh)
+onMounted(async () => {
+  // Initialize current user first
+  try {
+    currentUser.value = await getCurrentUser()
+  } catch (error) {
+    console.error('Failed to get current user:', error)
+    // Use fallback user ID for demo purposes
+    currentUser.value = { id: 1, username: 'demo_user' }
+  }
+  
+  // Then refresh data
+  await refresh()
+})
 </script>
 
 <template>

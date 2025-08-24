@@ -218,8 +218,8 @@
         </div>
       </div>
 
-      <!-- Fasting Defaults -->
-      <div>
+      <!-- Fasting Defaults (only if advanced fasting feature flag is enabled) -->
+      <div v-if="isFeatureEnabled('advancedFasting')">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
           Fasting Preferences
         </label>
