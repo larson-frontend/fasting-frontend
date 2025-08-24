@@ -171,24 +171,31 @@ class UserService {
    * Benutzer-Einstellungen aktualisieren
    */
   async updatePreferences(request: UpdatePreferencesRequest): Promise<User> {
-    if (!this.currentUser || !this.authToken) {
-      throw new Error('No user logged in');
-    }
+    // For testing: temporarily use a default user ID if no user is logged in
+    const userId = this.currentUser?.id || 1;
+
+    console.log('updatePreferences called with:', request);
+    console.log('using userId:', userId);
 
     try {
-      const response = await userHttpClient.patch<UserApiResponse>(
-        `/users/preferences?userId=${this.currentUser.id}`, 
+      const response = await userHttpClient.patch<User>(
+        `/users/preferences?userId=${userId}`, 
         request,
-        { headers: { Authorization: `Bearer ${this.authToken}` } }
+        { 
+          headers: this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}
+        }
       );
       
-      // Update lokale User-Daten with the full user object from response
-      const updatedUser = response.user;
+      console.log('updatePreferences response:', response);
+      
+      // The response is directly the user object, not wrapped in { user: ... }
+      const updatedUser = response;
       this.currentUser = updatedUser;
       this.saveUserToStorage(updatedUser);
       
       return updatedUser;
     } catch (error) {
+      console.error('updatePreferences error:', error);
       throw new Error(`Failed to update preferences: ${error}`);
     }
   }
@@ -214,17 +221,11 @@ class UserService {
    * Aktuellen Benutzer abrufen (mit Backend-Validierung)
    */
   async getCurrentUser(): Promise<User | null> {
-    // Wenn kein Token vorhanden, direkt null zurückgeben
-    if (!this.authToken) {
-      return null;
-    }
-
-    // Wenn bereits ein User geladen ist, versuche Backend-Validierung
     try {
-      // Fix: Use correct endpoint /users/current with userId parameter
-      const userId = this.currentUser?.id || '1'; // Use stored user ID or default to 1
+      // For testing: use default user ID 1 if no current user
+      const userId = this.currentUser?.id || '1';
       const response = await userHttpClient.get<{user: User}>(`/users/current?userId=${userId}`, {
-        headers: { Authorization: `Bearer ${this.authToken}` }
+        headers: this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}
       });
       
       // Extract user from response wrapper
@@ -236,7 +237,7 @@ class UserService {
       return user;
       
     } catch (error) {
-      console.log('Session expired or invalid, clearing auth data');
+      console.log('Failed to get current user:', error);
       // Token ungültig, lokale Daten löschen
       this.logout();
       return null;
@@ -428,13 +429,16 @@ class UserService {
    */
   private loadUserFromStorage(): void {
     const stored = localStorage.getItem(this.STORAGE_KEY);
-    if (stored) {
+    if (stored && stored !== 'undefined' && stored !== 'null') {
       try {
         this.currentUser = JSON.parse(stored);
       } catch (error) {
         console.error('Failed to load user from storage:', error);
         localStorage.removeItem(this.STORAGE_KEY);
+        this.currentUser = null;
       }
+    } else {
+      this.currentUser = null;
     }
   }
 

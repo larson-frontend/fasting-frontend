@@ -13,12 +13,14 @@ export async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     let errorData: any;
     
+    // Read response as text first, then try to parse as JSON
+    const responseText = await response.text();
+    
     try {
-      errorData = await response.json();
+      errorData = JSON.parse(responseText);
     } catch {
       // Fallback if response is not JSON
-      const errorText = await response.text();
-      throw new Error(errorText || `HTTP ${response.status}: ${response.statusText}`);
+      throw new Error(responseText || `HTTP ${response.status}: ${response.statusText}`);
     }
     
     // Handle structured error responses

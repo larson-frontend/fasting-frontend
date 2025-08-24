@@ -1,8 +1,10 @@
 <template>
   <button
     @click="toggle"
+    :disabled="disabled"
     :class="[
-      'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2',
+      'relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2',
+      disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
       value ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'
     ]"
     role="switch"
@@ -21,6 +23,7 @@
 // Props
 const props = defineProps<{
   value: boolean
+  disabled?: boolean
 }>()
 
 // Emits
@@ -30,6 +33,8 @@ const emits = defineEmits<{
 
 // Methods
 const toggle = () => {
-  emits('change', !props.value)
+  if (!props.disabled) {
+    emits('change', !props.value)
+  }
 }
 </script>

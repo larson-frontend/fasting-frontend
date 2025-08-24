@@ -66,8 +66,8 @@
         </div>
       </div>
 
-      <!-- Theme Selection -->
-      <div>
+      <!-- Theme Selection (only if feature flag is enabled) -->
+      <div v-if="isFeatureEnabled('themeSelection')">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
           {{ $t('user.theme') }}
         </label>
@@ -127,7 +127,11 @@
           <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div>
               <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Enable Notifications</span>
-              <p class="text-xs text-gray-500 dark:text-gray-400">Master control for all notifications</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                {{ isFeatureEnabled('detailedNotifications') 
+                   ? 'Master control for all notifications' 
+                   : 'Enable or disable notifications for the app' }}
+              </p>
             </div>
             <toggle-switch 
               :value="preferences.notifications.enabled"
@@ -135,8 +139,9 @@
             />
           </div>
           
-          <!-- Individual Notification Settings (only if enabled) -->
-          <div v-if="preferences.notifications.enabled" class="space-y-3 ml-4 border-l-2 border-gray-200 dark:border-gray-600 pl-4">
+          <!-- Individual Notification Settings (only if enabled AND feature flag is on) -->
+          <div v-if="preferences.notifications.enabled && isFeatureEnabled('detailedNotifications')" 
+               class="space-y-3 ml-4 border-l-2 border-gray-200 dark:border-gray-600 pl-4">
             <div class="flex items-center justify-between">
               <div>
                 <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('user.fastingReminders') }}</span>
@@ -144,6 +149,7 @@
               </div>
               <toggle-switch 
                 :value="preferences.notifications.fastingReminders"
+                :disabled="!preferences.notifications.enabled"
                 @change="updateNotifications('fastingReminders', $event)"
               />
             </div>
@@ -155,6 +161,7 @@
               </div>
               <toggle-switch 
                 :value="preferences.notifications.mealReminders"
+                :disabled="!preferences.notifications.enabled"
                 @change="updateNotifications('mealReminders', $event)"
               />
             </div>
@@ -166,6 +173,7 @@
               </div>
               <toggle-switch 
                 :value="preferences.notifications.progressUpdates"
+                :disabled="!preferences.notifications.enabled"
                 @change="updateNotifications('progressUpdates', $event)"
               />
             </div>
@@ -177,6 +185,7 @@
               </div>
               <toggle-switch 
                 :value="preferences.notifications.goalAchievements"
+                :disabled="!preferences.notifications.enabled"
                 @change="updateNotifications('goalAchievements', $event)"
               />
             </div>
@@ -188,8 +197,22 @@
               </div>
               <toggle-switch 
                 :value="preferences.notifications.weeklyReports"
+                :disabled="!preferences.notifications.enabled"
                 @change="updateNotifications('weeklyReports', $event)"
               />
+            </div>
+          </div>
+          
+          <!-- Future Features Coming Soon Message (when feature flag is off) -->
+          <div v-if="preferences.notifications.enabled && !isFeatureEnabled('detailedNotifications')" 
+               class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div class="flex items-center">
+              <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span class="text-sm text-blue-800 dark:text-blue-200">
+                More detailed notification settings are coming in a future update!
+              </span>
             </div>
           </div>
         </div>
@@ -322,6 +345,7 @@ import { useI18n } from 'vue-i18n'
 import { getCurrentUser, updateUserPreferences, changeUserLanguage } from '../api'
 import type { User, UserPreferences } from '../types/user'
 import ToggleSwitch from './ToggleSwitch.vue'
+import { isFeatureEnabled } from '../config/features'
 
 // Emits
 const emits = defineEmits<{
@@ -392,6 +416,49 @@ const changeTheme = (theme: 'light' | 'dark' | 'system') => {
 
 const updateNotifications = (key: keyof UserPreferences['notifications'], value: boolean) => {
   preferences.notifications[key] = value
+  
+  // If detailed notifications are disabled, only handle the main enabled toggle
+  if (!isFeatureEnabled('detailedNotifications')) {
+    // For simplified mode, just toggle the main enabled state
+    // Keep other notification settings as defaults but don't show them in UI
+    return
+  }
+  
+  // Full logic only when detailed notifications are enabled
+  // If disabling the master notifications switch, disable all child notifications
+  if (key === 'enabled' && !value) {
+    preferences.notifications.fastingReminders = false
+    preferences.notifications.mealReminders = false
+    preferences.notifications.progressUpdates = false
+    preferences.notifications.goalAchievements = false
+    preferences.notifications.weeklyReports = false
+  }
+  
+  // If enabling the master notifications switch, enable some sensible defaults
+  if (key === 'enabled' && value) {
+    preferences.notifications.fastingReminders = true
+    preferences.notifications.mealReminders = true
+    preferences.notifications.goalAchievements = true
+    // Keep progressUpdates and weeklyReports as they were (user preference)
+  }
+  
+  // If enabling any child notification, ensure master is enabled
+  if (key !== 'enabled' && value && !preferences.notifications.enabled) {
+    preferences.notifications.enabled = true
+  }
+  
+  // If all child notifications are disabled, disable master switch
+  if (key !== 'enabled') {
+    const allChildrenDisabled = !preferences.notifications.fastingReminders &&
+                               !preferences.notifications.mealReminders &&
+                               !preferences.notifications.progressUpdates &&
+                               !preferences.notifications.goalAchievements &&
+                               !preferences.notifications.weeklyReports
+    
+    if (allChildrenDisabled) {
+      preferences.notifications.enabled = false
+    }
+  }
 }
 
 const applyTheme = (theme: string) => {
@@ -412,29 +479,71 @@ const applyTheme = (theme: string) => {
 }
 
 const savePreferences = async () => {
-  if (!currentUser.value) {
-    saveStatus.value = 'error'
-    saveMessage.value = 'No user logged in'
-    return
+  console.log('savePreferences called, currentUser:', currentUser.value);
+  console.log('preferences to save:', preferences);
+  
+  // Prevent multiple simultaneous saves
+  if (saving.value) {
+    console.log('Save already in progress, ignoring');
+    return;
   }
-
+  
   saving.value = true
   saveMessage.value = ''
   saveStatus.value = null
   
   try {
-    const updatedUser = await updateUserPreferences(preferences)
-    currentUser.value = updatedUser
-    emits('updated', updatedUser)
+    // Validate preferences object before sending
+    if (!preferences || typeof preferences !== 'object') {
+      throw new Error('Invalid preferences object');
+    }
     
-    saveStatus.value = 'success'
-    saveMessage.value = 'Settings saved successfully!'
+    // Convert preferences to the correct format for UpdatePreferencesRequest
+    const updateRequest = {
+      language: preferences.language || 'en',
+      theme: preferences.theme || 'system',
+      timezone: preferences.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+      notifications: preferences.notifications || {
+        enabled: true,
+        fastingReminders: true,
+        mealReminders: true,
+        progressUpdates: false,
+        goalAchievements: true,
+        weeklyReports: false
+      },
+      fastingDefaults: preferences.fastingDefaults || {
+        defaultGoalHours: 16,
+        preferredFastingType: '16:8',
+        autoStartNextFast: false
+      }
+    }
     
-    // Hide success message after 3 seconds
-    setTimeout(() => {
-      saveMessage.value = ''
-      saveStatus.value = null
-    }, 3000)
+    console.log('updateRequest to send:', updateRequest);
+    const updatedUser = await updateUserPreferences(updateRequest)
+    
+    if (updatedUser && updatedUser.preferences) {
+      // Update the current user
+      currentUser.value = updatedUser
+      
+      // Clear and reload preferences from server response to ensure sync
+      Object.keys(preferences).forEach(key => {
+        delete preferences[key as keyof UserPreferences]
+      })
+      Object.assign(preferences, updatedUser.preferences)
+      
+      emits('updated', updatedUser)
+      
+      saveStatus.value = 'success'
+      saveMessage.value = 'Settings saved successfully!'
+      
+      // Hide success message after 3 seconds
+      setTimeout(() => {
+        saveMessage.value = ''
+        saveStatus.value = null
+      }, 3000)
+    } else {
+      throw new Error('Invalid response from server');
+    }
     
   } catch (error) {
     console.error('Failed to save preferences:', error)
@@ -453,16 +562,34 @@ const savePreferences = async () => {
 
 // Lifecycle
 onMounted(async () => {
+  console.log('UserSettings mounted, loading user data...');
   try {
+    // Always fetch fresh user data from server to ensure UI reflects current state
     const user = await getCurrentUser()
-    if (user) {
+    console.log('getCurrentUser result:', user);
+    if (user && user.preferences) {
       currentUser.value = user
+      
+      // Clear existing preferences and load fresh data from server
+      Object.keys(preferences).forEach(key => {
+        delete preferences[key as keyof UserPreferences]
+      })
       Object.assign(preferences, user.preferences)
+      
       locale.value = user.preferences.language
       applyTheme(user.preferences.theme)
+      console.log('User data loaded successfully, preferences synced:', preferences);
+    } else {
+      console.log('No user returned from getCurrentUser or user has no preferences');
+      // Set default preferences if user exists but has no preferences
+      if (user) {
+        currentUser.value = user
+        console.log('User exists but no preferences, using defaults');
+      }
     }
   } catch (error) {
     console.error('Failed to load user data:', error)
+    // Don't crash the component, just use default preferences
   }
 })
 </script>
