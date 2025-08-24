@@ -218,28 +218,49 @@ class UserService {
   }
 
   /**
-   * Aktuellen Benutzer abrufen (mit Backend-Validierung)
+   * Aktuell eingeloggten Benutzer abrufen
    */
   async getCurrentUser(): Promise<User | null> {
     try {
-      // For testing: use default user ID 1 if no current user
-      const userId = this.currentUser?.id || '1';
-      const response = await userHttpClient.get<{user: User}>(`/users/current?userId=${userId}`, {
-        headers: this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}
-      });
+      // If we already have a user loaded from storage, return it
+      if (this.currentUser) {
+        console.log('getCurrentUser: returning cached user:', this.currentUser.username);
+        return this.currentUser;
+      }
+
+      // If no cached user but we have a stored user, load it
+      const storedUser = localStorage.getItem(this.STORAGE_KEY);
+      const storedToken = localStorage.getItem(this.TOKEN_KEY);
       
-      // Extract user from response wrapper
-      const user = response.user;
-      
-      // Update lokale Daten mit Backend-Daten
-      this.currentUser = user;
-      this.saveUserToStorage(user);
-      return user;
-      
+      if (storedUser && storedUser !== 'undefined' && storedUser !== 'null' && storedToken) {
+        try {
+          const user = JSON.parse(storedUser);
+          console.log('getCurrentUser: loading from storage:', user.username);
+          
+          // Validate the user with the backend
+          const response = await userHttpClient.get<User>(`/users/${user.id}`, {
+            headers: { Authorization: `Bearer ${storedToken}` }
+          });
+          
+          console.log('getCurrentUser: backend validation successful');
+          this.currentUser = response;
+          this.authToken = storedToken;
+          return response;
+        } catch (validationError) {
+          console.warn('getCurrentUser: backend validation failed, clearing session:', validationError);
+          // Only clear session if it's an auth error (401/403), not network errors
+          const errorStatus = (validationError as any)?.response?.status;
+          if (errorStatus === 401 || errorStatus === 403) {
+            this.logout();
+          }
+          return null;
+        }
+      }
+
+      console.log('getCurrentUser: no stored user found');
+      return null;
     } catch (error) {
-      console.log('Failed to get current user:', error);
-      // Token ungültig, lokale Daten löschen
-      this.logout();
+      console.error('Failed to get current user:', error);
       return null;
     }
   }

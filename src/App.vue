@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { startFast, stopFast, statusFast, historyFast, getUserFastingHistory, fetchUserFastingHistory, getCurrentUser, isMockMode, apiBase } from './api/index'
+import { startFast, stopFast, statusFast, historyFast, startUserFast, stopUserFast, getUserFastingHistory, fetchUserFastingHistory, fetchUserFastingStatus, getCurrentUser, isMockMode, apiBase } from './api/index'
 import { fallbackApiService } from './api/fallback-service'
 import './utils/error-tests' // Lade Error-Tests für Browser Console
 import WelcomeScreen from './components/WelcomeScreen.vue'
@@ -70,26 +70,40 @@ function handleGoalCancel() {
 async function refresh() {
   loading.value = true
   try {
-    stat.value = await statusFast()
-    
-    // Use user-specific history endpoint if user is available
-    let history
+    // Use user-specific endpoints if user is available
+    let status, history
     if (currentUser.value) {
       try {
-        // Try user-specific history first
-        history = await fetchUserFastingHistory()
+        // Try user-specific status and history first
+        [status, history] = await Promise.all([
+          fetchUserFastingStatus(),
+          fetchUserFastingHistory()
+        ])
+        
+        // Ensure status has a proper structure
+        if (!status) {
+          status = { active: false }
+        }
       } catch (error) {
-        console.warn('User-specific history failed, falling back to global:', error)
-        // Fallback to global history
+        console.warn('User-specific endpoints failed, falling back to global:', error)
+        // Fallback to global endpoints
+        status = await statusFast()
         history = await historyFast()
       }
     } else {
-      // No user, use global endpoint
+      // No user, use global endpoints
+      status = await statusFast()
       history = await historyFast()
     }
     
+    // Ensure status is never null
+    stat.value = status || { active: false }
+    
+    // Ensure history is an array
+    const historyArray = Array.isArray(history) ? history : []
+    
     // Sortiere: aktive Sessions zuerst, dann nach ID (neueste zuerst)
-    items.value = history.sort((a, b) => {
+    items.value = historyArray.sort((a, b) => {
       if (a.endAt === null && b.endAt !== null) return -1
       if (a.endAt !== null && b.endAt === null) return 1
       return b.id - a.id
@@ -104,6 +118,10 @@ async function refresh() {
     console.error('API Error:', error)
     lastError.value = error as Error
     
+    // Set safe defaults to prevent further errors
+    stat.value = { active: false }
+    items.value = []
+    
     // In Production: Zeige Error-Seite
     if (!isDev) {
       showErrorPage.value = true
@@ -117,7 +135,22 @@ async function refresh() {
 async function onStart(goalHours?: number) { 
   loading.value = true
   try {
-    await startFast(goalHours); 
+    // Use user-specific endpoint if user is available
+    if (currentUser.value) {
+      try {
+        const userIdentifier = currentUser.value.username || currentUser.value.email
+        if (userIdentifier) {
+          await startUserFast(userIdentifier, goalHours)
+        } else {
+          throw new Error('No user identifier available')
+        }
+      } catch (error) {
+        console.warn('User-specific start failed, falling back to global:', error)
+        await startFast(goalHours)
+      }
+    } else {
+      await startFast(goalHours)
+    }
     await refresh()
   } catch (error) {
     console.error('Start Fast Error:', error)
@@ -135,7 +168,22 @@ async function onStart(goalHours?: number) {
 async function onStop() { 
   loading.value = true
   try { 
-    await stopFast(); 
+    // Use user-specific endpoint if user is available
+    if (currentUser.value) {
+      try {
+        const userIdentifier = currentUser.value.username || currentUser.value.email
+        if (userIdentifier) {
+          await stopUserFast(userIdentifier)
+        } else {
+          throw new Error('No user identifier available')
+        }
+      } catch (error) {
+        console.warn('User-specific stop failed, falling back to global:', error)
+        await stopFast()
+      }
+    } else {
+      await stopFast()
+    }
     await refresh()
   } catch (error) {
     console.error('Stop Fast Error:', error)
