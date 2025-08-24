@@ -39,7 +39,7 @@ export interface ApiUser {
 
 export interface UserPreferences {
   language: 'en' | 'de';
-  theme: 'light' | 'dark' | 'auto';
+  theme: 'light' | 'dark' | 'system';
   timezone: string;
   notifications: NotificationSettings;
   fastingDefaults: FastingDefaults;
@@ -48,13 +48,15 @@ export interface UserPreferences {
 export interface NotificationSettings {
   enabled: boolean;
   fastingReminders: boolean;
+  mealReminders: boolean;
+  progressUpdates: boolean;
   goalAchievements: boolean;
   weeklyReports: boolean;
 }
 
 export interface FastingDefaults {
   defaultGoalHours: number;
-  preferredFastingType: 'intermittent' | 'extended' | 'custom';
+  preferredFastingType: string; // Changed to string to match backend (e.g., "16:8", "18:6", "24h")
   autoStartNextFast: boolean;
 }
 
@@ -72,7 +74,7 @@ export interface UpdateUserRequest {
 
 export interface UpdatePreferencesRequest {
   language?: 'en' | 'de';
-  theme?: 'light' | 'dark' | 'auto';
+  theme?: 'light' | 'dark' | 'system';
   timezone?: string;
   notifications?: Partial<NotificationSettings>;
   fastingDefaults?: Partial<FastingDefaults>;

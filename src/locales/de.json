@@ -43,6 +43,9 @@
   "common": {
     "optional": "optional",
     "loading": "Laden...",
+    "loadingData": "Daten werden geladen...",
+    "startingFast": "Fasten wird gestartet...",
+    "stoppingFast": "Fasten wird beendet...",
     "saving": "Speichere...",
     "save": "Änderungen speichern",
     "unknownUser": "Unbekannter Benutzer"

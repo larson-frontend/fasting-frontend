@@ -58,17 +58,19 @@ class UserService {
         email: request.email,
         preferences: {
           language: this.getStoredLanguage(),
-          theme: 'auto',
+          theme: 'system',
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           notifications: {
             enabled: true,
             fastingReminders: true,
+            mealReminders: true,
+            progressUpdates: false,
             goalAchievements: true,
             weeklyReports: false
           },
           fastingDefaults: {
             defaultGoalHours: 16,
-            preferredFastingType: 'intermittent',
+            preferredFastingType: '16:8',
             autoStartNextFast: false
           }
         }
@@ -173,14 +175,14 @@ class UserService {
     }
 
     try {
-      const response = await userHttpClient.patch<PreferencesApiResponse>(
-        `/users/${this.currentUser.id}/preferences`, 
+      const response = await userHttpClient.patch<UserApiResponse>(
+        `/users/preferences?userId=${this.currentUser.id}`, 
         request,
         { headers: { Authorization: `Bearer ${this.authToken}` } }
       );
       
-      // Update lokale User-Daten
-      const updatedUser = { ...this.currentUser, preferences: response.preferences };
+      // Update lokale User-Daten with the full user object from response
+      const updatedUser = response.user;
       this.currentUser = updatedUser;
       this.saveUserToStorage(updatedUser);
       

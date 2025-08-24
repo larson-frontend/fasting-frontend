@@ -13,6 +13,7 @@ import TestPanel from './components/TestPanel.vue'
 import ErrorPage from './components/ErrorPage.vue'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
 import UserManager from './components/UserManager.vue'
+import LoadingSpinner from './components/LoadingSpinner.vue'
 
 const loading = ref(false)
 const stat = ref<{active?: boolean; hours?: number; minutes?: number; since?: string}>({})
@@ -98,6 +99,7 @@ async function refresh() {
 }
 
 async function onStart(goalHours?: number) { 
+  loading.value = true
   try {
     await startFast(goalHours); 
     await refresh()
@@ -109,10 +111,13 @@ async function onStart(goalHours?: number) {
     if (!isDev) {
       showErrorPage.value = true
     }
+  } finally {
+    loading.value = false
   }
 }
 
 async function onStop() { 
+  loading.value = true
   try { 
     await stopFast(); 
     await refresh()
@@ -124,6 +129,8 @@ async function onStop() {
     if (!isDev) {
       showErrorPage.value = true
     }
+  } finally {
+    loading.value = false
   }
 }
 
@@ -197,6 +204,11 @@ onMounted(refresh)
       </p>
     </div>
   </div>
+
+  <!-- Loading Spinner -->
+  <LoadingSpinner 
+    :show="loading" 
+  />
 
   <!-- Dialog -->
   <ConfirmDialog 

@@ -43,6 +43,9 @@
   "common": {
     "optional": "optional",
     "loading": "Loading...",
+    "loadingData": "Loading data...",
+    "startingFast": "Starting fast...",
+    "stoppingFast": "Stopping fast...",
     "saving": "Saving...",
     "save": "Save Changes",
     "unknownUser": "Unknown User"
