@@ -221,9 +221,14 @@ class UserService {
 
     // Wenn bereits ein User geladen ist, versuche Backend-Validierung
     try {
-      const user = await userHttpClient.get<User>('/users/me', {
+      // Fix: Use correct endpoint /users/current with userId parameter
+      const userId = this.currentUser?.id || '1'; // Use stored user ID or default to 1
+      const response = await userHttpClient.get<{user: User}>(`/users/current?userId=${userId}`, {
         headers: { Authorization: `Bearer ${this.authToken}` }
       });
+      
+      // Extract user from response wrapper
+      const user = response.user;
       
       // Update lokale Daten mit Backend-Daten
       this.currentUser = user;

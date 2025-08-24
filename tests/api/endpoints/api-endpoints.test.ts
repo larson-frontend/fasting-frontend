@@ -156,20 +156,20 @@ describe('API Endpoint Integration Tests', () => {
       )
     })
 
-    it('should call correct URL for /users/me with auth headers', async () => {
+    it('should call correct URL for /users/current with auth headers', async () => {
       // Set up userService with auth token
       // @ts-ignore - accessing private property for testing
       userService.authToken = 'mock-jwt-token'
       
       mockFetch.mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve({ id: '1', username: 'testuser' })
+        json: () => Promise.resolve({ user: { id: '1', username: 'testuser' } })
       })
 
       await userService.getCurrentUser()
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:8080/api/users/me',
+        'http://localhost:8080/api/users/current?userId=1',
         expect.objectContaining({
           method: 'GET',
           headers: expect.objectContaining({
