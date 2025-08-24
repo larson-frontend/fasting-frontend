@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { startFast, stopFast, statusFast, historyFast, isMockMode, apiBase } from './api/index'
+import { startFast, stopFast, statusFast, historyFast, startUserFast, stopUserFast, getUserFastingHistory, fetchUserFastingHistory, fetchUserFastingStatus, getCurrentUser, isMockMode, apiBase } from './api/index'
 import { fallbackApiService } from './api/fallback-service'
 import './utils/error-tests' // Lade Error-Tests für Browser Console
 import WelcomeScreen from './components/WelcomeScreen.vue'
@@ -11,11 +11,13 @@ import HistoryCard from './components/HistoryCard.vue'
 import FastingInfoModal from './components/FastingInfoModal.vue'
 import TestPanel from './components/TestPanel.vue'
 import ErrorPage from './components/ErrorPage.vue'
-import LanguageSwitcher from './components/LanguageSwitcher.vue'
+import UserManager from './components/UserManager.vue'
+import LoadingSpinner from './components/LoadingSpinner.vue'
 
 const loading = ref(false)
 const stat = ref<{active?: boolean; hours?: number; minutes?: number; since?: string}>({})
 const items = ref<any[]>([])
+const currentUser = ref<any>(null)
 
 const showWelcome = ref(true)
 const showDialog = ref(false)
@@ -68,10 +70,40 @@ function handleGoalCancel() {
 async function refresh() {
   loading.value = true
   try {
-    stat.value = await statusFast()
-    const history = await historyFast()
+    // Use user-specific endpoints if user is available
+    let status, history
+    if (currentUser.value) {
+      try {
+        // Try user-specific status and history first
+        [status, history] = await Promise.all([
+          fetchUserFastingStatus(),
+          fetchUserFastingHistory()
+        ])
+        
+        // Ensure status has a proper structure
+        if (!status) {
+          status = { active: false }
+        }
+      } catch (error) {
+        console.warn('User-specific endpoints failed, falling back to global:', error)
+        // Fallback to global endpoints
+        status = await statusFast()
+        history = await historyFast()
+      }
+    } else {
+      // No user, use global endpoints
+      status = await statusFast()
+      history = await historyFast()
+    }
+    
+    // Ensure status is never null
+    stat.value = status || { active: false }
+    
+    // Ensure history is an array
+    const historyArray = Array.isArray(history) ? history : []
+    
     // Sortiere: aktive Sessions zuerst, dann nach ID (neueste zuerst)
-    items.value = history.sort((a, b) => {
+    items.value = historyArray.sort((a, b) => {
       if (a.endAt === null && b.endAt !== null) return -1
       if (a.endAt !== null && b.endAt === null) return 1
       return b.id - a.id
@@ -86,6 +118,10 @@ async function refresh() {
     console.error('API Error:', error)
     lastError.value = error as Error
     
+    // Set safe defaults to prevent further errors
+    stat.value = { active: false }
+    items.value = []
+    
     // In Production: Zeige Error-Seite
     if (!isDev) {
       showErrorPage.value = true
@@ -97,8 +133,24 @@ async function refresh() {
 }
 
 async function onStart(goalHours?: number) { 
+  loading.value = true
   try {
-    await startFast(goalHours); 
+    // Use user-specific endpoint if user is available
+    if (currentUser.value) {
+      try {
+        const userIdentifier = currentUser.value.username || currentUser.value.email
+        if (userIdentifier) {
+          await startUserFast(userIdentifier, goalHours)
+        } else {
+          throw new Error('No user identifier available')
+        }
+      } catch (error) {
+        console.warn('User-specific start failed, falling back to global:', error)
+        await startFast(goalHours)
+      }
+    } else {
+      await startFast(goalHours)
+    }
     await refresh()
   } catch (error) {
     console.error('Start Fast Error:', error)
@@ -108,12 +160,30 @@ async function onStart(goalHours?: number) {
     if (!isDev) {
       showErrorPage.value = true
     }
+  } finally {
+    loading.value = false
   }
 }
 
 async function onStop() { 
+  loading.value = true
   try { 
-    await stopFast(); 
+    // Use user-specific endpoint if user is available
+    if (currentUser.value) {
+      try {
+        const userIdentifier = currentUser.value.username || currentUser.value.email
+        if (userIdentifier) {
+          await stopUserFast(userIdentifier)
+        } else {
+          throw new Error('No user identifier available')
+        }
+      } catch (error) {
+        console.warn('User-specific stop failed, falling back to global:', error)
+        await stopFast()
+      }
+    } else {
+      await stopFast()
+    }
     await refresh()
   } catch (error) {
     console.error('Stop Fast Error:', error)
@@ -123,6 +193,8 @@ async function onStop() {
     if (!isDev) {
       showErrorPage.value = true
     }
+  } finally {
+    loading.value = false
   }
 }
 
@@ -137,7 +209,19 @@ function showDebugInfo() {
   alert(`Debug Info:\n${JSON.stringify(debugInfo, null, 2)}`);
 }
 
-onMounted(refresh)
+onMounted(async () => {
+  // Initialize current user first
+  try {
+    currentUser.value = await getCurrentUser()
+  } catch (error) {
+    console.error('Failed to get current user:', error)
+    // Use fallback user ID for demo purposes
+    currentUser.value = { id: 1, username: 'demo_user' }
+  }
+  
+  // Then refresh data
+  await refresh()
+})
 </script>
 
 <template>
@@ -156,15 +240,13 @@ onMounted(refresh)
   <!-- Main App -->
   <div v-else class="min-h-screen bg-gray-50 text-gray-900">
     <div class="max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
-      <!-- Header with Language Switcher -->
+      <!-- Header -->
       <div class="flex items-center justify-between mb-2">
-        <div class="flex items-center gap-3">
-          <span class="text-2xl sm:text-3xl">🍃</span>
-          <h1 class="text-xl sm:text-2xl font-bold">{{ $t('app.title') }}</h1>
-        </div>
         <div class="flex items-center gap-2">
-          <!-- Language Switcher -->
-          <LanguageSwitcher />
+          <!-- User Manager -->
+          <UserManager />
+        </div>
+        <div class="flex items-center gap-3">
           <!-- Info Button -->
           <button 
             @click="showInfoModal = true"
@@ -195,6 +277,11 @@ onMounted(refresh)
       </p>
     </div>
   </div>
+
+  <!-- Loading Spinner -->
+  <LoadingSpinner 
+    :show="loading" 
+  />
 
   <!-- Dialog -->
   <ConfirmDialog 

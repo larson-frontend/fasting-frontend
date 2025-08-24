@@ -36,8 +36,8 @@ jobs:
     - name: Check TypeScript compilation
       run: npx vue-tsc --noEmit
     
-    - name: Run fast tests
-      run: npm run test:run -- --reporter=verbose
+    - name: Run all tests
+      run: npm run test:all
 
   # Test different scenarios
   test-matrix:

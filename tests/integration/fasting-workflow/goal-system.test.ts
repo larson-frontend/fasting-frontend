@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { mount, mountWithI18n } from './test-utils'
-import ProgressBar from '../src/components/ProgressBar.vue'
-import GoalSelectionDialog from '../src/components/GoalSelectionDialog.vue'
+import { mount, mountWithI18n } from '../../utils/test-utils'
+import ProgressBar from '../../../src/components/ProgressBar.vue'
+import GoalSelectionDialog from '../../../src/components/GoalSelectionDialog.vue'
 
 describe('Goal System - Simplified Tests', () => {
   

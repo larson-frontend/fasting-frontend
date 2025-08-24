@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { mount, mountWithI18n } from './test-utils'
-import TimeBadge from '../src/components/TimeBadge.vue'
-import ProgressBar from '../src/components/ProgressBar.vue'
-import StatusCard from '../src/components/StatusCard.vue'
+import { mount, mountWithI18n } from '../utils/test-utils'
+import TimeBadge from '../../src/components/TimeBadge.vue'
+import ProgressBar from '../../src/components/ProgressBar.vue'
+import StatusCard from '../../src/components/StatusCard.vue'
 
 describe('TimeBadge Component', () => {
   it('sollte korrekt rendern', () => {

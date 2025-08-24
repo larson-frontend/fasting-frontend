@@ -36,18 +36,28 @@ function shouldUseMockData(): boolean {
 }
 
 export const config = {
-  apiBase: import.meta.env.VITE_API_BASE || 'http://localhost:8080/api/fast',
+  apiBase: import.meta.env.VITE_API_BASE || 'http://localhost:8080/api',
   useMockData: shouldUseMockData(), // ✅ Automatische Erkennung!
   isDevelopment: import.meta.env.DEV,
   isProduction: import.meta.env.PROD,
 } as const;
 
 export const endpoints = {
-  fast: {
-    start: '/start',
-    stop: '/stop',
-    status: '/status',
-    history: '/history',
+  users: {
+    base: '/users',
+    checkAvailability: '/users/check-availability',
+    find: '/users/find',
   },
-  health: 'http://localhost:8080/actuator/health',
+  fast: {
+    base: '/fast',
+    start: '/fast/start',
+    stop: '/fast/stop',
+    status: '/fast/status',
+    history: '/fast/history',
+    userStatus: '/fast/user',
+    userHistory: '/fast/user',
+    userStart: '/fast/user',
+    userStop: '/fast/user',
+  },
+  health: '/actuator/health',
 } as const;
