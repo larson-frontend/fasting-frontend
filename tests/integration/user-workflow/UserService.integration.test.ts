@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { userService } from '../src/api/user-service'
-import type { UpdatePreferencesRequest, User } from '../src/types/user'
+import { userService } from '../../../src/api/user-service'
+import type { UpdatePreferencesRequest, User } from '../../../src/types/user'
 
 
 describe('UserService - Preferences Integration', () => {

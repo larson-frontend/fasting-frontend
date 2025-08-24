@@ -1,5 +1,5 @@
-import { mount } from '@vue/test-utils'
-import { i18n } from '../src/i18n'
+import { mount } from "@vue/test-utils";
+import { i18n } from "../../src/i18n";
 
 // Custom mount function with i18n support
 export function mountWithI18n(component: any, options: any = {}) {

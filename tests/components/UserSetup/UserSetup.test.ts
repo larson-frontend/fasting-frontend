@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mountWithI18n } from './test-utils'
-import UserSetup from '../src/components/UserSetup.vue'
+import { mountWithI18n } from '../../utils/test-utils'
+import UserSetup from '../../../src/components/UserSetup.vue'
 import { nextTick } from 'vue'
 
 // Mock the API functions
-vi.mock('../src/api', () => ({
+vi.mock('../../../src/api', () => ({
   loginOrCreateUser: vi.fn(),
   getStoredLanguage: vi.fn(() => 'en'),
   checkUsernameAvailability: vi.fn(),
@@ -20,7 +20,7 @@ vi.mock('../src/api', () => ({
   getUserFastingHistory: vi.fn()
 }))
 
-import { loginOrCreateUser, checkUsernameAvailability } from '../src/api'
+import { loginOrCreateUser, checkUsernameAvailability } from '../../../src/api'
 
 describe('UserSetup Component', () => {
   let mockLoginOrCreateUser: any

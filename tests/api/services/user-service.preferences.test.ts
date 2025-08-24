@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import type { User, UpdatePreferencesRequest } from '../src/types/user'
+import type { User, UpdatePreferencesRequest } from '../../../src/types/user'
 
 // Mock the entire user-service module
-vi.mock('../src/api/user-service', () => ({
+vi.mock('../../../src/api/user-service', () => ({
   userService: {
     updatePreferences: vi.fn(),
     getCurrentUser: vi.fn(),
@@ -11,7 +11,7 @@ vi.mock('../src/api/user-service', () => ({
 }))
 
 // Import after mocking
-import { userService } from '../src/api/user-service'
+import { userService } from '../../../src/api/user-service'
 
 describe('UserService - Preferences API', () => {
   let mockUser: User

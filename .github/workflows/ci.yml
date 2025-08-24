@@ -35,12 +35,9 @@ jobs:
     - name: Run type checking
       run: npx vue-tsc --noEmit
     
-    - name: Run unit tests
-      run: npm run test:run
-    
-    - name: Run tests with coverage
-      run: npm run test:coverage
-    
+    - name: Run all tests
+      run: npm run test:all:ci
+
     - name: Upload coverage reports
       uses: codecov/codecov-action@v5
       if: matrix.node-version == '22.x'

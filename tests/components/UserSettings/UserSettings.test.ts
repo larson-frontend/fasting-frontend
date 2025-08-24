@@ -2,12 +2,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import { createI18n } from "vue-i18n";
 import { nextTick } from "vue";
-import UserSettings from "../src/components/UserSettings.vue";
-import ToggleSwitch from "../src/components/ToggleSwitch.vue";
-import type { User } from "../src/types/user";
+import UserSettings from "../../../src/components/UserSettings.vue";
+import ToggleSwitch from "../../../src/components/ToggleSwitch.vue";
+import type { User } from "../../../src/types/user";
 
 // Mock the API functions
-vi.mock("../src/api", () => ({
+vi.mock("../../../src/api", () => ({
   getCurrentUser: vi.fn(),
   updateUserPreferences: vi.fn(),
   changeUserLanguage: vi.fn(),
@@ -108,7 +108,7 @@ describe("UserSettings.vue - Component Test Suite", () => {
     vi.clearAllMocks();
     
     // Mock getCurrentUser to return our mock user
-    const { getCurrentUser } = await import("../src/api");
+    const { getCurrentUser } = await import("../../../src/api");
     const mockGetCurrentUser = vi.mocked(getCurrentUser);
     mockGetCurrentUser.mockResolvedValue(mockUser);
 
@@ -279,7 +279,7 @@ describe("UserSettings.vue - Component Test Suite", () => {
   describe("🔄 User Interactions", () => {
     describe("Save Functionality", () => {
       it("should call updateUserPreferences when save button is clicked", async () => {
-        const { updateUserPreferences } = await import("../src/api");
+        const { updateUserPreferences } = await import("../../../src/api");
         const mockUpdatePreferences = vi.mocked(updateUserPreferences);
         mockUpdatePreferences.mockResolvedValue(mockUser);
 
@@ -296,7 +296,7 @@ describe("UserSettings.vue - Component Test Suite", () => {
       });
 
       it("should show loading state while saving", async () => {
-        const { updateUserPreferences } = await import("../src/api");
+        const { updateUserPreferences } = await import("../../../src/api");
         const mockUpdatePreferences = vi.mocked(updateUserPreferences);
 
         let resolvePromise: (value: any) => void;
@@ -323,7 +323,7 @@ describe("UserSettings.vue - Component Test Suite", () => {
       });
 
       it("should show success message after successful save", async () => {
-        const { updateUserPreferences } = await import("../src/api");
+        const { updateUserPreferences } = await import("../../../src/api");
         const mockUpdatePreferences = vi.mocked(updateUserPreferences);
         mockUpdatePreferences.mockResolvedValue(mockUser);
 
@@ -340,7 +340,7 @@ describe("UserSettings.vue - Component Test Suite", () => {
       });
 
       it("should emit updated event on successful save", async () => {
-        const { updateUserPreferences } = await import("../src/api");
+        const { updateUserPreferences } = await import("../../../src/api");
         const mockUpdatePreferences = vi.mocked(updateUserPreferences);
         mockUpdatePreferences.mockResolvedValue(mockUser);
 
@@ -383,7 +383,7 @@ describe("UserSettings.vue - Component Test Suite", () => {
 
     describe("Error States", () => {
       it("should show error message on save failure", async () => {
-        const { updateUserPreferences } = await import("../src/api");
+        const { updateUserPreferences } = await import("../../../src/api");
         const mockUpdatePreferences = vi.mocked(updateUserPreferences);
         mockUpdatePreferences.mockRejectedValue(new Error("Save failed"));
 
@@ -401,7 +401,7 @@ describe("UserSettings.vue - Component Test Suite", () => {
 
       it("should handle missing user gracefully", async () => {
         // Create a new wrapper without mocking getCurrentUser
-        const { getCurrentUser } = await import("../src/api");
+        const { getCurrentUser } = await import("../../../src/api");
         const mockGetCurrentUser = vi.mocked(getCurrentUser);
         mockGetCurrentUser.mockResolvedValue(null);
 

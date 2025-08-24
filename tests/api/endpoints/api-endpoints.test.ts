@@ -4,8 +4,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { fastingApiService } from '../src/api/fasting-service'
-import { userService } from '../src/api/user-service'
+import { fastingApiService } from '../../../src/api/fasting-service'
+import { userService } from '../../../src/api/user-service'
 
 // Mock fetch for endpoint testing
 let mockFetch: ReturnType<typeof vi.fn>
