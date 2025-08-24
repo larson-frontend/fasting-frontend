@@ -67,12 +67,14 @@ class MockUserService {
     
     const defaultPreferences: UserPreferences = {
       language: request.preferences?.language || 'en',
-      theme: request.preferences?.theme || 'auto',
+      theme: request.preferences?.theme || 'system',
       timezone: request.preferences?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       notifications: {
         enabled: true,
-        fastingReminders: true,
-        goalAchievements: true,
+        fastingReminders: false,
+        mealReminders: false,
+        progressUpdates: false,
+        goalAchievements: false,
         weeklyReports: false,
         ...request.preferences?.notifications
       },
@@ -169,11 +171,13 @@ class MockUserService {
         email: request.email,
         preferences: {
           language: 'en',
-          theme: 'auto',
+          theme: 'system',
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           notifications: {
             enabled: true,
             fastingReminders: true,
+            mealReminders: true,
+            progressUpdates: true,
             goalAchievements: true,
             weeklyReports: false
           },
@@ -216,6 +220,8 @@ class MockUserService {
           notifications: {
             enabled: true,
             fastingReminders: true,
+            mealReminders: true,
+            progressUpdates: true,
             goalAchievements: true,
             weeklyReports: true
           },
@@ -236,6 +242,8 @@ class MockUserService {
           notifications: {
             enabled: true,
             fastingReminders: true,
+            mealReminders: true,
+            progressUpdates: true,
             goalAchievements: true,
             weeklyReports: false
           },
