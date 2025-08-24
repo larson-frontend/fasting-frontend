@@ -25,25 +25,25 @@ export class FastingApiService {
   // Global fasting endpoints (for backwards compatibility)
   async startFast(goalHours?: number): Promise<FastSession> {
     const body: StartFastRequest | undefined = goalHours ? { goalHours } : undefined;
-    return httpClient.post<FastSession>('/api/fast/start', body);
+    return httpClient.post<FastSession>('/fast/start', body);
   }
 
   async stopFast(): Promise<FastSession> {
-    return httpClient.post<FastSession>('/api/fast/stop');
+    return httpClient.post<FastSession>('/fast/stop');
   }
 
   async getStatus(): Promise<FastStatus> {
-    return httpClient.get<FastStatus>('/api/fast/status');
+    return httpClient.get<FastStatus>('/fast/status');
   }
 
   async getHistory(): Promise<FastSession[]> {
-    return httpClient.get<FastSession[]>('/api/fast/history');
+    return httpClient.get<FastSession[]>('/fast/history');
   }
 
   // User-specific fasting endpoints (with JWT authentication)
   async startUserFast(userIdentifier: string, goalHours: number = 16): Promise<BackendFastSession> {
     const response = await httpClient.post<BackendFastSession>(
-      `/api/fast/user/${encodeURIComponent(userIdentifier)}/start`,
+      `/fast/user/${encodeURIComponent(userIdentifier)}/start`,
       { goalHours },
       { headers: this.getAuthHeaders() }
     );
@@ -52,7 +52,7 @@ export class FastingApiService {
 
   async stopUserFast(userIdentifier: string): Promise<BackendFastSession> {
     const response = await httpClient.post<BackendFastSession>(
-      `/api/fast/user/${encodeURIComponent(userIdentifier)}/stop`,
+      `/fast/user/${encodeURIComponent(userIdentifier)}/stop`,
       undefined,
       { headers: this.getAuthHeaders() }
     );
@@ -61,7 +61,7 @@ export class FastingApiService {
 
   async getUserStatus(userIdentifier: string): Promise<BackendFastStatus> {
     const response = await httpClient.get<BackendFastStatus>(
-      `/api/fast/user/${encodeURIComponent(userIdentifier)}/status`,
+      `/fast/user/${encodeURIComponent(userIdentifier)}/status`,
       { headers: this.getAuthHeaders() }
     );
     return response;
@@ -69,7 +69,7 @@ export class FastingApiService {
 
   async getUserHistory(userIdentifier: string): Promise<BackendFastSession[]> {
     const response = await httpClient.get<BackendFastSession[]>(
-      `/api/fast/user/${encodeURIComponent(userIdentifier)}/history`,
+      `/fast/user/${encodeURIComponent(userIdentifier)}/history`,
       { headers: this.getAuthHeaders() }
     );
     return response;

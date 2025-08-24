@@ -25,9 +25,10 @@ import type {
   PreferencesApiResponse
 } from '../types/user';
 import { HttpClient } from './http-client';
+import { config } from './config';
 
-// Create dedicated HTTP client for user endpoints
-const userHttpClient = new HttpClient('http://localhost:8080/api');
+// Create dedicated HTTP client for user endpoints  
+const userHttpClient = new HttpClient();
 
 class UserService {
   private currentUser: User | null = null;
@@ -278,7 +279,7 @@ class UserService {
       // Use the user-specific endpoint with username/email and JWT authentication
       const userIdentifier = this.currentUser.username || this.currentUser.email;
       const response = await userHttpClient.get<any>(
-        `/api/fast/user/${encodeURIComponent(userIdentifier!)}/status`,
+        `/fast/user/${encodeURIComponent(userIdentifier!)}/status`,
         { headers: this.getAuthHeaders() }
       );
       return response;
@@ -311,7 +312,7 @@ class UserService {
       // Use the user-specific endpoint with username/email and JWT authentication
       const userIdentifier = this.currentUser.username || this.currentUser.email;
       const response = await userHttpClient.get<any[]>(
-        `/api/fast/user/${encodeURIComponent(userIdentifier!)}/history`,
+        `/fast/user/${encodeURIComponent(userIdentifier!)}/history`,
         { headers: this.getAuthHeaders() }
       );
       return response;

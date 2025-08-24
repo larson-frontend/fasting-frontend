@@ -36,7 +36,7 @@ function shouldUseMockData(): boolean {
 }
 
 export const config = {
-  apiBase: import.meta.env.VITE_API_BASE || 'http://localhost:8080',
+  apiBase: import.meta.env.VITE_API_BASE || 'http://localhost:8080/api',
   useMockData: shouldUseMockData(), // ✅ Automatische Erkennung!
   isDevelopment: import.meta.env.DEV,
   isProduction: import.meta.env.PROD,
@@ -44,20 +44,20 @@ export const config = {
 
 export const endpoints = {
   users: {
-    base: '/api/users',
-    checkAvailability: '/api/users/check-availability',
-    find: '/api/users/find',
+    base: '/users',
+    checkAvailability: '/users/check-availability',
+    find: '/users/find',
   },
   fast: {
-    base: '/api/fast',
-    start: '/api/fast/start',
-    stop: '/api/fast/stop',
-    status: '/api/fast/status',
-    history: '/api/fast/history',
-    userStatus: '/api/fast/user',
-    userHistory: '/api/fast/user',
-    userStart: '/api/fast/user',
-    userStop: '/api/fast/user',
+    base: '/fast',
+    start: '/fast/start',
+    stop: '/fast/stop',
+    status: '/fast/status',
+    history: '/fast/history',
+    userStatus: '/fast/user',
+    userHistory: '/fast/user',
+    userStart: '/fast/user',
+    userStop: '/fast/user',
   },
   health: '/actuator/health',
 } as const;
