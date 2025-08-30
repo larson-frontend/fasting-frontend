@@ -24,9 +24,9 @@
     <!-- Security: Basic Content Security Policy (adjust hostnames before production deploy)
       NOTE: For strict CSP with nonces/hashes, configure via server headers.
       This meta tag is a fallback and should be kept in sync with backend.
-      default-src 'self'; connect-src 'self' https://api.example.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';
+      Added font-src for Google Fonts support
     -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:8080 https://api.example.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:8080 https://api.example.com; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';" />
     
     <!-- Favicons and Icons -->
     <link rel="icon" href="/favicon.ico" />

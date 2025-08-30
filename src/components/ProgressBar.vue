@@ -96,20 +96,29 @@ const props = defineProps<Props>()
 const { t } = useI18n()
 
 // Verwende Test-Daten falls Test-Modus aktiv, sonst echte Props-Daten
+// Ensure we always work with safe numeric values (avoid NaN UI)
 const activeHours = computed(() => {
   const testData = getTestData()
-  return testData ? testData.hours : props.hours
+  const raw = testData ? testData.hours : props.hours
+  const n = Number(raw)
+  return Number.isFinite(n) && n >= 0 ? n : 0
 })
 
 const activeMinutes = computed(() => {
   const testData = getTestData()
-  return testData ? testData.minutes : props.minutes
+  const raw = testData ? testData.minutes : props.minutes
+  const n = Number(raw)
+  return Number.isFinite(n) && n >= 0 ? n : 0
 })
 
-const totalMinutes = computed(() => activeHours.value * 60 + activeMinutes.value)
+const totalMinutes = computed(() => (activeHours.value * 60) + activeMinutes.value)
 
-// Effektives Ziel: Benutzerdefiniert oder Standard 16h
-const effectiveGoal = computed(() => props.goalHours || 16)
+// Effektives Ziel: Benutzerdefiniert oder Standard 16h (coerced to number > 0)
+const effectiveGoal = computed(() => {
+  const raw = props.goalHours ?? 16
+  const n = Number(raw)
+  return Number.isFinite(n) && n > 0 ? n : 16
+})
 
 // Zeige aktive Werte in der Anzeige
 const displayHours = computed(() => activeHours.value)
@@ -118,6 +127,8 @@ const displayMinutes = computed(() => activeMinutes.value)
 // Maximale Stunden basierend auf aktueller Phase und Ziel
 const maxHours = computed(() => {
   const goal = effectiveGoal.value
+  // Guard: goal must be a positive number
+  if (!Number.isFinite(goal) || goal <= 0) return 16
   return activeHours.value < goal ? goal : Math.max(goal + 8, 24) // +8h Bonus oder mindestens 24h
 })
 
@@ -126,6 +137,10 @@ const progressWidth = computed(() => {
   const hours = activeHours.value
   const goal = effectiveGoal.value
   
+  if (!Number.isFinite(hours) || !Number.isFinite(goal) || goal <= 0) {
+    return 0
+  }
+
   if (hours < goal) {
     // Bis Ziel: normale Berechnung auf Ziel-Basis
     const maxMinutes = goal * 60 // Ziel-Stunden = 100%
