@@ -129,7 +129,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { loginOrCreateUser, getStoredLanguage, isMockMode } from '../api'
+import { loginOrCreateUser, getStoredLanguage } from '../api'
 import type { LoginRequest } from '../types/user'
 
 // Emits
@@ -215,5 +215,11 @@ onMounted(() => {
   // Gespeicherte Sprache als Default verwenden
   selectedLanguage.value = getStoredLanguage()
   locale.value = selectedLanguage.value
+})
+
+// Environment-driven mock indicator (production default: false)
+const isMockMode = computed(() => {
+  const v = (import.meta as any).env?.VITE_USE_MOCK_DATA
+  return String(v).toLowerCase() === 'true'
 })
 </script>
