@@ -11,6 +11,7 @@ import type {
   UpdatePreferencesRequest,
   UserPreferences
 } from '../types/user';
+import { mockStore } from './data-store';  // Import shared store
 
 class MockUserService {
   private users: Map<string, User> = new Map();
@@ -20,6 +21,61 @@ class MockUserService {
   constructor() {
     // Erstelle Demo-Benutzer
     this.createDemoUsers();
+    
+    // Auto-Login im Mock-Modus
+    this.autoLoginTestUser();
+  }
+
+  /**
+   * Auto-Login für Test-User im Mock-Modus
+   */
+  private autoLoginTestUser(): void {
+    const currentUser = localStorage.getItem(this.USERNAME_KEY);
+    
+    if (!currentUser) {
+      // Login Test-User automatisch
+      const testUser = 'test_user';
+      localStorage.setItem(this.USERNAME_KEY, testUser);
+      console.log('🧪 Auto-Login: Test-User "test_user" automatisch eingeloggt');
+      
+      // Setze Test-Daten in localStorage
+      this.setupTestUserData();
+    } else {
+      console.log('🧪 Mock-Mode: User bereits eingeloggt:', currentUser);
+    }
+  }
+
+  /**
+   * Check if user is logged in (Mock)
+   */
+  isLoggedIn(): boolean {
+    const username = this.getLoggedUsername();
+    const result = !!username;
+    console.log('🧪 MockUserService.isLoggedIn:', result, 'username:', username);
+    return result;
+  }
+
+  /**
+   * Setup Test-User Daten in localStorage 
+   */
+  private setupTestUserData(): void {
+    const testData = {
+      preferences: {
+        theme: 'dark',
+        language: 'de',
+        notifications: true,
+        goalHours: 16
+      },
+      stats: {
+        totalSessions: 12,
+        averageHours: 15.5,
+        longestFast: 20,
+        currentStreak: 3
+      }
+    };
+    
+    localStorage.setItem('fasting_test_data', JSON.stringify(testData));
+    console.log('🧪 Test-User Daten in localStorage gespeichert:', testData);
   }
 
   /**
@@ -140,7 +196,18 @@ class MockUserService {
   }
 
   /**
-   * Benutzer abrufen (Mock)
+   * User by username finden (Mock)
+   */
+  async getUserByUsername(username: string): Promise<User | null> {
+    await this.delay(100);
+    
+    const user = Array.from(this.users.values()).find(u => u.username === username);
+    console.log('🧪 MockUserService.getUserByUsername:', username, 'found:', !!user, user?.username);
+    return user || null;
+  }
+
+  /**
+   * User by ID finden (Mock)
    */
   async getUser(userId: string): Promise<User> {
     await this.delay(100);
@@ -210,6 +277,28 @@ class MockUserService {
    */
   private createDemoUsers(): void {
     const demoUsers: CreateUserRequest[] = [
+      {
+        username: 'test_user',
+        email: 'test@fastingtracker.app',
+        preferences: {
+          language: 'de',
+          theme: 'dark',
+          timezone: 'Europe/Berlin',
+          notifications: {
+            enabled: true,
+            fastingReminders: true,
+            mealReminders: true,
+            progressUpdates: true,
+            goalAchievements: true,
+            weeklyReports: true
+          },
+          fastingDefaults: {
+            defaultGoalHours: 16,
+            preferredFastingType: 'intermittent',
+            autoStartNextFast: false
+          }
+        }
+      },
       {
         username: 'demo',
         email: 'demo@fastingtracker.app',
@@ -307,15 +396,8 @@ class MockUserService {
    */
   async fetchUserFastingStatus(): Promise<any> {
     await this.delay(200);
-    
-    // Return mock fasting status
-    return {
-      active: false,
-      hours: 0,
-      minutes: 0,
-      since: null,
-      goalHours: 16
-    };
+  // Delegate to shared store to ensure single source of truth
+  return mockStore.getStatus();
   }
 
   /**
@@ -324,25 +406,9 @@ class MockUserService {
   async fetchUserFastingHistory(): Promise<any[]> {
     await this.delay(300);
     
-    // Return mock fasting history
-    return [
-      {
-        id: 'mock-session-1',
-        startTime: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-        endTime: new Date(Date.now() - 86400000 + 16*3600000).toISOString(), // 16 hours later
-        goalHours: 16,
-        actualHours: 16,
-        completed: true
-      },
-      {
-        id: 'mock-session-2', 
-        startTime: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-        endTime: new Date(Date.now() - 172800000 + 18*3600000).toISOString(), // 18 hours later
-        goalHours: 16,
-        actualHours: 18,
-        completed: true
-      }
-    ];
+  // Use shared mock store history and keep FastSession shape
+  const history = mockStore.getHistory();
+  return history.map(s => ({ ...s }));
   }
 
   /**
