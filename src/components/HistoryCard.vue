@@ -6,6 +6,7 @@
         @click="$emit('refresh')" 
         class="text-sm px-3 py-2 rounded border hover:bg-gray-100 touch-manipulation font-medium flex items-center justify-center min-w-[100px]" 
         :disabled="loading">
+<<<<<<< HEAD
         <InlineSpinner 
           v-if="loading"
           :show="loading" 
@@ -13,6 +14,9 @@
           variant="dark"
         />
         <span v-else>{{ $t('history.refresh') }}</span>
+=======
+        {{ loading ? '...' : $t('history.refresh') }}
+>>>>>>> dc622e2 (added translations i18n)
       </button>
     </div>
     <div class="space-y-3">

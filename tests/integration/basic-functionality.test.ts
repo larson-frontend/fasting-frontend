@@ -1,8 +1,15 @@
 import { describe, it, expect } from 'vitest'
+<<<<<<< HEAD:tests/integration/basic-functionality.test.ts
 import { mount, mountWithI18n } from '../utils/test-utils'
 import TimeBadge from '../../src/components/TimeBadge.vue'
 import ProgressBar from '../../src/components/ProgressBar.vue'
 import StatusCard from '../../src/components/StatusCard.vue'
+=======
+import { mount, mountWithI18n } from './test-utils'
+import TimeBadge from '../src/components/TimeBadge.vue'
+import ProgressBar from '../src/components/ProgressBar.vue'
+import StatusCard from '../src/components/StatusCard.vue'
+>>>>>>> dc622e2 (added translations i18n):tests/basic.test.ts
 
 describe('TimeBadge Component', () => {
   it('sollte korrekt rendern', () => {
