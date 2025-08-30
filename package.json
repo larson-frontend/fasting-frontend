@@ -51,7 +51,7 @@
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
-    "vue": "^3.5.0",
+    "vue": "^3.5.20",
     "vue-i18n": "^11.1.11"
   },
   "devDependencies": {
@@ -67,7 +67,7 @@
     "vite": "^7.1.1",
     "vite-plugin-pwa": "^1.0.3",
     "vitest": "^3.2.4",
-    "vue-tsc": "^3.0.0",
+    "vue-tsc": "^3.0.6",
     "workbox-cli": "^7.3.0"
   }
 }
