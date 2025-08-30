@@ -4,12 +4,20 @@ on:
   pull_request:
     branches: [ main, develop ]
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Force CI run even if only docs/meta changed"
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # Determine whether to run CI (skip/force parity with backend)
   gate:
     name: CI Gate (skip/force)
     runs-on: ubuntu-latest
@@ -100,7 +108,6 @@ jobs:
           echo "## CI Gate Decision" >> $GITHUB_STEP_SUMMARY
           echo "Run: ${{ steps.eval.outputs.run }}" >> $GITHUB_STEP_SUMMARY
           echo "Reason: ${{ steps.eval.outputs.reason }}" >> $GITHUB_STEP_SUMMARY
-
   validate:
     name: Quick Validation
     runs-on: ubuntu-latest
