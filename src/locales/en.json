@@ -9,6 +9,47 @@
   "nav": {
     "language": "Language"
   },
+  "user": {
+    "welcome": "Welcome!",
+    "subtitle": "Let's set up your fasting profile",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "usernameOrEmail": "Username or Email",
+    "usernameOrEmailPlaceholder": "Enter your username or email",
+    "identifierHint": "You can use either a username or email address",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email (optional)",
+    "preferredLanguage": "Preferred Language",
+    "getStarted": "Get Started",
+    "privacyNote": "Your data is stored locally and securely.",
+    "settings": "User Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "notifications": "Notifications",
+    "fastingReminders": "Fasting Reminders",
+    "mealReminders": "Meal Reminders",
+    "progressUpdates": "Progress Updates",
+    "userExistsTitle": "Username/Email Already Taken",
+    "errorTitle": "Registration Error",
+    "tryDifferentIdentifier": "Please try a different username or email address."
+  },
+  "languages": {
+    "en": "English",
+    "de": "Deutsch"
+  },
+  "common": {
+    "optional": "optional",
+    "loading": "Loading...",
+    "loadingData": "Loading data...",
+    "startingFast": "Starting fast...",
+    "stoppingFast": "Stopping fast...",
+    "saving": "Saving...",
+    "save": "Save Changes",
+    "unknownUser": "Unknown User"
+  },
   "fasting": {
     "status": {
       "title": "Status",

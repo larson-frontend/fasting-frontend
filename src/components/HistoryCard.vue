@@ -4,9 +4,15 @@
       <h2 class="font-semibold text-lg">{{ $t('history.title') }}</h2>
       <button 
         @click="$emit('refresh')" 
-        class="text-sm px-3 py-2 rounded border hover:bg-gray-100 touch-manipulation font-medium" 
+        class="text-sm px-3 py-2 rounded border hover:bg-gray-100 touch-manipulation font-medium flex items-center justify-center min-w-[100px]" 
         :disabled="loading">
-        {{ loading ? '...' : $t('history.refresh') }}
+        <InlineSpinner 
+          v-if="loading"
+          :show="loading" 
+          size="xs"
+          variant="dark"
+        />
+        <span v-else>{{ $t('history.refresh') }}</span>
       </button>
     </div>
     <div class="space-y-3">
@@ -51,13 +57,14 @@
       </div>
     </div>
     <div v-if="items.length === 0" class="text-center text-gray-500 py-8 text-sm">
-      Noch keine Sessions vorhanden
+      {{ $t('history.empty') }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import InlineSpinner from './InlineSpinner.vue'
 
 interface FastSession {
   id: number

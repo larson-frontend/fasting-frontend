@@ -36,8 +36,8 @@ jobs:
     - name: Check TypeScript compilation
       run: npx vue-tsc --noEmit
     
-    - name: Run fast tests
-      run: npm run test:run -- --reporter=verbose
+    - name: Run all tests
+      run: npm run test:all
 
   # Test different scenarios
   test-matrix:
@@ -46,9 +46,9 @@ jobs:
     needs: validate
     
     strategy:
+      fail-fast: false
       matrix:
         test-group: ['unit', 'integration', 'e2e']
-      fail-fast: false
     
     steps:
     - name: Checkout code
@@ -67,13 +67,21 @@ jobs:
       run: |
         case "${{ matrix.test-group }}" in
           "unit")
-            npm run test:run -- --reporter=verbose tests/basic.test.ts
+            # Run unit-style suites (components, api, utils) and the root debug-config test
+            npm run test:run -- \
+              --reporter=verbose \
+              tests/components \
+              tests/api \
+              tests/utils \
+              debug-config.test.ts
             ;;
           "integration")
-            npm run test:run -- --reporter=verbose tests/goal-system*.test.ts
+            # Run all integration tests in their current folder structure
+            npm run test:run -- --reporter=verbose tests/integration
             ;;
           "e2e")
-            npm run test:run -- --reporter=verbose tests/error-scenarios.test.ts
+            # Use the standalone goal-system tests as an end-to-end smoke check
+            npm run test:standalone
             ;;
         esac
 

@@ -9,6 +9,47 @@
   "nav": {
     "language": "Sprache"
   },
+  "user": {
+    "welcome": "Willkommen!",
+    "subtitle": "Lass uns dein Fastenprofil einrichten",
+    "username": "Benutzername",
+    "usernamePlaceholder": "Gib deinen Benutzernamen ein",
+    "usernameOrEmail": "Benutzername oder E-Mail",
+    "usernameOrEmailPlaceholder": "Gib deinen Benutzernamen oder E-Mail ein",
+    "identifierHint": "Du kannst entweder einen Benutzernamen oder eine E-Mail-Adresse verwenden",
+    "email": "E-Mail",
+    "emailPlaceholder": "Gib deine E-Mail ein (optional)",
+    "preferredLanguage": "Bevorzugte Sprache",
+    "getStarted": "Loslegen",
+    "privacyNote": "Deine Daten werden lokal und sicher gespeichert.",
+    "settings": "Benutzereinstellungen",
+    "language": "Sprache",
+    "theme": "Design",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "system": "System",
+    "notifications": "Benachrichtigungen",
+    "fastingReminders": "Fasten-Erinnerungen",
+    "mealReminders": "Mahlzeit-Erinnerungen",
+    "progressUpdates": "Fortschritt-Updates",
+    "userExistsTitle": "Benutzername/E-Mail bereits vergeben",
+    "errorTitle": "Registrierungsfehler",
+    "tryDifferentIdentifier": "Bitte versuche einen anderen Benutzernamen oder eine andere E-Mail-Adresse."
+  },
+  "languages": {
+    "en": "English",
+    "de": "Deutsch"
+  },
+  "common": {
+    "optional": "optional",
+    "loading": "Laden...",
+    "loadingData": "Daten werden geladen...",
+    "startingFast": "Fasten wird gestartet...",
+    "stoppingFast": "Fasten wird beendet...",
+    "saving": "Speichere...",
+    "save": "Änderungen speichern",
+    "unknownUser": "Unbekannter Benutzer"
+  },
   "fasting": {
     "status": {
       "title": "Status",
