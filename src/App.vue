@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { startFast, stopFast, statusFast, historyFast, startUserFast, stopUserFast, fetchUserFastingHistory, fetchUserFastingStatus, getCurrentUser, isMockMode, apiBase } from './api/index'
+import { startFast, stopFast, statusFast, historyFast, startUserFast, stopUserFast, getUserFastingHistory, fetchUserFastingHistory, fetchUserFastingStatus, getCurrentUser, isMockMode, apiBase } from './api/index'
 import { fallbackApiService } from './api/fallback-service'
 import './utils/error-tests' // Lade Error-Tests für Browser Console
 import WelcomeScreen from './components/WelcomeScreen.vue'
@@ -11,12 +11,8 @@ import HistoryCard from './components/HistoryCard.vue'
 import FastingInfoModal from './components/FastingInfoModal.vue'
 import TestPanel from './components/TestPanel.vue'
 import ErrorPage from './components/ErrorPage.vue'
-<<<<<<< HEAD
 import UserManager from './components/UserManager.vue'
 import LoadingSpinner from './components/LoadingSpinner.vue'
-=======
-import LanguageSwitcher from './components/LanguageSwitcher.vue'
->>>>>>> dc622e2 (added translations i18n)
 
 const loading = ref(false)
 const stat = ref<{active?: boolean; hours?: number; minutes?: number; since?: string}>({})
@@ -244,7 +240,6 @@ onMounted(async () => {
   <!-- Main App -->
   <div v-else class="min-h-screen bg-gray-50 text-gray-900">
     <div class="max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
-<<<<<<< HEAD
       <!-- Header -->
       <div class="flex items-center justify-between mb-2">
         <div class="flex items-center gap-2">
@@ -252,17 +247,6 @@ onMounted(async () => {
           <UserManager />
         </div>
         <div class="flex items-center gap-3">
-=======
-      <!-- Header with Language Switcher -->
-      <div class="flex items-center justify-between mb-2">
-        <div class="flex items-center gap-3">
-          <span class="text-2xl sm:text-3xl">🍃</span>
-          <h1 class="text-xl sm:text-2xl font-bold">{{ $t('app.title') }}</h1>
-        </div>
-        <div class="flex items-center gap-2">
-          <!-- Language Switcher -->
-          <LanguageSwitcher />
->>>>>>> dc622e2 (added translations i18n)
           <!-- Info Button -->
           <button 
             @click="showInfoModal = true"

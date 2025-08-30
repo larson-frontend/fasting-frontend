@@ -9,7 +9,6 @@
   "nav": {
     "language": "Sprache"
   },
-<<<<<<< HEAD
   "user": {
     "welcome": "Willkommen!",
     "subtitle": "Lass uns dein Fastenprofil einrichten",
@@ -51,8 +50,6 @@
     "save": "Änderungen speichern",
     "unknownUser": "Unbekannter Benutzer"
   },
-=======
->>>>>>> dc622e2 (added translations i18n)
   "fasting": {
     "status": {
       "title": "Status",

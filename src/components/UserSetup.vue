@@ -14,13 +14,6 @@
         <p class="text-gray-600 dark:text-gray-300">
           {{ $t('user.subtitle') }}
         </p>
-        
-        <!-- Mock-Mode Hinweis - klein und prominent -->
-        <div v-if="isMockMode" class="mt-3 px-2 py-1 bg-amber-50 border border-amber-200 rounded-md">
-          <div class="text-xs text-amber-700">
-            🧪 <strong>Mock-Modus:</strong> Verwende <code class="bg-amber-100 px-1 rounded">test_user</code>
-          </div>
-        </div>
       </div>
 
       <!-- Form -->
@@ -215,11 +208,5 @@ onMounted(() => {
   // Gespeicherte Sprache als Default verwenden
   selectedLanguage.value = getStoredLanguage()
   locale.value = selectedLanguage.value
-})
-
-// Environment-driven mock indicator (production default: false)
-const isMockMode = computed(() => {
-  const v = (import.meta as any).env?.VITE_USE_MOCK_DATA
-  return String(v).toLowerCase() === 'true'
 })
 </script>
