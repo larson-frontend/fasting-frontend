@@ -5,9 +5,17 @@ on:
     branches: [ main, develop, FEAT/* ]
   pull_request:
     branches: [ main, develop ]
+    types: [opened, synchronize, reopened, edited, labeled, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Force CI run even if only docs/meta changed"
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -23,6 +31,86 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Detect changed paths (docs/meta vs code)
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            docs:
+              - '**/*.md'
+              - 'LICENSE'
+              - '.github/**'
+              - 'docs/**'
+            code:
+              - 'src/**'
+              - 'public/**'
+              - 'tests/**'
+              - 'package*.json'
+              - '*.config.*'
+              - 'tsconfig.json'
+              - 'vite.config.ts'
+              - 'vitest.config.ts'
+
+      - name: Read latest commit message
+        id: msg
+        run: |
+          echo "msg<<EOF" >> $GITHUB_OUTPUT
+          git log -1 --pretty=%B >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Evaluate skip/force conditions
+        id: gate
+        shell: bash
+        run: |
+          title='${{ github.event.pull_request.title || '' }}'
+          msg='${{ steps.msg.outputs.msg || '' }}'
+          base='${{ github.event.pull_request.base.ref || 'develop' }}'
+          labels=$(jq -r '.pull_request.labels[].name // empty' "$GITHUB_EVENT_PATH" 2>/dev/null || true)
+          
+          is_dispatch='${{ github.event_name == 'workflow_dispatch' }}'
+          force_input='${{ inputs.force }}'
+          docs_changed='${{ steps.changes.outputs.docs }}'
+          code_changed='${{ steps.changes.outputs.code }}'
+
+          should_skip_global=false
+          should_skip_dev=false
+          should_force=false
+
+          for token in '[skip ci]' '[ci skip]' '[no ci]' '[skip actions]' '[actions skip]'; do
+            if echo "$title$msg" | grep -qi "$token"; then should_skip_global=true; fi
+          done
+          if echo "$title$msg" | grep -qi '\[skip dev-ci\]'; then should_skip_dev=true; fi
+
+          for token in '[force ci]' '[ci force]' '/ci run' '/run ci'; do
+            if echo "$title$msg" | grep -qi "$token"; then should_force=true; fi
+          done
+          if echo "$labels" | grep -qi '\bci:force\b'; then should_force=true; fi
+          if [ "$is_dispatch" = "true" ] && [ "$force_input" = "true" ]; then should_force=true; fi
+
+          docs_only=false
+          if [ "$code_changed" != "true" ] && [ "$docs_changed" = "true" ]; then
+            docs_only=true
+          fi
+
+          echo "global=$should_skip_global" >> $GITHUB_OUTPUT
+          echo "dev=$should_skip_dev" >> $GITHUB_OUTPUT
+          echo "force=$should_force" >> $GITHUB_OUTPUT
+          echo "base=$base" >> $GITHUB_OUTPUT
+          echo "docs_only=$docs_only" >> $GITHUB_OUTPUT
+
+      - name: Early exit for docs-only changes (unless forced)
+        if: ${{ steps.gate.outputs.force != 'true' && steps.gate.outputs.docs_only == 'true' }}
+        run: |
+          echo "Docs/meta-only change detected. CI skipped. Add [force ci] label 'ci:force' or dispatch with force=true to run anyway." >> $GITHUB_STEP_SUMMARY
+          exit 0
+
+      - name: Fail early if skip requested (for visibility)
+        if: ${{ steps.gate.outputs.force != 'true' && (steps.gate.outputs.global == 'true' || (steps.gate.outputs.base == 'develop' && steps.gate.outputs.dev == 'true')) }}
+        run: |
+          echo "CI skipped due to skip token in PR title or commit message." >> $GITHUB_STEP_SUMMARY
+          exit 0
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -47,6 +135,7 @@ jobs:
     name: Build Application
     runs-on: ubuntu-latest
     needs: test
+    if: ${{ !cancelled() && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -69,6 +158,8 @@ jobs:
   security:
     name: Security Audit
     runs-on: ubuntu-latest
+    needs: test
+    if: ${{ !cancelled() && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -87,6 +178,8 @@ jobs:
   quality:
     name: Code Quality Check
     runs-on: ubuntu-latest
+    needs: test
+    if: ${{ !cancelled() && (needs.test.result == 'success' || needs.test.result == 'skipped') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -114,10 +207,52 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Tests | ${{ needs.test.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Build | ${{ needs.build.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Security | ${{ needs.security.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Quality | ${{ needs.quality.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          
+          # Handle test result
+          if [ "${{ needs.test.result }}" = "success" ]; then
+            echo "| Tests | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.test.result }}" = "skipped" ]; then
+            echo "| Tests | ⏭️ Skipped |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Tests | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Handle other job results
+          if [ "${{ needs.build.result }}" = "success" ]; then
+            echo "| Build | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.build.result }}" = "skipped" ]; then
+            echo "| Build | ⏭️ Skipped |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Build | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.security.result }}" = "success" ]; then
+            echo "| Security | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.security.result }}" = "skipped" ]; then
+            echo "| Security | ⏭️ Skipped |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Security | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.quality.result }}" = "success" ]; then
+            echo "| Quality | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.quality.result }}" = "skipped" ]; then
+            echo "| Quality | ⏭️ Skipped |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Quality | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
           echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Add skip/force information if tests were skipped
+          if [ "${{ needs.test.result }}" = "skipped" ]; then
+            echo "### Skip/Force Information ℹ️" >> $GITHUB_STEP_SUMMARY
+            echo "CI was skipped. To force execution:" >> $GITHUB_STEP_SUMMARY
+            echo "- Add \`[force ci]\` to commit message or PR title" >> $GITHUB_STEP_SUMMARY
+            echo "- Add \`ci:force\` label to PR" >> $GITHUB_STEP_SUMMARY  
+            echo "- Use workflow dispatch with force=true" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
           echo "### Test Coverage Report 📊" >> $GITHUB_STEP_SUMMARY
           echo "Coverage reports are uploaded to Codecov for detailed analysis." >> $GITHUB_STEP_SUMMARY

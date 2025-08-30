@@ -41,6 +41,54 @@ npm run validate             # TypeScript + tests (recommended)
 
 **Environment Setup:** Create `.env` with `VITE_API_BASE=http://localhost:8080/api` for custom API endpoint.
 
+## 🔄 CI/CD & Build Control
+
+### Skip/Force Build Options
+
+The project supports intelligent build skipping and forcing through commit messages, PR titles, and labels:
+
+#### Skip Builds
+Add any of these tokens to your commit message or PR title to skip CI:
+- `[skip ci]` - Skip all CI workflows
+- `[ci skip]` - Skip all CI workflows  
+- `[no ci]` - Skip all CI workflows
+- `[skip actions]` - Skip GitHub Actions
+- `[skip dev-ci]` - Skip only on develop branch
+- `[skip pr]` - Skip PR checks specifically
+
+```bash
+# Examples
+git commit -m "Update README [skip ci]"
+git commit -m "Fix typos [no ci]"
+```
+
+#### Force Builds
+Add any of these tokens to force CI even for docs-only changes:
+- `[force ci]` - Force all CI workflows
+- `[ci force]` - Force all CI workflows
+- `[force pr]` - Force PR checks
+- `/ci run` - Force CI execution  
+- `/run ci` - Force CI execution
+
+```bash
+# Examples  
+git commit -m "Update docs [force ci]"
+git commit -m "Minor README fix [ci force]"
+```
+
+#### Smart Docs-Only Detection
+- **Automatic Skip**: CI automatically skips for documentation-only changes
+- **Override**: Use force tokens or `ci:force` label to run anyway
+- **Monitored Paths**: `*.md`, `LICENSE`, `.github/**`, `docs/**`
+
+#### Manual Workflow Control
+- Use **Workflow Dispatch** in GitHub Actions tab
+- Check "Force CI run" to override automatic skipping
+- Available for both CI and Release workflows
+
+#### Labels
+Add the `ci:force` label to any PR to force CI execution regardless of changes.
+
 ## ✨ Features
 
 ### Core Functionality

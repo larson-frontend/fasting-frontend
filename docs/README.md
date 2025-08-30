@@ -32,6 +32,7 @@ This directory contains all project documentation organized by category.
 - `INTEGRATION_STATUS.md` - Current integration status
 
 ### 🛠️ Development (`docs/development/`)
+- `CI-CD.md` - Complete CI/CD pipeline documentation with skip/force build control
 - `FRONTEND_UPDATE_INSTRUCTIONS.md` - Frontend update procedures
 - `FRONTEND_QUICK_UPDATE.md` - Quick update guide
 - `USER_SETTINGS_COMPLETE.md` - User settings implementation documentation
