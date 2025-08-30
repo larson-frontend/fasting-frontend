@@ -14,11 +14,11 @@ jobs:
     
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [22.x]
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     
     - name: Setup Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
@@ -35,15 +35,12 @@ jobs:
     - name: Run type checking
       run: npx vue-tsc --noEmit
     
-    - name: Run unit tests
-      run: npm run test:run
-    
-    - name: Run tests with coverage
-      run: npm run test:coverage
-    
+    - name: Run all tests
+      run: npm run test:all:ci
+
     - name: Upload coverage reports
       uses: codecov/codecov-action@v5
-      if: matrix.node-version == '20.x'
+      if: matrix.node-version == '22.x'
       with:
         fail_ci_if_error: false
         verbose: true
@@ -56,12 +53,12 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20.x'
+        node-version: '22.x'
         cache: 'npm'
     
     - name: Install dependencies
@@ -84,12 +81,12 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20.x'
+        node-version: '22.x'
         cache: 'npm'
     
     - name: Install dependencies
@@ -108,12 +105,12 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20.x'
+        node-version: '22.x'
         cache: 'npm'
     
     - name: Install dependencies

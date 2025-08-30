@@ -30,13 +30,13 @@ export class MockDataStore {
     },
     {
       id: 4,
-      startAt: '2025-08-05T21:00:00Z',
-      endAt: '2025-08-06T15:30:00Z',
-      duration: '18h 30m'
+      startAt: '2025-08-05T17:15:00Z',
+      endAt: '2025-08-06T09:45:00Z',
+      duration: '16h 30m'
     },
     {
       id: 5,
-      startAt: '2025-08-04T18:45:00Z',
+      startAt: '2025-08-04T19:00:00Z',
       endAt: '2025-08-05T11:15:00Z',
       duration: '16h 30m'
     }
@@ -44,11 +44,48 @@ export class MockDataStore {
   private nextId = 6;
   private goalHours = DEFAULT_GOAL_HOURS;
 
+  constructor() {
+    // Debug: Force reset for development
+    console.log('MockDataStore initialized - currentSession reset to null');
+    this.currentSession = null;
+  }
+
+  /**
+   * Session-Status für User-Service bereitstellen
+   */
+  getCurrentSession(): FastSession | null {
+    return this.currentSession;
+  }
+
+  /**
+   * Session vom User-Service setzen (für Koordination)
+   */
+  setCurrentSession(session: FastSession | null): void {
+    this.currentSession = session;
+    if (session) {
+      console.log('MockDataStore: Session set from external:', session);
+    } else {
+      console.log('MockDataStore: Session cleared from external');
+    }
+  }
+
+  /**
+   * Reset für Entwicklung
+   */
+  reset(): void {
+    console.log('MockDataStore reset - stopping any active session');
+    this.currentSession = null;
+  }
+
   /**
    * Startet eine neue Fasten-Session
    */
   startFast(goalHours?: number): FastSession {
+    console.log('MockDataStore.startFast called, current session:', this.currentSession);
+    
     if (this.currentSession) {
+      // Strict rule: only one active session allowed
+      // Do NOT auto-stop; signal error to the caller
       throw new Error('Es läuft bereits ein Fasten');
     }
     
@@ -60,6 +97,7 @@ export class MockDataStore {
       duration: '0h 0m'
     };
     
+    console.log('New session started:', this.currentSession);
     return { ...this.currentSession };
   }
 

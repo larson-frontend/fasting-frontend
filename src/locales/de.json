@@ -1,0 +1,206 @@
+{
+  "app": {
+    "title": "Fasten Tracker",
+    "subtitle": "Verfolge deine Intervallfasten-Reise"
+  },
+  "welcome": {
+    "tap_to_start": "Tippe zum Starten"
+  },
+  "nav": {
+    "language": "Sprache"
+  },
+  "user": {
+    "welcome": "Willkommen!",
+    "subtitle": "Lass uns dein Fastenprofil einrichten",
+    "username": "Benutzername",
+    "usernamePlaceholder": "Gib deinen Benutzernamen ein",
+    "usernameOrEmail": "Benutzername oder E-Mail",
+    "usernameOrEmailPlaceholder": "Gib deinen Benutzernamen oder E-Mail ein",
+    "identifierHint": "Du kannst entweder einen Benutzernamen oder eine E-Mail-Adresse verwenden",
+    "email": "E-Mail",
+    "emailPlaceholder": "Gib deine E-Mail ein (optional)",
+    "preferredLanguage": "Bevorzugte Sprache",
+    "getStarted": "Loslegen",
+    "privacyNote": "Deine Daten werden lokal und sicher gespeichert.",
+    "settings": "Benutzereinstellungen",
+    "language": "Sprache",
+    "theme": "Design",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "system": "System",
+    "notifications": "Benachrichtigungen",
+    "fastingReminders": "Fasten-Erinnerungen",
+    "mealReminders": "Mahlzeit-Erinnerungen",
+    "progressUpdates": "Fortschritt-Updates",
+    "userExistsTitle": "Benutzername/E-Mail bereits vergeben",
+    "errorTitle": "Registrierungsfehler",
+    "tryDifferentIdentifier": "Bitte versuche einen anderen Benutzernamen oder eine andere E-Mail-Adresse."
+  },
+  "languages": {
+    "en": "English",
+    "de": "Deutsch"
+  },
+  "common": {
+    "optional": "optional",
+    "loading": "Laden...",
+    "loadingData": "Daten werden geladen...",
+    "startingFast": "Fasten wird gestartet...",
+    "stoppingFast": "Fasten wird beendet...",
+    "saving": "Speichere...",
+    "save": "Änderungen speichern",
+    "unknownUser": "Unbekannter Benutzer"
+  },
+  "fasting": {
+    "status": {
+      "title": "Status",
+      "active": "Aktives Fasten",
+      "inactive": "Nicht am Fasten",
+      "completed": "Fasten Abgeschlossen",
+      "goal_reached": "Ziel Erreicht!",
+      "bonus_time": "Bonus-Zeit"
+    },
+    "actions": {
+      "start": "Fasten Starten",
+      "stop": "Fasten Beenden",
+      "pause": "Pausieren",
+      "resume": "Fortsetzen",
+      "reset": "Zurücksetzen",
+      "set_goal": "Ziel Setzen"
+    },
+    "progress": {
+      "of": "von",
+      "phases": {
+        "early": "Anfangsphase",
+        "warming": "Aufwärmphase",
+        "burning": "Fettverbrennung",
+        "ketosis": "Ketose",
+        "goal_reached": "{goal}h Ziel erreicht!",
+        "bonus": "Bonus-Zeit"
+      }
+    },
+    "notifications": {
+      "milestone_title": "🎉 Fasten Meilenstein erreicht!",
+      "warming_phase": "🚀 Aufwärmphase erreicht! 3 Stunden geschafft.",
+      "burning_phase": "🔥 Fettverbrennung startet! 8 Stunden erreicht.",
+      "ketosis_phase": "💚 Ketose beginnt! 12 Stunden Fasten geschafft.",
+      "autophagy_phase": "🧠 Autophagie aktiviert! 16 Stunden - fantastisch!"
+    },
+    "phases": {
+      "title": "Fasten-Phasen Info",
+      "phase1": {
+        "title": "Verdauungsruhe",
+        "description": "Dein Körper beendet die Verdauung und beginnt auf Fettverbrennung umzustellen.",
+        "time": "0-3 Stunden"
+      },
+      "phase2": {
+        "title": "Fettverbrennung Beginnt",
+        "description": "Glukosespeicher werden aufgebraucht, Fettverbrennung nimmt zu.",
+        "time": "3-8 Stunden"
+      },
+      "phase3": {
+        "title": "Aktive Fettverbrennung",
+        "description": "Primäre Energiequelle wechselt zu Fett. Erhöhte geistige Klarheit.",
+        "time": "8-12 Stunden"
+      },
+      "phase4": {
+        "title": "Ketose Beginnt",
+        "description": "Ketonproduktion steigt. Verstärkte Konzentration und Energie.",
+        "time": "12-16 Stunden"
+      },
+      "phase5": {
+        "title": "Autophagie Aktiviert",
+        "description": "Zellerneuerung und -reparatur beginnen. Tiefe Ketose.",
+        "time": "16+ Stunden"
+      },
+      "source_note": "Basierend auf wissenschaftlichen Studien zu Intervallfasten.",
+      "sources": "Quellen",
+      "status": {
+        "not_reached": "noch nicht erreicht",
+        "completed": "abgeschlossen",
+        "progress": "erreicht"
+      }
+    },
+    "goals": {
+      "title": "Wähle dein Fasten-Ziel",
+      "description": "Wähle dein angestrebtes Fasten-Ziel aus:",
+      "options": {
+        "10": "Sanfter Einstieg",
+        "12": "Klassisches Fasten",
+        "16": "Intermittierendes Fasten",
+        "18": "Erweiterte Autophagie",
+        "20": "Intensive Regeneration",
+        "24": "Vollständige Erneuerung"
+      }
+    },
+    "time": {
+      "hours": "Stunden",
+      "minutes": "Minuten",
+      "hour": "Stunde",
+      "minute": "Minute",
+      "since": "seit",
+      "duration": "Dauer",
+      "goal": "Ziel",
+      "remaining": "verbleibend"
+    }
+  },
+  "history": {
+    "title": "Fasten-Historie",
+    "empty": "Noch keine Fasten-Sessions",
+    "completed": "beendet",
+    "active": "aktiv",
+    "started": "Gestartet",
+    "ended": "Beendet",
+    "duration": "Dauer",
+    "goal": "Ziel",
+    "refresh": "Aktualisieren"
+  },
+  "dialog": {
+    "confirm": "Bestätigen",
+    "cancel": "Abbrechen",
+    "stop_fasting": {
+      "title": "Fasten Beenden?",
+      "message": "Bist du sicher, dass du deine aktuelle Fasten-Session beenden möchtest?"
+    },
+    "reset_fasting": {
+      "title": "Fasten Zurücksetzen?",
+      "message": "Dies wird deinen aktuellen Fortschritt zurücksetzen. Fortfahren?"
+    }
+  },
+  "info": {
+    "show_debug": "Debug Info anzeigen",
+    "hide_debug": "Debug Info ausblenden",
+    "mock_mode": "Mock-Modus",
+    "api": "API"
+  },
+  "test": {
+    "panel": "Test Panel",
+    "scenarios": "Test-Szenarien",
+    "activate": "Aktivieren",
+    "deactivate": "Deaktivieren"
+  },
+  "errors": {
+    "connection_error": "Verbindungsfehler",
+    "service_unavailable": "Service nicht erreichbar",
+    "offline": "Offline",
+    "status": "Status",
+    "last_attempt": "Letzter Versuch",
+    "error_code": "Fehlercode",
+    "retry": "Erneut versuchen",
+    "retrying": "Verbinde...",
+    "refresh_page": "Seite neu laden",
+    "close": "Schließen",
+    "possible_causes": "Mögliche Ursachen",
+    "no_internet": "Keine Internetverbindung",
+    "server_unavailable": "Server ist temporär nicht verfügbar",
+    "maintenance": "Wartungsarbeiten laufen",
+    "firewall_blocked": "Firewall blockiert die Verbindung",
+    "problem_persists": "Problem besteht weiterhin?",
+    "contact_support": "Support kontaktieren",
+    "network": "Netzwerkfehler. Bitte überprüfe deine Verbindung.",
+    "server": "Serverfehler. Bitte versuche es später erneut.",
+    "general": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+    "no_connection_message": "Keine Internetverbindung verfügbar. Bitte überprüfen Sie Ihre Netzwerkeinstellungen.",
+    "service_unreachable_message": "Der Fasting Tracker Service ist momentan nicht erreichbar. Bitte versuchen Sie es später erneut.",
+    "unexpected_error": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+  }
+}

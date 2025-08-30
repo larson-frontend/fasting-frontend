@@ -3,11 +3,34 @@
  * Zentrale TypeScript Interfaces für die API
  */
 
+// Frontend FastSession Model (our current implementation)
 export interface FastSession {
   id: number;
   startAt: string;
   endAt: string | null;
   duration: string;
+}
+
+// Backend FastSession Model (from API documentation)
+export interface BackendFastSession {
+  id: number;
+  user?: {
+    id: number;
+    username: string;
+    email: string;
+  };
+  startAt: string;
+  endAt?: string;
+  goalHours: number;
+  isActive: boolean;
+  durationHours?: number;
+}
+
+// Backend Fast Status Response
+export interface BackendFastStatus {
+  hasActiveFast: boolean;
+  currentFast?: BackendFastSession;
+  message: string;
 }
 
 export interface FastStatus {

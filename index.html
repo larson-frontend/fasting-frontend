@@ -1,10 +1,39 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    
+    <!-- iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Fasting Tracker" />
+    
+    <!-- Android Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Fasting Tracker" />
+    <meta name="msapplication-TileColor" content="#4f46e5" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    
+    <!-- Universal Meta Tags -->
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1e1b4b" />
+    <meta name="description" content="Professional intermittent fasting tracker with real-time progress and phase guidance" />
+    <meta name="keywords" content="fasting, intermittent fasting, health, wellness, tracker, progressive web app" />
+
+    <!-- Security: Basic Content Security Policy (adjust hostnames before production deploy)
+      NOTE: For strict CSP with nonces/hashes, configure via server headers.
+      This meta tag is a fallback and should be kept in sync with backend.
+      Added font-src for Google Fonts support
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http://localhost:8080 https://api.example.com; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';" />
+    
+    <!-- Favicons and Icons -->
     <link rel="icon" href="/favicon.ico" />
-    <title>Fasting Tracker</title>
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/mask-icon.svg" color="#4f46e5" />
+    
+    <title>Fasting Tracker Pro</title>
   </head>
   <body>
     <div id="app"></div>

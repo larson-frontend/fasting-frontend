@@ -10,7 +10,7 @@
             </path>
           </svg>
         </div>
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">Verbindungsfehler</h1>
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ $t('errors.connection_error') }}</h1>
         <p class="text-gray-600">
           {{ errorMessage }}
         </p>
@@ -21,21 +21,21 @@
         <div class="space-y-4">
           <!-- Status -->
           <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-gray-700">Status:</span>
+            <span class="text-sm font-medium text-gray-700">{{ $t('errors.status') }}:</span>
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-              {{ isOnline ? 'Service nicht erreichbar' : 'Offline' }}
+              {{ isOnline ? $t('errors.service_unavailable') : $t('errors.offline') }}
             </span>
           </div>
 
           <!-- Last Attempt -->
           <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-gray-700">Letzter Versuch:</span>
+            <span class="text-sm font-medium text-gray-700">{{ $t('errors.last_attempt') }}:</span>
             <span class="text-sm text-gray-600">{{ lastAttempt }}</span>
           </div>
 
           <!-- Error Code -->
           <div v-if="errorCode" class="flex items-center justify-between">
-            <span class="text-sm font-medium text-gray-700">Fehlercode:</span>
+            <span class="text-sm font-medium text-gray-700">{{ $t('errors.error_code') }}:</span>
             <span class="text-sm font-mono text-gray-600">{{ errorCode }}</span>
           </div>
         </div>
@@ -53,7 +53,7 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          {{ isRetrying ? 'Verbinde...' : 'Erneut versuchen' }}
+          {{ isRetrying ? $t('errors.retrying') : $t('errors.retry') }}
         </button>
 
         <!-- Refresh Page -->
@@ -64,32 +64,32 @@
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
           </svg>
-          Seite neu laden
+          {{ $t('errors.refresh_page') }}
         </button>
       </div>
 
       <!-- Help Section -->
       <div class="mt-8 text-center">
         <div class="text-sm text-gray-600 space-y-2">
-          <p><strong>Mögliche Ursachen:</strong></p>
+          <p><strong>{{ $t('errors.possible_causes') }}:</strong></p>
           <ul class="text-left space-y-1 text-xs">
-            <li>• Keine Internetverbindung</li>
-            <li>• Server ist temporär nicht verfügbar</li>
-            <li>• Wartungsarbeiten laufen</li>
-            <li>• Firewall blockiert die Verbindung</li>
+            <li>• {{ $t('errors.no_internet') }}</li>
+            <li>• {{ $t('errors.server_unavailable') }}</li>
+            <li>• {{ $t('errors.maintenance') }}</li>
+            <li>• {{ $t('errors.firewall_blocked') }}</li>
           </ul>
         </div>
         
         <!-- Contact Support -->
         <div class="mt-6 pt-6 border-t border-gray-200">
           <p class="text-xs text-gray-500 mb-2">
-            Problem besteht weiterhin?
+            {{ $t('errors.problem_persists') }}
           </p>
           <a 
             href="mailto:support@fastingtracker.com" 
             class="text-xs text-blue-600 hover:text-blue-500 underline"
           >
-            Support kontaktieren
+            {{ $t('errors.contact_support') }}
           </a>
         </div>
       </div>
@@ -99,6 +99,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 interface Props {
   error?: Error
@@ -111,6 +112,7 @@ const emit = defineEmits<{
   close: []
 }>()
 
+const { t } = useI18n()
 const isRetrying = ref(false)
 const lastAttempt = ref(new Date().toLocaleTimeString())
 const onlineStatus = ref(navigator.onLine)
@@ -118,14 +120,14 @@ const onlineStatus = ref(navigator.onLine)
 // Computed Properties
 const errorMessage = computed(() => {
   if (!onlineStatus.value) {
-    return 'Keine Internetverbindung verfügbar. Bitte überprüfen Sie Ihre Netzwerkeinstellungen.'
+    return t('errors.no_connection_message')
   }
   
   if (props.error?.message.includes('NetworkError') || props.error?.message.includes('fetch')) {
-    return 'Der Fasting Tracker Service ist momentan nicht erreichbar. Bitte versuchen Sie es später erneut.'
+    return t('errors.service_unreachable_message')
   }
   
-  return 'Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.'
+  return t('errors.unexpected_error')
 })
 
 const isOnline = computed(() => onlineStatus.value)

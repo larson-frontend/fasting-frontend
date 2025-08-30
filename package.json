@@ -1,39 +1,73 @@
 {
-  "name": "fasting-frontend",
-  "version": "0.1.0",
-  "private": true,
+  "name": "fasting-tracker-pro",
+  "version": "1.0.0",
+  "description": "Professional Fasting Tracker - Smart intermittent fasting with real-time progress tracking, phase guidance, and goal management",
+  "author": "Lars Larson <lars@example.com>",
+  "license": "MIT",
+  "keywords": [
+    "fasting",
+    "intermittent-fasting",
+    "health",
+    "wellness",
+    "tracker",
+    "vue",
+    "typescript",
+    "progressive-web-app"
+  ],
+  "homepage": "https://fastingtracker.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/larson-frontend/fasting-frontend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/larson-frontend/fasting-frontend/issues"
+  },
+  "private": false,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "build:android": "vite build && npm run pwa:validate",
+    "pwa:validate": "npx pwa-asset-generator --help || echo 'PWA tools check complete'",
+    "icons:generate": "./scripts/generate-android-icons.sh",
+    "android:test": "npm run build:android && npm run preview",
+    "android:lighthouse": "npx lighthouse http://localhost:4173 --only-categories=pwa --output=json --output-path=./reports/lighthouse-pwa.json",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
     "test:ci": "vitest run --reporter=verbose --coverage",
+    "test:standalone": "node tests/standalone/goal-system-tests.js",
+    "test:all": "npm run test:run && npm run test:standalone",
+    "test:all:ci": "npm run test:ci && npm run test:standalone",
     "type-check": "vue-tsc --noEmit",
     "lint": "echo 'Linting not configured yet'",
     "lint:fix": "echo 'Lint fixing not configured yet'",
-    "validate": "npm run type-check && npm run test:run",
+    "validate": "npm run type-check && npm run test:all",
     "clean": "rm -rf dist node_modules/.vite",
     "prepare": "echo 'Prepare hook for CI/CD'",
     "postinstall": "echo 'Dependencies installed successfully'"
   },
   "dependencies": {
-    "vue": "^3.4.0"
+    "@heroicons/vue": "^2.2.0",
+    "vue": "^3.5.20",
+    "vue-i18n": "^11.1.11"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.0",
+    "@tailwindcss/postcss": "^4.1.12",
+    "@vite-pwa/assets-generator": "^1.0.0",
+    "@vitejs/plugin-vue": "^6.0.1",
     "@vitest/coverage-v8": "^3.2.4",
     "@vue/test-utils": "^2.4.6",
-    "autoprefixer": "^10.4.0",
+    "autoprefixer": "^10.4.20",
     "jsdom": "^26.1.0",
-    "postcss": "^8.4.0",
-    "tailwindcss": "^3.4.0",
-    "typescript": "^5.4.0",
-    "vite": "^5.0.0",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^4.1.12",
+    "typescript": "^5.6.0",
+    "vite": "^7.1.3",
+    "vite-plugin-pwa": "^1.0.3",
     "vitest": "^3.2.4",
-    "vue-tsc": "^2.0.0"
+  "vue-tsc": "^3.0.6"
   }
 }

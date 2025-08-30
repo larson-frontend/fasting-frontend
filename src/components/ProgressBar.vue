@@ -47,7 +47,7 @@
             {{ progressWidth.toFixed(0) }}%
           </div>
           <div class="text-xs opacity-75" data-testid="progress-max" :class="textClass">
-            von {{ maxHours }}h
+            {{ $t('fasting.progress.of') }} {{ maxHours }}h
           </div>
         </div>
       </div>
@@ -83,6 +83,7 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { getTestData, isTestModeActive } from '../utils/testScenarios'
 
 interface Props {
@@ -92,22 +93,32 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 
 // Verwende Test-Daten falls Test-Modus aktiv, sonst echte Props-Daten
+// Ensure we always work with safe numeric values (avoid NaN UI)
 const activeHours = computed(() => {
   const testData = getTestData()
-  return testData ? testData.hours : props.hours
+  const raw = testData ? testData.hours : props.hours
+  const n = Number(raw)
+  return Number.isFinite(n) && n >= 0 ? n : 0
 })
 
 const activeMinutes = computed(() => {
   const testData = getTestData()
-  return testData ? testData.minutes : props.minutes
+  const raw = testData ? testData.minutes : props.minutes
+  const n = Number(raw)
+  return Number.isFinite(n) && n >= 0 ? n : 0
 })
 
-const totalMinutes = computed(() => activeHours.value * 60 + activeMinutes.value)
+const totalMinutes = computed(() => (activeHours.value * 60) + activeMinutes.value)
 
-// Effektives Ziel: Benutzerdefiniert oder Standard 16h
-const effectiveGoal = computed(() => props.goalHours || 16)
+// Effektives Ziel: Benutzerdefiniert oder Standard 16h (coerced to number > 0)
+const effectiveGoal = computed(() => {
+  const raw = props.goalHours ?? 16
+  const n = Number(raw)
+  return Number.isFinite(n) && n > 0 ? n : 16
+})
 
 // Zeige aktive Werte in der Anzeige
 const displayHours = computed(() => activeHours.value)
@@ -116,6 +127,8 @@ const displayMinutes = computed(() => activeMinutes.value)
 // Maximale Stunden basierend auf aktueller Phase und Ziel
 const maxHours = computed(() => {
   const goal = effectiveGoal.value
+  // Guard: goal must be a positive number
+  if (!Number.isFinite(goal) || goal <= 0) return 16
   return activeHours.value < goal ? goal : Math.max(goal + 8, 24) // +8h Bonus oder mindestens 24h
 })
 
@@ -124,6 +137,10 @@ const progressWidth = computed(() => {
   const hours = activeHours.value
   const goal = effectiveGoal.value
   
+  if (!Number.isFinite(hours) || !Number.isFinite(goal) || goal <= 0) {
+    return 0
+  }
+
   if (hours < goal) {
     // Bis Ziel: normale Berechnung auf Ziel-Basis
     const maxMinutes = goal * 60 // Ziel-Stunden = 100%
@@ -161,15 +178,12 @@ const currentPhaseName = computed(() => {
   const hours = activeHours.value
   const goal = effectiveGoal.value
   
-  const phaseNames = {
-    early: 'Anfangsphase',
-    warming: 'Aufwärmphase', 
-    burning: 'Fettverbrennung',
-    ketosis: 'Ketose',
-    'goal-reached': `${goal}h Ziel erreicht!`,
-    bonus: 'Bonus-Zeit'
-  }
-  return phaseNames[currentPhase.value]
+  if (hours < 3) return t('fasting.progress.phases.early')
+  if (hours < 8) return t('fasting.progress.phases.warming')
+  if (hours < 12) return t('fasting.progress.phases.burning')
+  if (hours < goal) return t('fasting.progress.phases.ketosis')
+  if (hours >= goal) return t('fasting.progress.phases.goal_reached', { goal })
+  return t('fasting.progress.phases.bonus')
 })
 
 // Progress Gradient mit festen Farbbereichen (kein Verlauf) - basierend auf Ziel
@@ -229,7 +243,7 @@ const lastNotifiedHour = ref(0)
 
 const sendNotification = (hours: number, message: string) => {
   if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification('🎉 Fasten Meilenstein erreicht!', {
+    new Notification(t('fasting.notifications.milestone_title'), {
       body: message,
       icon: '/favicon.ico',
       tag: `fasting-${hours}h`
@@ -248,16 +262,16 @@ watch(activeHours, (newHours, oldHours) => {
   // Nur bei Erhöhung der Stunden und wenn es ein neuer Meilenstein ist
   if (newHours > oldHours && newHours > lastNotifiedHour.value) {
     if (newHours >= 3 && lastNotifiedHour.value < 3) {
-      sendNotification(3, '🚀 Aufwärmphase erreicht! 3 Stunden geschafft.')
+      sendNotification(3, t('fasting.notifications.warming_phase'))
       lastNotifiedHour.value = 3
     } else if (newHours >= 8 && lastNotifiedHour.value < 8) {
-      sendNotification(8, '🔥 Fettverbrennung startet! 8 Stunden erreicht.')
+      sendNotification(8, t('fasting.notifications.burning_phase'))
       lastNotifiedHour.value = 8
     } else if (newHours >= 12 && lastNotifiedHour.value < 12) {
-      sendNotification(12, '💚 Ketose beginnt! 12 Stunden Fasten geschafft.')
+      sendNotification(12, t('fasting.notifications.ketosis_phase'))
       lastNotifiedHour.value = 12
     } else if (newHours >= 16 && lastNotifiedHour.value < 16) {
-      sendNotification(16, '🧠 Autophagie aktiviert! 16 Stunden - fantastisch!')
+      sendNotification(16, t('fasting.notifications.autophagy_phase'))
       lastNotifiedHour.value = 16
     }
   }

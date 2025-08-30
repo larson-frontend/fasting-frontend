@@ -1,0 +1,206 @@
+{
+  "app": {
+    "title": "Fasting Tracker",
+    "subtitle": "Track your intermittent fasting journey"
+  },
+  "welcome": {
+    "tap_to_start": "Tap to Start"
+  },
+  "nav": {
+    "language": "Language"
+  },
+  "user": {
+    "welcome": "Welcome!",
+    "subtitle": "Let's set up your fasting profile",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "usernameOrEmail": "Username or Email",
+    "usernameOrEmailPlaceholder": "Enter your username or email",
+    "identifierHint": "You can use either a username or email address",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email (optional)",
+    "preferredLanguage": "Preferred Language",
+    "getStarted": "Get Started",
+    "privacyNote": "Your data is stored locally and securely.",
+    "settings": "User Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "notifications": "Notifications",
+    "fastingReminders": "Fasting Reminders",
+    "mealReminders": "Meal Reminders",
+    "progressUpdates": "Progress Updates",
+    "userExistsTitle": "Username/Email Already Taken",
+    "errorTitle": "Registration Error",
+    "tryDifferentIdentifier": "Please try a different username or email address."
+  },
+  "languages": {
+    "en": "English",
+    "de": "Deutsch"
+  },
+  "common": {
+    "optional": "optional",
+    "loading": "Loading...",
+    "loadingData": "Loading data...",
+    "startingFast": "Starting fast...",
+    "stoppingFast": "Stopping fast...",
+    "saving": "Saving...",
+    "save": "Save Changes",
+    "unknownUser": "Unknown User"
+  },
+  "fasting": {
+    "status": {
+      "title": "Status",
+      "active": "Active Fasting",
+      "inactive": "Not Fasting",
+      "completed": "Fasting Completed",
+      "goal_reached": "Goal Reached!",
+      "bonus_time": "Bonus Time"
+    },
+    "actions": {
+      "start": "Start Fasting",
+      "stop": "Stop Fasting",
+      "pause": "Pause",
+      "resume": "Resume",
+      "reset": "Reset",
+      "set_goal": "Set Goal"
+    },
+    "progress": {
+      "of": "of",
+      "phases": {
+        "early": "Early Phase",
+        "warming": "Warming Phase",
+        "burning": "Fat Burning",
+        "ketosis": "Ketosis",
+        "goal_reached": "{goal}h Goal Reached!",
+        "bonus": "Bonus Time"
+      }
+    },
+    "notifications": {
+      "milestone_title": "🎉 Fasting Milestone Reached!",
+      "warming_phase": "🚀 Warming phase reached! 3 hours completed.",
+      "burning_phase": "🔥 Fat burning starts! 8 hours reached.",
+      "ketosis_phase": "💚 Ketosis begins! 12 hours of fasting completed.",
+      "autophagy_phase": "🧠 Autophagy activated! 16 hours - fantastic!"
+    },
+    "phases": {
+      "title": "Fasting Phases Info",
+      "phase1": {
+        "title": "Digestive Rest",
+        "description": "Your body is finishing digestion and starting to switch to fat burning.",
+        "time": "0-3 hours"
+      },
+      "phase2": {
+        "title": "Fat Burning Begins",
+        "description": "Glucose stores are depleting, fat burning increases.",
+        "time": "3-8 hours"
+      },
+      "phase3": {
+        "title": "Active Fat Burning",
+        "description": "Primary energy source switches to fat. Increased mental clarity.",
+        "time": "8-12 hours"
+      },
+      "phase4": {
+        "title": "Ketosis Begins",
+        "description": "Ketone production increases. Enhanced focus and energy.",
+        "time": "12-16 hours"
+      },
+      "phase5": {
+        "title": "Autophagy Activated",
+        "description": "Cellular renewal and repair begin. Deep ketosis state.",
+        "time": "16+ hours"
+      },
+      "source_note": "Based on scientific studies on intermittent fasting.",
+      "sources": "Sources",
+      "status": {
+        "not_reached": "not reached yet",
+        "completed": "completed",
+        "progress": "reached"
+      }
+    },
+    "goals": {
+      "title": "Select Your Fasting Goal",
+      "description": "Choose your desired fasting goal:",
+      "options": {
+        "10": "Beginner Fasting",
+        "12": "Standard Intermittent",
+        "16": "Popular 16:8 Method",
+        "18": "Extended Autophagy",
+        "20": "Intensive Regeneration",
+        "24": "Complete Renewal"
+      }
+    },
+    "time": {
+      "hours": "hours",
+      "minutes": "minutes",
+      "hour": "hour",
+      "minute": "minute",
+      "since": "since",
+      "duration": "Duration",
+      "goal": "Goal",
+      "remaining": "remaining"
+    }
+  },
+  "history": {
+    "title": "Fasting History",
+    "empty": "No fasting sessions yet",
+    "completed": "completed",
+    "active": "active",
+    "started": "Started",
+    "ended": "Ended",
+    "duration": "Duration",
+    "goal": "Goal",
+    "refresh": "Refresh"
+  },
+  "dialog": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "stop_fasting": {
+      "title": "Stop Fasting?",
+      "message": "Are you sure you want to stop your current fasting session?"
+    },
+    "reset_fasting": {
+      "title": "Reset Fasting?",
+      "message": "This will reset your current progress. Continue?"
+    }
+  },
+  "info": {
+    "show_debug": "Show Debug Info",
+    "hide_debug": "Hide Debug Info",
+    "mock_mode": "Mock Mode",
+    "api": "API"
+  },
+  "test": {
+    "panel": "Test Panel",
+    "scenarios": "Test Scenarios",
+    "activate": "Activate",
+    "deactivate": "Deactivate"
+  },
+  "errors": {
+    "connection_error": "Connection Error",
+    "service_unavailable": "Service Unavailable",
+    "offline": "Offline",
+    "status": "Status",
+    "last_attempt": "Last Attempt",
+    "error_code": "Error Code",
+    "retry": "Retry",
+    "retrying": "Connecting...",
+    "refresh_page": "Refresh Page",
+    "close": "Close",
+    "possible_causes": "Possible Causes",
+    "no_internet": "No internet connection",
+    "server_unavailable": "Server temporarily unavailable",
+    "maintenance": "Maintenance in progress",
+    "firewall_blocked": "Firewall blocking connection",
+    "problem_persists": "Problem persists?",
+    "contact_support": "Contact Support",
+    "network": "Network error. Please check your connection.",
+    "server": "Server error. Please try again later.",
+    "general": "Something went wrong. Please try again.",
+    "no_connection_message": "No internet connection available. Please check your network settings.",
+    "service_unreachable_message": "The Fasting Tracker service is currently unreachable. Please try again later.",
+    "unexpected_error": "An unexpected error occurred. Please try again."
+  }
+}
