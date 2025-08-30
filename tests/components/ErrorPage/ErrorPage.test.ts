@@ -55,8 +55,15 @@ describe('ErrorPage', () => {
     expect(reloadSpy).toHaveBeenCalled()
   })
 
-  it('matches snapshot', () => {
+  it('renders structure with stable content (no time dependency)', () => {
     const wrapper = mountPage()
-    expect(wrapper.html()).toMatchSnapshot()
+    // Static texts
+    expect(wrapper.text()).toContain('Verbindungsfehler')
+    expect(wrapper.text()).toContain('Status:')
+    expect(wrapper.text()).toContain('Letzter Versuch:')
+    // Buttons
+    const buttons = wrapper.findAll('button')
+    expect(buttons[0].text()).toMatch(/Erneut versuchen|Verbinde/)
+    expect(buttons[1].text()).toContain('Seite neu laden')
   })
 })

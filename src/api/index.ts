@@ -9,6 +9,8 @@ import { mockService } from '../mocks/service';
 import { fallbackApiService } from './fallback-service';
 import { userService } from './user-service';
 import { mockUserService } from '../mocks/user-service';
+import type { BackendFastSession } from '../types/api';
+import type { UpdatePreferencesRequest, User } from '../types/user';
 
 // Export Types
 export type * from '../types/api';
@@ -33,12 +35,43 @@ export const historyFast = service.getHistory.bind(service);
 export const healthCheck = service.healthCheck.bind(service);
 
 // User-specific fasting functions (direkter Zugang zu Mock Service wenn aktiviert)
-export const startUserFast = config.useMockData ? 
-  mockService.startFast.bind(mockService) :
-  fastingApiService.startUserFast.bind(fastingApiService);
-export const stopUserFast = config.useMockData ?
-  mockService.stopFast.bind(mockService) :
-  fastingApiService.stopUserFast.bind(fastingApiService);
+/**
+ * Start user-specific fast with a stable signature across modes.
+ * In mock mode, the userIdentifier is ignored and a Backend-like shape is returned.
+ */
+export async function startUserFast(userIdentifier: string, goalHours: number = 16): Promise<BackendFastSession> {
+  if (config.useMockData) {
+    const session = await mockService.startFast(goalHours);
+    const status = await mockService.getStatus();
+    return {
+      id: session.id,
+      startAt: session.startAt,
+      endAt: session.endAt ?? undefined,
+      goalHours: status.goalHours ?? goalHours,
+      isActive: true,
+      // durationHours optional
+    };
+  }
+  return fastingApiService.startUserFast(userIdentifier, goalHours);
+}
+
+/**
+ * Stop user-specific fast with a stable signature across modes.
+ */
+export async function stopUserFast(userIdentifier: string): Promise<BackendFastSession> {
+  if (config.useMockData) {
+    const session = await mockService.stopFast();
+    const status = await mockService.getStatus();
+    return {
+      id: session.id,
+      startAt: session.startAt,
+      endAt: session.endAt ?? undefined,
+      goalHours: status.goalHours ?? 16,
+      isActive: false,
+    };
+  }
+  return fastingApiService.stopUserFast(userIdentifier);
+}
 export const getUserFastingStatus = config.useMockData ?
   mockUserService.fetchUserFastingStatus.bind(mockUserService) :
   fastingApiService.getUserStatus.bind(fastingApiService);
@@ -50,9 +83,21 @@ export const getUserFastingHistory = config.useMockData ?
 export const loginOrCreateUser = config.useMockData ? 
   mockUserService.loginOrCreate.bind(mockUserService) :
   userService.loginOrCreate.bind(userService);
-export const updateUserPreferences = config.useMockData ?
-  mockUserService.updatePreferences.bind(mockUserService) :
-  userService.updatePreferences.bind(userService);
+/**
+ * Update user preferences with a stable signature across modes.
+ * Returns the full updated User in both modes.
+ */
+export async function updateUserPreferences(request: UpdatePreferencesRequest): Promise<User> {
+  if (config.useMockData) {
+    const username = mockUserService.getLoggedUsername();
+    if (!username) throw new Error('No user logged in');
+    const user = await mockUserService.getUserByUsername(username);
+    if (!user) throw new Error('User not found');
+    const updatedPrefs = await mockUserService.updatePreferences(user.id, request);
+    return { ...user, preferences: updatedPrefs, updatedAt: new Date().toISOString() } as User;
+  }
+  return userService.updatePreferences(request);
+}
 export const changeUserLanguage = config.useMockData ?
   (() => Promise.resolve()) :
   userService.changeLanguage.bind(userService);
@@ -70,9 +115,14 @@ export const getCurrentUser = config.useMockData ?
 export const isUserLoggedIn = config.useMockData ?
   (() => !!mockUserService.getLoggedUsername()) :
   userService.isLoggedIn.bind(userService);
-export const getStoredLanguage = config.useMockData ?
-  (() => 'de') :
-  userService.getStoredLanguage.bind(userService);
+/**
+ * Get stored language as a strict union type.
+ */
+export function getStoredLanguage(): 'en' | 'de' {
+  const fromStorage =
+    (localStorage.getItem('fasting_language') || localStorage.getItem('fasting-app-locale') || 'de').toLowerCase();
+  return fromStorage === 'en' ? 'en' : 'de';
+}
 export const logoutUser = config.useMockData ?
   mockUserService.logout.bind(mockUserService) :
   userService.logout.bind(userService);
@@ -82,9 +132,15 @@ export const checkUsernameAvailability = config.useMockData ?
 export const checkEmailAvailability = config.useMockData ?
   (() => Promise.resolve({ available: true })) :
   userService.checkEmailAvailability.bind(userService);
-export const checkUserAvailability = config.useMockData ?
-  (() => Promise.resolve({ available: true })) :
-  userService.checkUserAvailability.bind(userService);
+/**
+ * Check availability consistently across modes.
+ */
+export function checkUserAvailability(username: string, email: string): Promise<{ usernameAvailable: boolean; emailAvailable: boolean; }> {
+  if (config.useMockData) {
+    return Promise.resolve({ usernameAvailable: true, emailAvailable: true });
+  }
+  return userService.checkUserAvailability(username, email);
+}
 export const getLoggedUsername = config.useMockData ?
   mockUserService.getLoggedUsername.bind(mockUserService) :
   userService.getLoggedUsername.bind(userService);
