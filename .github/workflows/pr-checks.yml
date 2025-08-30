@@ -4,6 +4,13 @@ on:
   pull_request:
     branches: [ main, develop ]
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Force CI to run regardless of skip tokens"
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -19,23 +26,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Detect changed paths (docs/meta vs code)
-        id: changes
-        uses: dorny/paths-filter@v3
         with:
-          filters: |
-            docs:
-              - '**/*.md'
-              - 'LICENSE'
-              - '.github/**'
-              - 'CHANGELOG.md'
-            code:
-              - '**/*'
-              - '!.github/**'
-              - '!**/*.md'
-              - '!LICENSE'
-              - '!CHANGELOG.md'
+          fetch-depth: 0
 
       - name: Read latest commit message
         id: msg
@@ -47,8 +39,8 @@ jobs:
       - name: Evaluate skip/force conditions
         id: eval
         env:
-          DOCS_CHANGED: ${{ steps.changes.outputs.docs }}
-          CODE_CHANGED: ${{ steps.changes.outputs.code }}
+          IS_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
+          FORCE_INPUT: ${{ inputs.force || false }}
         shell: bash
         run: |
           title='${{ github.event.pull_request.title || '' }}'
@@ -61,18 +53,38 @@ jobs:
           should_force=false
 
           for token in '[skip ci]' '[ci skip]' '[no ci]' '[skip actions]' '[actions skip]'; do
-            if echo "$title$msg" | grep -qi "$token"; then should_skip_global=true; fi
+            if echo "$title$msg" | grep -Fqi "$token"; then should_skip_global=true; fi
           done
-          if echo "$title$msg" | grep -qi '\[skip dev-ci\]'; then should_skip_dev=true; fi
+          if echo "$title$msg" | grep -Fqi '[skip dev-ci]'; then should_skip_dev=true; fi
 
           for token in '[force ci]' '[ci force]' '/ci run' '/run ci'; do
-            if echo "$title$msg" | grep -qi "$token"; then should_force=true; fi
+            if echo "$title$msg" | grep -Fqi "$token"; then should_force=true; fi
           done
-          if echo "$labels" | grep -qi '\bci:force\b'; then should_force=true; fi
+          if echo "$labels" | grep -Fqi 'ci:force'; then should_force=true; fi
+          if [ "${IS_DISPATCH}" = "true" ] && [ "${FORCE_INPUT}" = "true" ]; then should_force=true; fi
 
-          docs_only=false
-          if [ "${CODE_CHANGED}" != "true" ] && [ "${DOCS_CHANGED}" = "true" ]; then
-            docs_only=true
+          echo "Fetching base branch $base to compare changes..."
+          git fetch --no-tags --prune origin "+refs/heads/$base:refs/remotes/origin/$base" || true
+          echo "Determining changed files vs origin/$base..."
+          files=$(git diff --name-only origin/"$base"...HEAD 2>/dev/null || true)
+          if [ -z "$files" ]; then
+            files=$(git diff --name-only "$base"...HEAD 2>/dev/null || true)
+          fi
+          docs_only=true
+          if [ -z "$files" ]; then
+            docs_only=false
+          else
+            while IFS= read -r f; do
+              [ -z "$f" ] && continue
+              case "$f" in
+                *.md|LICENSE|CHANGELOG.md|.github/*)
+                  ;;
+                *)
+                  docs_only=false
+                  break
+                  ;;
+              esac
+            done <<< "$files"
           fi
 
           run_ci=true
@@ -100,7 +112,6 @@ jobs:
           echo "## CI Gate Decision" >> $GITHUB_STEP_SUMMARY
           echo "Run: ${{ steps.eval.outputs.run }}" >> $GITHUB_STEP_SUMMARY
           echo "Reason: ${{ steps.eval.outputs.reason }}" >> $GITHUB_STEP_SUMMARY
-
   validate:
     name: Quick Validation
     runs-on: ubuntu-latest
