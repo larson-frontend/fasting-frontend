@@ -3,6 +3,16 @@ import App from './App.vue'
 import './assets/tailwind.css'
 import { i18n } from './i18n'
 
+// Debug Mock Mode (nur in Development)
+if (import.meta.env.DEV) {
+  import('./debug-mock');
+}
+
+// Debug mock mode during development
+if (import.meta.env.DEV) {
+  import('./debug-mock');
+}
+
 const app = createApp(App)
 
 // Global error handler to prevent crashes
