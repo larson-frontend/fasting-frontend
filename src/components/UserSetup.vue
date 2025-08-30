@@ -129,7 +129,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { loginOrCreateUser, getStoredLanguage, isMockMode } from '../api'
+import { loginOrCreateUser, getStoredLanguage } from '../api'
 import type { LoginRequest } from '../types/user'
 
 // Emits
