@@ -14,6 +14,13 @@
         <p class="text-gray-600 dark:text-gray-300">
           {{ $t('user.subtitle') }}
         </p>
+        
+        <!-- Mock-Mode Hinweis - klein und prominent -->
+        <div v-if="isMockMode" class="mt-3 px-2 py-1 bg-amber-50 border border-amber-200 rounded-md">
+          <div class="text-xs text-amber-700">
+            🧪 <strong>Mock-Modus:</strong> Verwende <code class="bg-amber-100 px-1 rounded">test_user</code>
+          </div>
+        </div>
       </div>
 
       <!-- Form -->
@@ -122,7 +129,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { loginOrCreateUser, getStoredLanguage } from '../api'
+import { loginOrCreateUser, getStoredLanguage, isMockMode } from '../api'
 import type { LoginRequest } from '../types/user'
 
 // Emits
