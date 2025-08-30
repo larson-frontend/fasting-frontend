@@ -4,297 +4,201 @@ on:
   pull_request:
     branches: [ main, develop ]
     types: [opened, synchronize, reopened]
-  workflow_dispatch:
-    inputs:
-      force:
-        description: "Force CI to run regardless of skip tokens"
-        required: false
-        default: false
-        type: boolean
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  gate:
-    name: CI Gate (skip/force)
-    runs-on: ubuntu-latest
-    outputs:
-      run: ${{ steps.eval.outputs.run }}
-      reason: ${{ steps.eval.outputs.reason }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Read latest commit message
-        id: msg
-        run: |
-          echo "msg<<EOF" >> $GITHUB_OUTPUT
-          git log -1 --pretty=%B >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Evaluate skip/force conditions
-        id: eval
-        env:
-          IS_DISPATCH: ${{ github.event_name == 'workflow_dispatch' }}
-          FORCE_INPUT: ${{ inputs.force || false }}
-        shell: bash
-        run: |
-          title='${{ github.event.pull_request.title || '' }}'
-          msg='${{ steps.msg.outputs.msg || '' }}'
-          base='${{ github.event.pull_request.base.ref || 'develop' }}'
-          labels=$(jq -r '.pull_request.labels[].name // empty' "$GITHUB_EVENT_PATH" 2>/dev/null || true)
-
-          should_skip_global=false
-          should_skip_dev=false
-          should_force=false
-
-          for token in '[skip ci]' '[ci skip]' '[no ci]' '[skip actions]' '[actions skip]'; do
-            if echo "$title$msg" | grep -Fqi "$token"; then should_skip_global=true; fi
-          done
-          if echo "$title$msg" | grep -Fqi '[skip dev-ci]'; then should_skip_dev=true; fi
-
-          for token in '[force ci]' '[ci force]' '/ci run' '/run ci'; do
-            if echo "$title$msg" | grep -Fqi "$token"; then should_force=true; fi
-          done
-          if echo "$labels" | grep -Fqi 'ci:force'; then should_force=true; fi
-          if [ "${IS_DISPATCH}" = "true" ] && [ "${FORCE_INPUT}" = "true" ]; then should_force=true; fi
-
-          echo "Fetching base branch $base to compare changes..."
-          git fetch --no-tags --prune origin "+refs/heads/$base:refs/remotes/origin/$base" || true
-          echo "Determining changed files vs origin/$base..."
-          files=$(git diff --name-only origin/"$base"...HEAD 2>/dev/null || true)
-          if [ -z "$files" ]; then
-            files=$(git diff --name-only "$base"...HEAD 2>/dev/null || true)
-          fi
-          docs_only=true
-          if [ -z "$files" ]; then
-            docs_only=false
-          else
-            while IFS= read -r f; do
-              [ -z "$f" ] && continue
-              case "$f" in
-                *.md|LICENSE|CHANGELOG.md|.github/*)
-                  ;;
-                *)
-                  docs_only=false
-                  break
-                  ;;
-              esac
-            done <<< "$files"
-          fi
-
-          run_ci=true
-          reason="Run CI"
-          if [ "$should_force" != "true" ]; then
-            if [ "$docs_only" = "true" ]; then
-              run_ci=false
-              reason="Docs/meta-only change detected"
-            elif [ "$should_skip_global" = "true" ]; then
-              run_ci=false
-              reason="Skip token detected ([skip ci])"
-            elif [ "$base" = "develop" ] && [ "$should_skip_dev" = "true" ]; then
-              run_ci=false
-              reason="Skip dev CI token detected ([skip dev-ci])"
-            fi
-          else
-            reason="Force token/label present — running CI"
-          fi
-
-          echo "run=$run_ci" >> $GITHUB_OUTPUT
-          echo "reason=$reason" >> $GITHUB_OUTPUT
-
-      - name: Gate decision summary
-        run: |
-          echo "## CI Gate Decision" >> $GITHUB_STEP_SUMMARY
-          echo "Run: ${{ steps.eval.outputs.run }}" >> $GITHUB_STEP_SUMMARY
-          echo "Reason: ${{ steps.eval.outputs.reason }}" >> $GITHUB_STEP_SUMMARY
+  # Quick validation
   validate:
     name: Quick Validation
     runs-on: ubuntu-latest
-    needs: gate
-    if: ${{ needs.gate.outputs.run == 'true' }}
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Validate package.json
+      run: npm run validate || echo "No validate script found"
+    
+    - name: Check TypeScript compilation
+      run: npx vue-tsc --noEmit
+    
+    - name: Run all tests
+      run: npm run test:all
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.x'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Validate package.json
-        run: npm run validate || echo "No validate script found"
-
-      - name: Check TypeScript compilation
-        run: npx vue-tsc --noEmit
-
-      - name: Run all tests
-        run: npm run test:all
-
+  # Test different scenarios
   test-matrix:
     name: Test Matrix
     runs-on: ubuntu-latest
-    needs: [gate, validate]
-    if: ${{ needs.gate.outputs.run == 'true' }}
+    needs: validate
+    
     strategy:
       fail-fast: false
       matrix:
         test-group: ['unit', 'integration', 'e2e']
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run ${{ matrix.test-group }} tests
+      run: |
+        case "${{ matrix.test-group }}" in
+          "unit")
+            # Run unit-style suites (components, api, utils) and the root debug-config test
+            npm run test:run -- \
+              --reporter=verbose \
+              tests/components \
+              tests/api \
+              tests/utils \
+              debug-config.test.ts
+            ;;
+          "integration")
+            # Run all integration tests in their current folder structure
+            npm run test:run -- --reporter=verbose tests/integration
+            ;;
+          "e2e")
+            # Use the standalone goal-system tests as an end-to-end smoke check
+            npm run test:standalone
+            ;;
+        esac
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.x'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run ${{ matrix.test-group }} tests
-        run: |
-          case "${{ matrix.test-group }}" in
-            "unit")
-              npm run test:run -- \
-                --reporter=verbose \
-                tests/components \
-                tests/api \
-                tests/utils \
-                debug-config.test.ts
-              ;;
-            "integration")
-              npm run test:run -- --reporter=verbose tests/integration
-              ;;
-            "e2e")
-              npm run test:standalone
-              ;;
-          esac
-
+  # Check for breaking changes
   breaking-changes:
     name: Breaking Changes Detection
     runs-on: ubuntu-latest
-    needs: gate
-    if: ${{ needs.gate.outputs.run == 'true' }}
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.x'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Check for API changes
-        run: |
-          echo "Checking for potential breaking changes..."
-          git fetch origin main:main || git fetch origin main || echo "Could not fetch main branch"
-          if git rev-parse --verify main >/dev/null 2>&1; then
-            git diff main...HEAD --name-only | grep -E '\\.(vue|ts|js)$' | while read file; do
-              echo "Checking $file for breaking changes..."
-              if git diff main...HEAD "$file" | grep -E '^-.*export|^-.*interface|^-.*type' >/dev/null; then
-                echo "Potential breaking change detected in $file"
-              fi
-            done || echo "No breaking changes detected"
-          else
-            echo "Main branch not available, skipping breaking change detection"
-          fi
-
-      - name: Build comparison
-        run: |
-          echo "Building current branch..."
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Check for API changes
+      run: |
+        echo "Checking for potential breaking changes..."
+        # Fetch main branch for comparison
+        git fetch origin main:main || git fetch origin main || echo "Could not fetch main branch"
+        
+        # Compare with main branch if available
+        if git rev-parse --verify main >/dev/null 2>&1; then
+          git diff main...HEAD --name-only | grep -E '\.(vue|ts|js)$' | while read file; do
+            echo "Checking $file for breaking changes..."
+            if git diff main...HEAD "$file" | grep -E '^-.*export|^-.*interface|^-.*type' >/dev/null; then
+              echo "⚠️  Potential breaking change detected in $file"
+            fi
+          done || echo "No breaking changes detected"
+        else
+          echo "Main branch not available, skipping breaking change detection"
+        fi
+    
+    - name: Build comparison
+      run: |
+        echo "Building current branch..."
+        npm run build
+        mv dist dist-current
+        
+        echo "Attempting to build main branch for comparison..."
+        if git rev-parse --verify main >/dev/null 2>&1; then
+          git checkout main
+          npm ci
           npm run build
-          mv dist dist-current
-          echo "Attempting to build main branch for comparison..."
-          if git rev-parse --verify main >/dev/null 2>&1; then
-            git checkout main
-            npm ci
-            npm run build
-            mv dist dist-main
-            echo "Comparing build outputs..."
-            diff -r dist-main dist-current || echo "Build outputs differ - this is normal for feature branches"
-          else
-            echo "Main branch not available, skipping build comparison"
-          fi
+          mv dist dist-main
+          
+          echo "Comparing build outputs..."
+          diff -r dist-main dist-current || echo "Build outputs differ - this is normal for feature branches"
+        else
+          echo "Main branch not available, skipping build comparison"
+        fi
 
+  # Performance check
   performance:
     name: Performance Check
     runs-on: ubuntu-latest
-    needs: gate
-    if: ${{ needs.gate.outputs.run == 'true' }}
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build for performance analysis
+      run: npm run build
+    
+    - name: Bundle size analysis
+      run: |
+        echo "## Bundle Size Analysis 📦" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
+        echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+        find dist -name "*.js" -o -name "*.css" | while read file; do
+          size=$(du -h "$file" | cut -f1)
+          echo "| ${file#dist/} | $size |" >> $GITHUB_STEP_SUMMARY
+        done
+    
+    - name: Test performance
+      run: |
+        echo "Running performance tests..."
+        npm run test:run -- --reporter=verbose
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22.x'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build for performance analysis
-        run: npm run build
-
-      - name: Bundle size analysis
-        run: |
-          echo "## Bundle Size Analysis" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
-          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
-          find dist -name "*.js" -o -name "*.css" | while read file; do
-            size=$(du -h "$file" | cut -f1)
-            echo "| ${file#dist/} | $size |" >> $GITHUB_STEP_SUMMARY
-          done
-
-      - name: Test performance
-        run: |
-          echo "Running performance tests..."
-          npm run test:run -- --reporter=verbose
-
+  # PR Summary
   pr-summary:
     name: PR Summary
     runs-on: ubuntu-latest
-    needs: [gate, validate, test-matrix, breaking-changes, performance]
+    needs: [validate, test-matrix, breaking-changes, performance]
     if: always()
+    
     steps:
-      - name: Generate PR Summary
-        run: |
-          echo "## Pull Request Check Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ needs.gate.outputs.run }}" = "true" ]; then
-            echo "**Gate:** Running" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "**Gate:** Skipped (${{ needs.gate.outputs.reason }})" >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Validation | ${{ needs.gate.outputs.run == 'true' && (needs.validate.result == 'success' && 'Passed' || 'Failed') || 'Skipped' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Test Matrix | ${{ needs.gate.outputs.run == 'true' && (needs.test-matrix.result == 'success' && 'Passed' || 'Failed') || 'Skipped' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Breaking Changes | ${{ needs.gate.outputs.run == 'true' && (needs.breaking-changes.result == 'success' && 'No Issues' || 'Check Required') || 'Skipped' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Performance | ${{ needs.gate.outputs.run == 'true' && (needs.performance.result == 'success' && 'Good' || 'Check Required') || 'Skipped' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
-          echo "- All required checks passed or were intentionally skipped" >> $GITHUB_STEP_SUMMARY
-          echo "- Review test coverage and performance metrics" >> $GITHUB_STEP_SUMMARY
-          echo "- Ensure documentation is updated if needed" >> $GITHUB_STEP_SUMMARY
+    - name: Generate PR Summary
+      run: |
+        echo "## Pull Request Check Results 🔍" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Validation | ${{ needs.validate.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Test Matrix | ${{ needs.test-matrix.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Breaking Changes | ${{ needs.breaking-changes.result == 'success' && '✅ No Issues' || '⚠️ Check Required' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Performance | ${{ needs.performance.result == 'success' && '✅ Good' || '⚠️ Check Required' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ All checks passed - Ready for review" >> $GITHUB_STEP_SUMMARY
+        echo "- 🔍 Review test coverage and performance metrics" >> $GITHUB_STEP_SUMMARY
+        echo "- 📝 Ensure documentation is updated if needed" >> $GITHUB_STEP_SUMMARY

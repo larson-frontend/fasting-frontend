@@ -1,13 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-<<<<<<< HEAD:tests/integration/fasting-workflow/goal-system.test.ts
 import { mount, mountWithI18n } from '../../utils/test-utils'
 import ProgressBar from '../../../src/components/ProgressBar.vue'
 import GoalSelectionDialog from '../../../src/components/GoalSelectionDialog.vue'
-=======
-import { mount, mountWithI18n } from './test-utils'
-import ProgressBar from '../src/components/ProgressBar.vue'
-import GoalSelectionDialog from '../src/components/GoalSelectionDialog.vue'
->>>>>>> dc622e2 (added translations i18n):tests/goal-system-simple.test.ts
 
 describe('Goal System - Simplified Tests', () => {
   
