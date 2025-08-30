@@ -3,9 +3,15 @@
  * Tests für verschiedene Fehlerfälle: Netzwerk, API, Klassifizierung
  */
 
+<<<<<<< HEAD:tests/integration/error-scenarios.test.ts
 import { describe, it, expect, beforeEach } from "vitest";
 import { mountWithI18n } from "../utils/test-utils";
 import ErrorPage from "../../src/components/ErrorPage.vue";
+=======
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { mount, mountWithI18n } from './test-utils'
+import ErrorPage from '../src/components/ErrorPage.vue'
+>>>>>>> dc622e2 (added translations i18n):tests/error-scenarios.test.ts
 
 describe('Error Classification Tests', () => {
   describe('1. Error Type Classification', () => {

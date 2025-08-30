@@ -3,6 +3,7 @@ import App from './App.vue'
 import './assets/tailwind.css'
 import { i18n } from './i18n'
 
+<<<<<<< HEAD
 // Debug Mock Mode (nur in Development)
 if (import.meta.env.DEV) {
   import('./debug-mock');
@@ -27,3 +28,6 @@ app.config.warnHandler = (msg, instance, trace) => {
 }
 
 app.use(i18n).mount('#app')
+=======
+createApp(App).use(i18n).mount('#app')
+>>>>>>> dc622e2 (added translations i18n)
