@@ -109,22 +109,14 @@ npm run validate             # TypeScript + tests (recommended)
 - **jsdom 26.1.0** - DOM environment for testing
 
 ### Architecture
-- **API Layer:** Modular service architecture with fallback system
+See docs/testing/PRODUCTION_TESTING_GUIDE.md for production validation steps.
 - **State Management:** Vue 3 Composition API reactive refs
 - **Component System:** Single File Components (SFC)
 - **Build System:** Zero-config Vite with optimized production builds
-
-## 📝 Development Notes
-
-### API Configuration
 - **CORS Setup:** Backend should allow origin `http://localhost:5173`
 - **Environment Variables:** Use `.env` for `VITE_API_BASE` configuration
-- **Fallback System:** Automatic mock data in development when API unavailable
-- **Service Architecture:** Modular API layer with `fasting-service`, `mock-service`, and `fallback-service`
-
-### Development Workflow
 - **Hot Reload:** Instant updates via Vite HMR
-- **Type Checking:** Real-time TypeScript validation
+For a comprehensive dev summary, see docs/project/COMPREHENSIVE_DEVELOPMENT_SUMMARY.md.
 - **Test Panel:** Available in dev mode (`/test-panel`) for manual testing
 - **Error Boundaries:** Production-ready error handling and user feedback
 

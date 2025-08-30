@@ -34,7 +34,7 @@ I have been working as a coding assistant on a comprehensive fasting tracker app
 ### 4. UI/UX Improvements
 **Problem**: User requested layout changes
 **Solution**: Header restructuring
-- Removed leaf icon (🍃) from right side
+- Removed leaf icon (🌃) from right side
 - Moved info button (i) from left to right side
 - Clean layout: UserManager (left) + Info button (right)
 

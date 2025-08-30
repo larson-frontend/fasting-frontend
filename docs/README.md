@@ -1,4 +1,11 @@
-# 📚 Documentation Index
+# Frontend Docs
+
+Quick links:
+- Project: `docs/project/`
+- Development: `docs/development/`
+- Testing: `docs/testing/`
+- Integration: `docs/integration/`
+- Legal: `docs/legal/`# 📚 Documentation Index
 
 This directory contains all project documentation organized by category.
 
