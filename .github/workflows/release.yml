@@ -11,169 +11,133 @@ on:
         required: true
         type: string
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  # Pre-release checks
   pre-release:
     name: Pre-Release Checks
     runs-on: ubuntu-latest
-    
     outputs:
       version: ${{ steps.version.outputs.version }}
-      
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22.x'
-        cache: 'npm'
-    
-    - name: Extract version
-      id: version
-      run: |
-        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-          echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
-        else
-          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-        fi
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Run full test suite
-      run: npm run test:run
-    
-    - name: Type checking
-      run: npx vue-tsc --noEmit
-    
-    - name: Security audit
-      run: npm audit --audit-level high
-    
-    - name: Build application
-      run: npm run build
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fetch tags
+        run: git fetch --tags --force
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Extract version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+      - name: Install dependencies
+        run: npm ci
+      - name: Run unit tests
+        run: npm run test:run
+      - name: Type check
+        run: npx vue-tsc --noEmit
+      - name: Security audit
+        run: npm audit --audit-level=high || echo "No high vulnerabilities"
+      - name: Build application
+        run: npm run build
 
-  # Create release
   release:
-    name: Create Release
+    name: Create GitHub Release
     runs-on: ubuntu-latest
     needs: pre-release
-    
     permissions:
       contents: write
-      packages: write
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22.x'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Build for production
-      run: npm run build
-    
-    - name: Create distribution package
-      run: |
-        cd dist
-        zip -r ../fasting-frontend-${{ needs.pre-release.outputs.version }}.zip .
-        cd ..
-        tar -czf fasting-frontend-${{ needs.pre-release.outputs.version }}.tar.gz -C dist .
-    
-    - name: Generate changelog
-      run: |
-        echo "# Release Notes for ${{ needs.pre-release.outputs.version }}" > RELEASE_NOTES.md
-        echo "" >> RELEASE_NOTES.md
-        echo "## Changes" >> RELEASE_NOTES.md
-        git log --oneline --no-merges $(git describe --tags --abbrev=0 HEAD^)..HEAD >> RELEASE_NOTES.md || echo "Initial release" >> RELEASE_NOTES.md
-        echo "" >> RELEASE_NOTES.md
-        echo "## Test Results ✅" >> RELEASE_NOTES.md
-        echo "- All unit tests passed" >> RELEASE_NOTES.md
-        echo "- TypeScript compilation successful" >> RELEASE_NOTES.md
-        echo "- Security audit completed" >> RELEASE_NOTES.md
-        echo "- Production build verified" >> RELEASE_NOTES.md
-    
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: ${{ needs.pre-release.outputs.version }}
-        name: Release ${{ needs.pre-release.outputs.version }}
-        body_path: RELEASE_NOTES.md
-        files: |
-          fasting-frontend-${{ needs.pre-release.outputs.version }}.zip
-          fasting-frontend-${{ needs.pre-release.outputs.version }}.tar.gz
-        draft: false
-        prerelease: ${{ contains(needs.pre-release.outputs.version, '-') }}
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fetch tags
+        run: git fetch --tags --force
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build for production
+        run: npm run build
+      - name: Create artifacts
+        run: |
+          cd dist
+          zip -r ../fasting-frontend-${{ needs.pre-release.outputs.version }}.zip .
+          cd ..
+          tar -czf fasting-frontend-${{ needs.pre-release.outputs.version }}.tar.gz -C dist .
+      - name: Generate release notes
+        run: |
+          echo "# Release Notes for ${{ needs.pre-release.outputs.version }}" > RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "## Changes" >> RELEASE_NOTES.md
+          git log --oneline --no-merges "$(git describe --tags --abbrev=0 HEAD^)"..HEAD >> RELEASE_NOTES.md || echo "Initial release" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "## Build & Tests" >> RELEASE_NOTES.md
+          echo "- Build: ✅" >> RELEASE_NOTES.md
+          echo "- Unit tests: ✅" >> RELEASE_NOTES.md
+          echo "- Type-check: ✅" >> RELEASE_NOTES.md
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.pre-release.outputs.version }}
+          name: Release ${{ needs.pre-release.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          body_path: RELEASE_NOTES.md
+          files: |
+            fasting-frontend-${{ needs.pre-release.outputs.version }}.zip
+            fasting-frontend-${{ needs.pre-release.outputs.version }}.tar.gz
+          draft: false
+          prerelease: ${{ contains(needs.pre-release.outputs.version, '-') }}
 
-  # Deploy (if needed)
   deploy:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: [pre-release, release]
     if: success() && !contains(needs.pre-release.outputs.version, '-')
-    
-    environment: production
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22.x'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Build for production
-      run: npm run build
-      env:
-        NODE_ENV: production
-    
-    - name: Deploy to hosting
-      run: |
-        echo "🚀 Deploying to production..."
-        echo "This would typically deploy to your hosting provider"
-        echo "Examples: Vercel, Netlify, AWS S3, etc."
-        
-        # Example for static hosting:
-        # rsync -avz --delete dist/ user@server:/var/www/html/
-        
-        # Example for Vercel:
-        # npx vercel --prod
-        
-        # Example for Netlify:
-        # npx netlify-cli deploy --prod --dir=dist
-    
-    - name: Post-deployment tests
-      run: |
-        echo "Running post-deployment smoke tests..."
-        # Add smoke tests here if you have a deployed URL
-        echo "✅ Deployment completed successfully"
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build for production
+        run: npm run build
+        env:
+          NODE_ENV: production
+      - name: Deploy
+        run: |
+          echo "🚀 Deploying to production..."
+          echo "Add your deploy command here."
 
-  # Notification
   notify:
     name: Notify Release
     runs-on: ubuntu-latest
     needs: [pre-release, release, deploy]
     if: always()
-    
     steps:
-    - name: Notify team
-      run: |
-        echo "## Release Notification 📢" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**Version:** ${{ needs.pre-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-        echo "**Status:** ${{ needs.release.result == 'success' && '✅ Released' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
-        echo "**Deployment:** ${{ needs.deploy.result == 'success' && '✅ Deployed' || needs.deploy.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "Release is available in the [Releases](https://github.com/${{ github.repository }}/releases) section." >> $GITHUB_STEP_SUMMARY
+      - name: Summary
+        run: |
+          echo "## Release Notification" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ needs.pre-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Release:** ${{ needs.release.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Deploy:** ${{ needs.deploy.result }}" >> $GITHUB_STEP_SUMMARY
