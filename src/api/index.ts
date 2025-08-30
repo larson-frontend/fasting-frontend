@@ -78,7 +78,6 @@ export const getUserFastingStatus = config.useMockData ?
 export const getUserFastingHistory = config.useMockData ?
   mockUserService.fetchUserFastingHistory.bind(mockUserService) :
   fastingApiService.getUserHistory.bind(fastingApiService);
-
 // User Service (mit Mock-Support, fehlende Methoden haben Fallbacks)
 export const loginOrCreateUser = config.useMockData ? 
   mockUserService.loginOrCreate.bind(mockUserService) :
