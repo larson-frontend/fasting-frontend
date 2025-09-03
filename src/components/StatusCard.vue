@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded-lg border shadow-sm relative overflow-hidden">
+  <div class="rounded-lg border border-gray-200 shadow-sm relative overflow-hidden">
     <!-- Hintergrund Progress Bar -->
     <div 
       class="absolute inset-0 transition-all duration-500 ease-out"

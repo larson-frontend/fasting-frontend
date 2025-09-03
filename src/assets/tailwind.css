@@ -1,15 +1,18 @@
 @import "tailwindcss";
 
-/* Force border color consistency across dev/prod */
-:root {
-	 --color-border: #e5e7eb !important; /* gray-200 */
-}
+/* Default border color tokens (no !important so utilities can override) */
+@layer base {
+	:root {
+		--color-border: #e5e7eb; /* gray-200 */
+	}
+	.dark {
+		--color-border: #4b5563; /* gray-600 */
+	}
 
-.dark {
-	--color-border: #cfd9e7 !important; /* gray-600 */  
-}
-
-/* Override all border colors with high specificity */
-*, *::before, *::after {
-	border-color: var(--color-border) !important;
+	/* Ensure elements without explicit border-* use the token */
+	*,
+	*::before,
+	*::after {
+		border-color: var(--color-border);
+	}
 }
