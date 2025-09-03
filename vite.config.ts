@@ -16,12 +16,14 @@ export default defineConfig({
   // Keep only existing assets for now; add icons via scripts when ready
   includeAssets: ['favicon.ico','icon.svg','apple-touch-icon.png','mask-icon.svg','offline.html'],
       manifest: {
+  id: '/',
         name: 'Fasting Tracker Pro',
         short_name: 'FastingTracker',
         description: 'Professional intermittent fasting tracker with real-time progress and phase guidance',
         theme_color: '#4f46e5',
         background_color: '#ffffff',
         display: 'standalone',
+  display_override: ['standalone'],
         orientation: 'portrait',
         scope: '/',
         start_url: '/',
@@ -36,6 +38,8 @@ export default defineConfig({
         ]
       },
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         navigateFallback: '/offline.html',
         runtimeCaching: [
