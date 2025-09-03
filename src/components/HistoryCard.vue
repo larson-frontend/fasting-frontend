@@ -64,6 +64,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import InlineSpinner from './InlineSpinner.vue'
 
 interface FastSession {
@@ -83,6 +84,8 @@ defineEmits<{
   refresh: []
 }>()
 
+const { t } = useI18n()
+
 // Berechne die Dauer einer Session in Stunden
 function getDurationHours(item: FastSession): number {
   const start = new Date(item.startAt).getTime()
@@ -95,7 +98,7 @@ function formatDuration(item: FastSession): string {
   const hours = getDurationHours(item)
   const h = Math.floor(hours)
   const m = Math.floor((hours - h) * 60)
-  return `${h}h ${m}m`
+  return `${h}${t('fasting.time.h_short')} ${m}${t('fasting.time.m_short')}`
 }
 
 // Bestimme die Fasten-Phase basierend auf der Dauer
@@ -111,14 +114,18 @@ function getPhase(item: FastSession): 'early' | 'warming' | 'burning' | 'ketosis
 // Phasen-Text
 function getPhaseText(item: FastSession): string {
   const phase = getPhase(item)
-  const phaseNames = {
-    early: 'Anfangsphase',
-    warming: 'Aufwärmphase', 
-    burning: 'Fettverbrennung',
-    ketosis: 'Ketose',
-    deep: 'Tiefe Ketose'
+  switch (phase) {
+    case 'early':
+      return t('fasting.progress.phases.early')
+    case 'warming':
+      return t('fasting.progress.phases.warming')
+    case 'burning':
+      return t('fasting.progress.phases.burning')
+    case 'ketosis':
+      return t('fasting.progress.phases.ketosis')
+    case 'deep':
+      return t('fasting.progress.phases.bonus')
   }
-  return phaseNames[phase]
 }
 
 // Hintergrund-Klassen basierend auf Phase

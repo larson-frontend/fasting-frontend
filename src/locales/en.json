@@ -32,9 +32,41 @@
     "fastingReminders": "Fasting Reminders",
     "mealReminders": "Meal Reminders",
     "progressUpdates": "Progress Updates",
+    "notifications_master": {
+      "title": "Enable Notifications",
+      "desc_detailed": "Master control for all notifications",
+      "desc_simple": "Enable or disable notifications for the app"
+    },
+    "fastingReminders_desc": "Get reminded when to start/stop fasting",
+    "mealReminders_desc": "Get reminded when your eating window opens",
+    "progressUpdates_desc": "Weekly progress summaries",
+    "goalAchievements": "Goal Achievements",
+    "goalAchievements_desc": "Celebrate when you reach your goals",
+    "weeklyReports": "Weekly Reports",
+    "weeklyReports_desc": "Summary of your weekly fasting activity",
+    "notifications_coming_soon": "More detailed notification settings are coming in a future update!",
+    "fastingPreferences": {
+      "title": "Fasting Preferences",
+      "defaultGoalHours": "Default Fasting Goal (hours)",
+      "preferredFastingType": "Preferred Fasting Type",
+      "autoStartNextFast": "Auto-start next fast",
+      "autoStartNextFast_desc": "Automatically begin a new fast after completing one",
+      "options": {
+        "12": "12 hours",
+        "14": "14 hours",
+        "16": "16 hours (16:8)",
+        "18": "18 hours",
+        "20": "20 hours (20:4)",
+        "24": "24 hours (OMAD)",
+        "36": "36 hours",
+        "48": "48 hours"
+      }
+    },
     "userExistsTitle": "Username/Email Already Taken",
     "errorTitle": "Registration Error",
-    "tryDifferentIdentifier": "Please try a different username or email address."
+  "tryDifferentIdentifier": "Please try a different username or email address.",
+  "save_success": "Settings saved successfully!",
+  "save_error": "Failed to save settings"
   },
   "languages": {
     "en": "English",
@@ -140,7 +172,9 @@
       "since": "since",
       "duration": "Duration",
       "goal": "Goal",
-      "remaining": "remaining"
+  "remaining": "remaining",
+  "h_short": "h",
+  "m_short": "m"
     }
   },
   "history": {
@@ -173,10 +207,22 @@
     "api": "API"
   },
   "test": {
-    "panel": "Test Panel",
-    "scenarios": "Test Scenarios",
-    "activate": "Activate",
-    "deactivate": "Deactivate"
+  "panel": "Test Panel",
+  "scenarios": "Test Scenarios",
+  "activate": "Activate",
+  "deactivate": "Deactivate",
+  "status": "Status",
+  "test_mode": "Test Mode",
+  "live_data": "Live Data",
+  "hours_short": "h",
+  "minutes_short": "m",
+  "quick_tests": "Quick Tests",
+  "phase_tests": "Phase Tests",
+  "goal_tests": "Goal Tests",
+  "custom_test": "Custom Test",
+  "test_button": "Test",
+  "live": "Live",
+  "info": "Info"
   },
   "errors": {
     "connection_error": "Connection Error",

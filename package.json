@@ -46,8 +46,9 @@
     "lint:fix": "echo 'Lint fixing not configured yet'",
     "validate": "npm run type-check && npm run test:all",
     "clean": "rm -rf dist node_modules/.vite",
-    "prepare": "echo 'Prepare hook for CI/CD'",
-    "postinstall": "echo 'Dependencies installed successfully'"
+  "prepare": "echo 'Prepare hook for CI/CD'",
+  "postinstall": "echo 'Dependencies installed successfully'",
+  "i18n:check": "node scripts/check-i18n.cjs"
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",

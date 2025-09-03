@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import { createI18n } from "vue-i18n";
+import en from "../../../src/locales/en.json";
+import de from "../../../src/locales/de.json";
 import { nextTick } from "vue";
 import UserSettings from "../../../src/components/UserSettings.vue";
 import ToggleSwitch from "../../../src/components/ToggleSwitch.vue";
@@ -13,66 +15,11 @@ vi.mock("../../../src/api", () => ({
   changeUserLanguage: vi.fn(),
 }));
 
-// Complete i18n setup for tests
+// Complete i18n setup for tests using real app messages
 const i18n = createI18n({
   legacy: false,
   locale: "en",
-  messages: {
-    en: {
-      user: {
-        settings: "Settings",
-        language: "Language",
-        theme: "Theme",
-        light: "Light",
-        dark: "Dark",
-        system: "System",
-        notifications: "Notifications",
-        fastingReminders: "Fasting Reminders",
-        mealReminders: "Meal Reminders",
-        progressUpdates: "Progress Updates",
-      },
-      languages: {
-        en: "English",
-        de: "Deutsch",
-      },
-      common: {
-        unknownUser: "Unknown User",
-        save: "Save",
-        saving: "Saving...",
-      },
-      settings: {
-        language: "Language",
-        theme: "Theme",
-        notifications: {
-          enabled: "Enable Notifications",
-          fastingReminders: "Fasting Reminders",
-          mealReminders: "Meal Reminders",
-        },
-        fastingDefaults: {
-          autoStartNextFast: "Auto-start next fast",
-        },
-      },
-    },
-    de: {
-      user: {
-        settings: "Einstellungen",
-        language: "Sprache",
-        theme: "Design",
-        light: "Hell",
-        dark: "Dunkel",
-        system: "System",
-      },
-      languages: {
-        en: "English",
-        de: "Deutsch",
-      },
-      common: {
-        unknownUser: "Unbekannter Benutzer",
-        save: "Speichern",
-        saving: "Speichern...",
-      },
-    },
-  },
+  messages: { en, de },
 });
 
 const mockUser: User = {
