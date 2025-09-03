@@ -217,7 +217,6 @@ onMounted(() => {
   locale.value = selectedLanguage.value
 })
 
-// Environment-driven mock indicator (use central config for consistency)
-import { config } from '../api'
-const isMockMode = computed(() => config.useMockData)
+// Environment-driven mock indicator without touching mocked module exports
+const isMockMode = computed(() => Boolean(import.meta.env.DEV && import.meta.env.VITE_USE_MOCK_DATA === 'true'))
 </script>
