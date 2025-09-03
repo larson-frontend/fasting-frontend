@@ -16,7 +16,7 @@ export default defineConfig({
   // Keep only existing assets for now; add icons via scripts when ready
   includeAssets: ['favicon.ico', 'icon.svg', 'apple-touch-icon.png', 'mask-icon.svg', 'offline.html'],
       manifest: {
-  id: '/',
+  id: '/fasting-tracker-pro',
         name: 'Fasting Tracker Pro',
         short_name: 'FastingTracker',
         description: 'Professional intermittent fasting tracker with real-time progress and phase guidance',
