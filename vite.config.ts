@@ -14,7 +14,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
   // Keep only existing assets for now; add icons via scripts when ready
-  includeAssets: ['favicon.ico','icon.svg','apple-touch-icon.png','mask-icon.svg','offline.html'],
+  includeAssets: ['favicon.ico', 'icon.svg', 'apple-touch-icon.png', 'mask-icon.svg', 'offline.html'],
       manifest: {
   id: '/',
         name: 'Fasting Tracker Pro',
