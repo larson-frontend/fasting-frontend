@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+/* Force border color consistency across dev/prod */
+:root {
+	 --color-border: #e5e7eb !important; /* gray-200 */
+}
+
+.dark {
+	--color-border: #cfd9e7 !important; /* gray-600 */  
+}
+
+/* Override all border colors with high specificity */
+*, *::before, *::after {
+	border-color: var(--color-border) !important;
+}

@@ -2,6 +2,7 @@
  * Feature flags for controlling which features are enabled in the app
  * This allows us to hide unfinished features and accelerate publishing
  */
+import { getEnabledFeaturesFromEnv, config } from '../api/config'
 
 export interface FeatureFlags {
   // Notification features
@@ -57,31 +58,34 @@ export function isFeatureEnabled(feature: keyof FeatureFlags): boolean {
  * Development mode override - can be used to enable all features in dev
  */
 export function enableAllFeaturesInDev(): void {
+  // Keep disabled by default for prod-like dev UX. Opt-in only by calling this explicitly.
   if (import.meta.env.DEV) {
+    console.warn('enableAllFeaturesInDev called: overriding default prod-like dev UX')
     Object.keys(featureFlags).forEach(key => {
       featureFlags[key as keyof FeatureFlags] = true
     })
-    console.log('Development mode: All features enabled', featureFlags)
   }
-  }
+}
 
-  // Apply environment-driven feature enables (whitelist style)
-  import { getEnabledFeaturesFromEnv, config } from '../api/config';
-  const enabledFromEnv = getEnabledFeaturesFromEnv();
+// Apply environment-driven feature enables (whitelist style)
+// To keep dev identical to production, only honor VITE_ENABLE_FEATURES in production builds.
+if (config.isProduction) {
+  const enabledFromEnv = getEnabledFeaturesFromEnv()
   enabledFromEnv.forEach(f => {
     if (f in featureFlags) {
-      featureFlags[f as keyof FeatureFlags] = true;
+      featureFlags[f as keyof FeatureFlags] = true
     }
-  });
+  })
+}
 
-  // Test environment: enable all features to satisfy component test expectations
-  if (import.meta.env.MODE === 'test') {
-    Object.keys(featureFlags).forEach(key => {
-      featureFlags[key as keyof FeatureFlags] = true;
-    });
-  }
+// Test environment: enable all features to satisfy component test expectations
+if (import.meta.env.MODE === 'test') {
+  Object.keys(featureFlags).forEach(key => {
+    featureFlags[key as keyof FeatureFlags] = true
+  })
+}
 
-  // In production freeze the object to guard against accidental runtime toggling
-  if (config.isProduction && !import.meta.env.TEST) {
-    Object.freeze(featureFlags);
+// In production freeze the object to guard against accidental runtime toggling
+if (config.isProduction && !import.meta.env.TEST) {
+  Object.freeze(featureFlags)
 }

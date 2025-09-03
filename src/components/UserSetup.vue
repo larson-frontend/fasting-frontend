@@ -217,9 +217,7 @@ onMounted(() => {
   locale.value = selectedLanguage.value
 })
 
-// Environment-driven mock indicator (production default: false)
-const isMockMode = computed(() => {
-  const v = (import.meta as any).env?.VITE_USE_MOCK_DATA
-  return String(v).toLowerCase() === 'true'
-})
+// Environment-driven mock indicator (use central config for consistency)
+import { config } from '../api'
+const isMockMode = computed(() => config.useMockData)
 </script>

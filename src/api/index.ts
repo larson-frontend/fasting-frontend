@@ -20,11 +20,8 @@ export type * from "../types/user";
 // 1. Mock-Service wenn explizit aktiviert (höchste Priorität)
 // 2. Fallback-Service in Entwicklung (versucht API, fällt zurück auf Mock)
 // 3. Direkte API-Service in Produktion
-const service = config.useMockData
-  ? mockService
-  : config.isDevelopment
-  ? fallbackApiService
-  : fastingApiService;
+// 2. Direkter API-Service (standard in Dev & Prod für konsistente UX)
+const service = config.useMockData ? mockService : fastingApiService;
 
 /**
  * Öffentliche API-Funktionen
