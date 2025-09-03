@@ -1,10 +1,10 @@
 <template>
-  <div class="rounded-lg border bg-white p-4 shadow-sm">
+  <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
       <h2 class="font-semibold text-lg">{{ $t('history.title') }}</h2>
       <button 
         @click="$emit('refresh')" 
-        class="text-sm px-3 py-2 rounded border hover:bg-gray-100 touch-manipulation font-medium flex items-center justify-center min-w-[100px]" 
+        class="text-sm px-3 py-2 rounded border border-gray-200 hover:bg-gray-100 touch-manipulation font-medium flex items-center justify-center min-w-[100px]" 
         :disabled="loading">
         <InlineSpinner 
           v-if="loading"
