@@ -6,7 +6,9 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "09:00"
+      time: "05:00"
+      timezone: "Europe/Zurich"
+    versioning-strategy: lockfile-only
     open-pull-requests-limit: 10
     reviewers:
       - "larson-frontend"

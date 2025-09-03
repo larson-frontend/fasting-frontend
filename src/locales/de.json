@@ -32,9 +32,41 @@
     "fastingReminders": "Fasten-Erinnerungen",
     "mealReminders": "Mahlzeit-Erinnerungen",
     "progressUpdates": "Fortschritt-Updates",
+    "notifications_master": {
+      "title": "Benachrichtigungen aktivieren",
+      "desc_detailed": "Hauptschalter für alle Benachrichtigungen",
+      "desc_simple": "Benachrichtigungen für die App ein- oder ausschalten"
+    },
+    "fastingReminders_desc": "Erinnert dich ans Starten/Beenden des Fastens",
+    "mealReminders_desc": "Erinnert dich, wenn dein Essensfenster beginnt",
+    "progressUpdates_desc": "Wöchentliche Fortschrittszusammenfassungen",
+    "goalAchievements": "Zielerfolge",
+    "goalAchievements_desc": "Feiere, wenn du deine Ziele erreichst",
+    "weeklyReports": "Wöchentliche Berichte",
+    "weeklyReports_desc": "Zusammenfassung deiner wöchentlichen Fastenaktivität",
+    "notifications_coming_soon": "Detailliertere Benachrichtigungseinstellungen kommen in einem zukünftigen Update!",
+    "fastingPreferences": {
+      "title": "Fasten-Einstellungen",
+      "defaultGoalHours": "Standard-Fastenziel (Stunden)",
+      "preferredFastingType": "Bevorzugte Fastenart",
+      "autoStartNextFast": "Nächstes Fasten automatisch starten",
+      "autoStartNextFast_desc": "Beginne automatisch ein neues Fasten nach Abschluss",
+      "options": {
+        "12": "12 Stunden",
+        "14": "14 Stunden",
+        "16": "16 Stunden (16:8)",
+        "18": "18 Stunden",
+        "20": "20 Stunden (20:4)",
+        "24": "24 Stunden (OMAD)",
+        "36": "36 Stunden",
+        "48": "48 Stunden"
+      }
+    },
     "userExistsTitle": "Benutzername/E-Mail bereits vergeben",
     "errorTitle": "Registrierungsfehler",
-    "tryDifferentIdentifier": "Bitte versuche einen anderen Benutzernamen oder eine andere E-Mail-Adresse."
+  "tryDifferentIdentifier": "Bitte versuche einen anderen Benutzernamen oder eine andere E-Mail-Adresse.",
+  "save_success": "Einstellungen erfolgreich gespeichert!",
+  "save_error": "Fehler beim Speichern der Einstellungen"
   },
   "languages": {
     "en": "English",
@@ -140,7 +172,9 @@
       "since": "seit",
       "duration": "Dauer",
       "goal": "Ziel",
-      "remaining": "verbleibend"
+  "remaining": "verbleibend",
+  "h_short": "h",
+  "m_short": "m"
     }
   },
   "history": {
@@ -173,10 +207,22 @@
     "api": "API"
   },
   "test": {
-    "panel": "Test Panel",
-    "scenarios": "Test-Szenarien",
-    "activate": "Aktivieren",
-    "deactivate": "Deaktivieren"
+  "panel": "Test Panel",
+  "scenarios": "Test-Szenarien",
+  "activate": "Aktivieren",
+  "deactivate": "Deaktivieren",
+  "status": "Status",
+  "test_mode": "Test-Modus",
+  "live_data": "Live-Daten",
+  "hours_short": "h",
+  "minutes_short": "m",
+  "quick_tests": "Schnelltests",
+  "phase_tests": "Phasen-Tests",
+  "goal_tests": "Ziel-Tests",
+  "custom_test": "Eigener Test",
+  "test_button": "Test",
+  "live": "Live",
+  "info": "Info"
   },
   "errors": {
     "connection_error": "Verbindungsfehler",

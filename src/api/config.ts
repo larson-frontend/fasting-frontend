@@ -35,9 +35,7 @@ function shouldUseMockData(): boolean {
     return import.meta.env.VITE_USE_MOCK_DATA === 'true';
   }
 
-  // Development mode convenience
-  if (import.meta.env.DEV) return true;
-
+  // Default: disabled (even in dev) to keep look & feel consistent with build
   return false;
 }
 

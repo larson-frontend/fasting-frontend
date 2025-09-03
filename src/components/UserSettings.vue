@@ -126,11 +126,11 @@
           <!-- Enable Notifications Master Switch -->
           <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div>
-              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Enable Notifications</span>
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $t('user.notifications_master.title') }}</span>
               <p class="text-xs text-gray-500 dark:text-gray-400">
                 {{ isFeatureEnabled('detailedNotifications') 
-                   ? 'Master control for all notifications' 
-                   : 'Enable or disable notifications for the app' }}
+                   ? $t('user.notifications_master.desc_detailed')
+                   : $t('user.notifications_master.desc_simple') }}
               </p>
             </div>
             <toggle-switch 
@@ -145,7 +145,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('user.fastingReminders') }}</span>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Get reminded when to start/stop fasting</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ $t('user.fastingReminders_desc') }}</p>
               </div>
               <toggle-switch 
                 :value="preferences.notifications.fastingReminders"
@@ -157,7 +157,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('user.mealReminders') }}</span>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Get reminded when your eating window opens</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ $t('user.mealReminders_desc') }}</p>
               </div>
               <toggle-switch 
                 :value="preferences.notifications.mealReminders"
@@ -169,7 +169,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('user.progressUpdates') }}</span>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Weekly progress summaries</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ $t('user.progressUpdates_desc') }}</p>
               </div>
               <toggle-switch 
                 :value="preferences.notifications.progressUpdates"
@@ -180,8 +180,8 @@
             
             <div class="flex items-center justify-between">
               <div>
-                <span class="text-sm text-gray-700 dark:text-gray-300">Goal Achievements</span>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Celebrate when you reach your goals</p>
+                <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('user.goalAchievements') }}</span>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ $t('user.goalAchievements_desc') }}</p>
               </div>
               <toggle-switch 
                 :value="preferences.notifications.goalAchievements"
@@ -192,8 +192,8 @@
             
             <div class="flex items-center justify-between">
               <div>
-                <span class="text-sm text-gray-700 dark:text-gray-300">Weekly Reports</span>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Summary of your weekly fasting activity</p>
+                <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('user.weeklyReports') }}</span>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ $t('user.weeklyReports_desc') }}</p>
               </div>
               <toggle-switch 
                 :value="preferences.notifications.weeklyReports"
@@ -211,7 +211,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
               <span class="text-sm text-blue-800 dark:text-blue-200">
-                More detailed notification settings are coming in a future update!
+        {{ $t('user.notifications_coming_soon') }}
               </span>
             </div>
           </div>
@@ -221,13 +221,13 @@
       <!-- Fasting Defaults (only if advanced fasting feature flag is enabled) -->
       <div v-if="isFeatureEnabled('advancedFasting')">
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-          Fasting Preferences
+      {{ $t('user.fastingPreferences.title') }}
         </label>
         <div class="space-y-4">
           <!-- Default Goal Hours -->
           <div>
             <label class="block text-sm text-gray-700 dark:text-gray-300 mb-2">
-              Default Fasting Goal (hours)
+        {{ $t('user.fastingPreferences.defaultGoalHours') }}
             </label>
             <select 
               v-model="preferences.fastingDefaults.defaultGoalHours"
@@ -235,21 +235,21 @@
                      bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                      focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
-              <option value="12">12 hours</option>
-              <option value="14">14 hours</option>
-              <option value="16">16 hours (16:8)</option>
-              <option value="18">18 hours</option>
-              <option value="20">20 hours (20:4)</option>
-              <option value="24">24 hours (OMAD)</option>
-              <option value="36">36 hours</option>
-              <option value="48">48 hours</option>
+        <option value="12">{{ $t('user.fastingPreferences.options.12') }}</option>
+        <option value="14">{{ $t('user.fastingPreferences.options.14') }}</option>
+        <option value="16">{{ $t('user.fastingPreferences.options.16') }}</option>
+        <option value="18">{{ $t('user.fastingPreferences.options.18') }}</option>
+        <option value="20">{{ $t('user.fastingPreferences.options.20') }}</option>
+        <option value="24">{{ $t('user.fastingPreferences.options.24') }}</option>
+        <option value="36">{{ $t('user.fastingPreferences.options.36') }}</option>
+        <option value="48">{{ $t('user.fastingPreferences.options.48') }}</option>
             </select>
           </div>
           
           <!-- Preferred Fasting Type -->
           <div>
             <label class="block text-sm text-gray-700 dark:text-gray-300 mb-2">
-              Preferred Fasting Type
+        {{ $t('user.fastingPreferences.preferredFastingType') }}
             </label>
             <div class="grid grid-cols-3 gap-2">
               <button
@@ -291,8 +291,8 @@
           <!-- Auto Start Next Fast -->
           <div class="flex items-center justify-between">
             <div>
-              <span class="text-sm text-gray-700 dark:text-gray-300">Auto-start next fast</span>
-              <p class="text-xs text-gray-500 dark:text-gray-400">Automatically begin a new fast after completing one</p>
+        <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('user.fastingPreferences.autoStartNextFast') }}</span>
+        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $t('user.fastingPreferences.autoStartNextFast_desc') }}</p>
             </div>
             <toggle-switch 
               :value="preferences.fastingDefaults.autoStartNextFast"
@@ -354,7 +354,7 @@ const emits = defineEmits<{
 }>()
 
 // Composables
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 
 // Reactive Data
 const currentUser = ref<User | null>(null)
@@ -533,8 +533,8 @@ const savePreferences = async () => {
       
       emits('updated', updatedUser)
       
-      saveStatus.value = 'success'
-      saveMessage.value = 'Settings saved successfully!'
+  saveStatus.value = 'success'
+  saveMessage.value = t('user.save_success')
       
       // Hide success message after 3 seconds
       setTimeout(() => {
@@ -547,8 +547,8 @@ const savePreferences = async () => {
     
   } catch (error) {
     console.error('Failed to save preferences:', error)
-    saveStatus.value = 'error'
-    saveMessage.value = error instanceof Error ? error.message : 'Failed to save settings'
+  saveStatus.value = 'error'
+  saveMessage.value = error instanceof Error ? error.message : t('user.save_error')
     
     // Hide error message after 5 seconds
     setTimeout(() => {

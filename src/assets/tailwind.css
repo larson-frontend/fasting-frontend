@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+/* Default border color tokens (no !important so utilities can override) */
+@layer base {
+	:root {
+		--color-border: #e5e7eb; /* gray-200 */
+	}
+	.dark {
+		--color-border: #4b5563; /* gray-600 */
+	}
+
+	/* Ensure elements without explicit border-* use the token */
+	*,
+	*::before,
+	*::after {
+		border-color: var(--color-border);
+	}
+}

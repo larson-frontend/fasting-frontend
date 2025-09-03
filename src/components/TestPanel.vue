@@ -6,7 +6,7 @@
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
         </svg>
-        Test Panel
+        {{ $t('test.panel') }}
       </h3>
       <button @click="showPanel = false" class="text-gray-400 hover:text-gray-600">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -18,19 +18,19 @@
     <!-- Test Status -->
     <div class="mb-3 p-2 bg-gray-50 rounded text-sm">
       <div class="font-medium">
-        Status: 
+        {{ $t('test.status') }}: 
         <span :class="isTestActive ? 'text-orange-600' : 'text-green-600'">
-          {{ isTestActive ? 'Test-Modus' : 'Live-Daten' }}
+          {{ isTestActive ? $t('test.test_mode') : $t('test.live_data') }}
         </span>
       </div>
       <div v-if="currentTest" class="text-gray-600">
-        {{ currentTest.hours }}h {{ currentTest.minutes }}m - {{ getPhase(currentTest.hours) }}
+        {{ currentTest.hours }}{{ $t('test.hours_short') }} {{ currentTest.minutes }}{{ $t('test.minutes_short') }} - {{ getPhase(currentTest.hours) }}
       </div>
     </div>
 
     <!-- Quick Tests -->
     <div class="space-y-2">
-      <div class="text-sm font-medium text-gray-700">Quick Tests:</div>
+      <div class="text-sm font-medium text-gray-700">{{ $t('test.quick_tests') }}:</div>
       <div class="grid grid-cols-2 gap-2">
         <button
           v-for="(test, key) in quickTestButtons"
@@ -46,7 +46,7 @@
 
     <!-- Phase Tests -->
     <div class="mt-3 pt-3 border-t space-y-2">
-      <div class="text-sm font-medium text-gray-700">Phase Tests:</div>
+      <div class="text-sm font-medium text-gray-700">{{ $t('test.phase_tests') }}:</div>
       <div class="grid grid-cols-3 gap-1">
         <button
           v-for="(phase, index) in phaseTestButtons"
@@ -62,7 +62,7 @@
 
     <!-- Goal Tests -->
     <div class="mt-3 pt-3 border-t space-y-2">
-      <div class="text-sm font-medium text-gray-700">Goal Tests:</div>
+      <div class="text-sm font-medium text-gray-700">{{ $t('test.goal_tests') }}:</div>
       <div class="grid grid-cols-3 gap-1">
         <button
           v-for="(goal, index) in goalTestButtons"
@@ -78,14 +78,14 @@
 
     <!-- Custom Test -->
     <div class="mt-3 pt-3 border-t">
-      <div class="text-sm font-medium text-gray-700 mb-2">Custom Test:</div>
+      <div class="text-sm font-medium text-gray-700 mb-2">{{ $t('test.custom_test') }}:</div>
       <div class="flex gap-2">
         <input
           v-model.number="customHours"
           type="number"
           min="0"
           max="48"
-          placeholder="Std"
+          :placeholder="$t('test.hours_short')"
           class="w-16 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
         >
         <input
@@ -93,14 +93,14 @@
           type="number"
           min="0"
           max="59"
-          placeholder="Min"
+          :placeholder="$t('test.minutes_short')"
           class="w-16 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
         >
         <button
           @click="activateCustomTest"
           class="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
         >
-          Test
+          {{ $t('test.test_button') }}
         </button>
       </div>
     </div>
@@ -120,6 +120,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { 
   quickTests, 
   activateTestMode, 
@@ -135,10 +136,11 @@ const customMinutes = ref(30)
 
 const isTestActive = computed(() => isTestModeActive())
 const currentTest = computed(() => getTestData())
+const { t } = useI18n()
 
 const quickTestButtons = computed(() => [
   {
-    label: 'Start',
+  label: t('fasting.actions.start'),
     action: () => { quickTests.start(); showPanel.value = false },
     active: isTestActive.value && currentTest.value?.hours === 0
   },
@@ -168,12 +170,12 @@ const quickTestButtons = computed(() => [
     active: isTestActive.value && currentTest.value?.hours === 24
   },
   {
-    label: 'Live',
+  label: t('test.live'),
     action: () => { quickTests.off(); showPanel.value = false },
     active: !isTestActive.value
   },
   {
-    label: 'Info',
+  label: t('test.info'),
     action: () => console.log('Current test data:', currentTest.value),
     active: false
   }
@@ -253,12 +255,12 @@ function activateCustomTest() {
 }
 
 function getPhase(hours: number): string {
-  if (hours < 3) return "Aufwärmphase"
-  if (hours < 8) return "Aufwärmphase"
-  if (hours < 12) return "Fettverbrennung"
-  if (hours < 16) return "Ketose"
-  if (hours === 16) return "Autophagie"
-  return "Erweiterte Autophagie"
+  if (hours < 3) return t('fasting.progress.phases.early')
+  if (hours < 8) return t('fasting.progress.phases.warming')
+  if (hours < 12) return t('fasting.progress.phases.burning')
+  if (hours < 16) return t('fasting.progress.phases.ketosis')
+  if (hours === 16) return t('fasting.progress.phases.goal_reached', { goal: 16 })
+  return t('fasting.progress.phases.bonus')
 }
 
 // Auto-activate 17h test on mount (for development)

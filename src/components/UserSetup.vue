@@ -217,9 +217,6 @@ onMounted(() => {
   locale.value = selectedLanguage.value
 })
 
-// Environment-driven mock indicator (production default: false)
-const isMockMode = computed(() => {
-  const v = (import.meta as any).env?.VITE_USE_MOCK_DATA
-  return String(v).toLowerCase() === 'true'
-})
+// Environment-driven mock indicator without touching mocked module exports
+const isMockMode = computed(() => Boolean(import.meta.env.DEV && import.meta.env.VITE_USE_MOCK_DATA === 'true'))
 </script>
